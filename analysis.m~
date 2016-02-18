@@ -1,0 +1,49 @@
+function [ out_low ] = analysis()
+%ANALYSIS Summary of this function goes here
+%   Detailed explanation goes here
+
+fs = 4000;
+df = fs/10;
+Astop = 60;
+fstep = 10;
+Niter = 600;
+FLength = 24;
+[filter, h1, f0, f1] = QMF_design(fs, df, Astop, fstep, Niter, FLength);
+close all
+depth = 2;
+input = LoadWav('bir.wav');
+input = input(1:2:end);
+[ out_low, out_high ] = tree_step(input,filter, depth);
+
+
+
+    function [ out_low, out_high ] = tree_step(input,filter, depth)
+        if mod(input,2)
+            input = [input; 0];
+        end
+        A0 = filter(1:2:end);
+        A1 = filter(2:2:end);
+        
+        input_e0 = input(1:2:end);
+        input_e1 = input(2:2:end);
+        
+        A0_out = conv(input_e0,A0);
+        A1_out = conv(input_e1,A1);
+        
+
+        low = A0_out + A1_out;
+        high = A0_out - A1_out;
+
+        if (depth > 1)
+            [out_low_low, out_low_high] = tree_step(low,filter, depth-1);
+            [out_high_low, out_high_high] = tree_step(high,filter, depth-1);
+            
+            out_low = [out_low_low out_low_high];
+            out_high = [out_high_low out_high_high];
+        else
+            out_low = low;
+            out_high = high;
+        end
+    end
+end
+

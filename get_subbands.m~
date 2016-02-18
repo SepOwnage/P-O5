@@ -1,0 +1,13 @@
+function [ out_low out_high ] = get_subbands(input,filter, depth);
+%GET_SUBBANDS Summary of this function goes here
+%   Detailed explanation goes here
+
+input_e0 = input(1:2:end);
+input_e1 = input(2:2:end);
+
+
+
+
+
+end
+
