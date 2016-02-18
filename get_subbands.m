@@ -1,7 +1,9 @@
 function [ out_low out_high ] = get_subbands(input,filter, depth);
 %GET_SUBBANDS Summary of this function goes here
 %   Detailed explanation goes here
-
+if(mod(length(input),2))
+    input = [input; 0];
+end
 input_e0 = input(1:2:end);
 input_e1 = input(2:2:end);
 
@@ -9,7 +11,7 @@ A0 = filter(1:2:end);
 A1 = filter(2:2:end);
 
 A0_out = conv(A0,input_e0);
-A1_out = cnov(A1,input_e1);
+A1_out = conv(A1,input_e1);
 
 out_low = A0_out + A1_out;
 out_high = A0_out - A1_out;
