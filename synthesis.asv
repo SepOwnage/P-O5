@@ -16,6 +16,11 @@ end
 A1_input = low + high;
 A0_input = low - high;
 
+A1_upsampled = zeros(size(A1_out,1)*2,1);
+A1_upsampled(2:2:end) = A1_out;
+A0_upsampled = zeros(size(A0_out,1)*2,1);
+A0_upsampled(1:2:end) = A0_out;
+
 A0 = filter(1:2:end)*2;
 A1 = filter(2:2:end)*2;
 
@@ -23,11 +28,6 @@ A1 = filter(2:2:end)*2;
 %A0_out = conv(A0,A0_input);
 A1_out = fftfilt(A0,A0_input);
 A0_out = fftfilt(A0,A0_input);
-%keyboard;
-A1_upsampled = zeros(size(A1_out,1)*2,1);
-A1_upsampled(2:2:end) = A1_out;
-A0_upsampled = zeros(size(A0_out,1)*2,1);
-A0_upsampled(1:2:end) = A0_out;
 
 out = A0_upsampled + A1_upsampled;
 

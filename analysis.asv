@@ -2,9 +2,8 @@ function [ output_links, output_rechts ] = analysis(input, filter, depth)
 %ANALYSIS Summary of this function goes here
 %   Detailed explanation goes here
 
-if mod(length(input),2^(depth+1))
-    amount_to_add = 2^(depth+1) - mod(length(input),2^(depth+1));
-    input = [input; zeros(amount_to_add,1)*2];
+if mod(length(input),2^depth)
+    amount_to_add = length(input) + mod(length(input),2^depth)
 end
 
 input_links = input(1:2:end);
