@@ -5,8 +5,9 @@ if(mod(length(input),2))
     warning('added zeros in get_subbands')
     input = [input; 0];
 end
-input_e0 = input(1:2:end);
-input_e1 = input(2:2:end);
+input_e0 = [input(1:2:end);0]; %zero to make it as long as the next
+input_e1 = [0; input]; %delay
+input_e1 = input_e1(1:2:end); % decimated
 
 A0 = filter(1:2:end)*2;
 A1 = filter(2:2:end)*2;

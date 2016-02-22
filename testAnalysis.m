@@ -1,6 +1,4 @@
-clear all
-
-depth = 1;
+depth = 5;
 fs = 16e3;
 df = fs/10;
 Astop = 60;
@@ -12,10 +10,11 @@ close all
 
 input = LoadWav('bir.wav');
 %input= [0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0]';
-sinus = sin(2*pi*3000*(0:1/16000:2)');
-input = zeros(length(sinus)*2,1);
-input(1:2:end) = sinus;
-input(2:2:end) = sinus;
+% sinus = sin(2*pi*3000*(0:1/16000:2)');
+% input = zeros(length(sinus)*2,1);
+% input(1:2:end) = sinus;
+% input(2:2:end) = sinus;
+
 [subbands_links, subbands_rechts] = analysis(input,filter,depth);
 %subbands_links(:,1) = 0;
 reconstructed_links = synthesis(subbands_links,filter);
