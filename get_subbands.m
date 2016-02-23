@@ -2,7 +2,7 @@ function [ out_low out_high ] = get_subbands(input,filter, depth);
 %GET_SUBBANDS Summary of this function goes here
 %   Detailed explanation goes here
 if(mod(length(input),2))
-    warning('added zeros in get_subbands')
+    %warning('added zeros in get_subbands')
     input = [input; 0];
 end
 input_e0 = [input(1:2:end);0]; %zero to make it as long as the next
