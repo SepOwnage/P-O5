@@ -19,10 +19,10 @@ A0_input = low - high;
 A0 = filter(1:2:end)*2;
 A1 = filter(2:2:end)*2;
 
-%A1_out = conv(A1,A1_input);
-%A0_out = conv(A0,A0_input);
-A1_out = fftfilt(A1,A1_input);
-A0_out = fftfilt(A0,A0_input);
+A1_out = conv(A1,A1_input);
+A0_out = conv(A0,A0_input);
+%A1_out = fftfilt(A1,A1_input);
+%A0_out = fftfilt(A0,A0_input);
 
 A1_upsampled = zeros(size(A1_out,1)*2,1);
 A1_upsampled(2:2:end) = A1_out;

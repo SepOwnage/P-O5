@@ -12,10 +12,10 @@ input_e1 = input_e1(1:2:end); % decimated
 A0 = filter(1:2:end)*2;
 A1 = filter(2:2:end)*2;
 
-%A0_out = conv(A0,input_e0);
-%A1_out = conv(A1,input_e1);
-A0_out = fftfilt(A0,input_e0);
-A1_out = fftfilt(A1,input_e1);
+A0_out = conv(A0,input_e0);
+A1_out = conv(A1,input_e1);
+%A0_out = fftfilt(A0,input_e0);
+%A1_out = fftfilt(A1,input_e1);
 
 out_low = A0_out + A1_out;
 out_high = A0_out - A1_out;
