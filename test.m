@@ -1,4 +1,4 @@
-depth = 10;
+depth = 2;
 FLength = 50;
 mu = .5;
 phi = .0001;
@@ -20,6 +20,10 @@ input = LoadWav('bir.wav');
 % input(1:2:end) = sinus;
 % input(2:2:end) = sinus;
 
+
+%Scale input
+input = int16(input/max(abs(input))*(2^15-1));
+filter = int16(filter/max(abs(filter))*(2^15-1));
 
 [subbands_links, subbands_rechts] = analysis(input,filter,depth);
 %subbands_links(:,1:4) = 0;
