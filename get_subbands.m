@@ -19,22 +19,21 @@ max_out_of_A1 = sum(double(A1(A1>0)));
 min_out_of_A1 = sum(double(A1(A1<0)));
 max_filter_out = max(abs([max_out_of_A0 max_out_of_A1...
                           min_out_of_A0 min_out_of_A1]))*2^15;
-bits_to_shift = ceil(log2(max_filter_out))-16;
-
+bits_to_shift = ceil(log2(max_filter_out))-15;
 
 A0_out = int64(max(-2^39, min(conv(double(A0),double(input_e0)),2^39-1)));
 A1_out = int64(max(-2^39, min(conv(double(A1),double(input_e1)),2^39-1)));
 %A0_out = fftfilt(A0,input_e0);
 %A1_out = fftfilt(A1,input_e1);
-A0_out_downscaled = int32(bitshift(A0_out, bits_to_shift));  %32 for MATLAB, numbers dont go over 16
-A1_out_downscaled = int32(bitshift(A1_out, bits_to_shift));
+A0_out_downscaled = int32(A0_out/2^bits_to_shift);  %32 for MATLAB, numbers dont go over 16
+A1_out_downscaled = int32(A1_out/2^bits_to_shift);
 
 
 out_low = A0_out_downscaled + A1_out_downscaled;
 out_high = A0_out_downscaled - A1_out_downscaled;
 
-out_low_downscaled = int16(bitshift(out_low,1));
-out_high_downscaled = int16(bitshift(out_high,1));
+out_low_downscaled = int16(out_low/2);
+out_high_downscaled = int16(out_high/2);
 
 if (depth > 1)
     [out_low_low, out_low_high] = get_subbands(out_low_downscaled,filter,depth-1);
