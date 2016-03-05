@@ -7,8 +7,9 @@ function out = decode(input, mu, phi)
     var = 0;
     
     for i = 1:length(input)
-        dequantized_difference = input(i) * stepsize;
-        var = (var * (i-1) + abs(input(i)))/i;
+        quantized_difference = input(i);
+        dequantized_difference = quantized_difference * stepsize;
+        var = (var * (i-1) + abs(quantized_difference))/i;
         stepsize = max(phi*var,1);
         dequantized_sample = dequantized_difference + prediction;
         out(i) = dequantized_sample;
