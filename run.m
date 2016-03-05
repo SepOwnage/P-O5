@@ -1,4 +1,4 @@
-function [reconstructed_links_with_codec] = run(depth, filter_lengths, Astops, scalings, mus, phis)
+function [reconstructed_links_with_codec, pesq, bitrate] = run(depth, filter_lengths, Astops, scalings, mus, phis)
 
     input = LoadWav('combined_8000.wav');
 
@@ -19,8 +19,11 @@ function [reconstructed_links_with_codec] = run(depth, filter_lengths, Astops, s
        subbands_links_codeced(:,sb) = (dequantized);
     end
 
+    bitrate = sum(ceil(log2(double(max(subbands_links,1)))));
+    
     %% synthesis
 %    reconstructed_links = synthesis(subbands_links,filters);
 %    reconstructed_rechts = synthesis(subbands_rechts,filter);
 
     reconstructed_links_with_codec = synthesis(subbands_links_codeced, filters, scalings);
+    pesq = alignpesq(input(1:2:end),reconstructed_links_with_codec);

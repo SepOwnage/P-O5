@@ -7,8 +7,8 @@ searching_size = 1000;
 values = zeros(searching_size,1);
 
 %Scale input and output to 1
-input_scaled = input/max(abs(input));
-output_scaled = double(output)/max(abs(double(output)));
+input_scaled = double(input)/double(max(abs(input)));
+output_scaled = double(output)/double(max(abs(output)));
 
 %Find alignment difference as the minimum difference
 for i = 1:searching_size
