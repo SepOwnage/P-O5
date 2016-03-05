@@ -1,4 +1,4 @@
-function h = kais(fc, fs, df, Astop, odd);
+function h = kais(fc, fs, df, Astop, odd)
 
 % PURPOSE: Returns the impulse response of a Kaiser lowpass filter
 %

@@ -1,18 +1,26 @@
-function [ out ] = synthesis( subbands, filter )
+function [ out ] = synthesis( subbands, filters )
 %SYNTHESIS Summary of this function goes here
 %   Detailed explanation goes here
 
 
 
 if(size(subbands,2) > 2)
-    low = synthesis(subbands(:,1:end/2), filter);
-    high = synthesis(subbands(:,end/2+1:end), filter);
+    filters_low = filters(2:end);
+    filters_high = filters(2:end);
+    for i=1:length(filters_low)
+        filters_low{i}(end/2+1:end) = [];
+        filters_high{i}(1:end/2) = [];
+    end;
+    low = synthesis(subbands(:,1:end/2), filters_low);
+    high = synthesis(subbands(:,end/2+1:end), filters_high);
 else
     low=subbands(:,1);
     high = subbands(:,2);
 end
 
-low= int32(low);
+filter = filters{1};
+
+low = int32(low);
 high = int32(high);
 
 A1_input = low + high;
@@ -41,10 +49,10 @@ bits_to_shift = ceil(log2(max_filter_out))-15;
 A0_out_downscaled = int16(A0_out/2^bits_to_shift);  
 A1_out_downscaled = int16(A1_out/2^bits_to_shift);
 
-A1_upsampled = int16(zeros(size(A1_out,1)*2,1));
-A1_upsampled(2:2:end) = A1_out_downscaled;
-A0_upsampled = int16(zeros(size(A0_out,1)*2,1));
-A0_upsampled(1:2:end) = A0_out_downscaled;
+A1_upsampled = int16(zeros(max(length(A1_out),length(A0_out))*2,1));
+A1_upsampled(2:2:length(A1_out)*2) = A1_out_downscaled;
+A0_upsampled = int16(zeros(max(length(A1_out),length(A0_out))*2,1));
+A0_upsampled(1:2:length(A0_out)*2) = A0_out_downscaled;
 
 out = A0_upsampled + A1_upsampled;  % not a real addition
 

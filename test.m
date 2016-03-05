@@ -5,7 +5,7 @@ phi = .0001;
 
 
 
-fs = 16e3;
+fs = 8e3;
 df = fs/10;
 Astop = 60;
 fstep = 10;
@@ -13,7 +13,7 @@ Niter = 600;
 [filter, h1, f0, f1] = QMF_design(fs, df, Astop, fstep, Niter, FLength);
 close all
 
-input = LoadWav('m116.wav');
+input = LoadWav('combined_8000.wav');
 %input= [0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0]';
 % sinus = sin(2*pi*3000*(0:1/16000:2)');
 % input = zeros(length(sinus)*2,1);

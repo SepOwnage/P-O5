@@ -1,4 +1,4 @@
-function [h0, h1, f0, f1] = QMF_design(fs, df, Astop, fstep, Niter, FLength);
+function [h0, h1, f0, f1] = QMF_design(fs, df, Astop, fstep, Niter, FLength)
 
 % PURPOSE: Design of the LowPass (0) and HighPass (1) linear phase impulse
 %	   responses of the analysis (h) and synthesis (f) filters for a
@@ -65,7 +65,7 @@ H_HDF=fftshift(H_LDF);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 epsi(1)=max(abs(10*log10(abs(H_LDF).^2 + abs(H_HDF).^2)));
-disp(['epsi old cutoff: ',num2str(epsi(1)), '    Processing ... please wait ...']); %geef kleinste fout 
+% disp(['epsi old cutoff: ',num2str(epsi(1)), '    Processing ... please wait ...']); %geef kleinste fout 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Stap 3: fc bijstellen om de fout te minimaliseren
@@ -91,8 +91,8 @@ while fc > F-fs/20  %cuttoff frequentie varieren,filter en fout herberekenen.
   k=k+1;
 end
 
-disp(['epsi new cutoff: ',num2str(epsi(2))]);	%geef kleinste fout 
-fc=F-fstep*ki+fs/20										%fc waarbij de fout het kleinst is 
+% disp(['epsi new cutoff: ',num2str(epsi(2))]);	%geef kleinste fout 
+fc=F-fstep*ki+fs/20;										%fc waarbij de fout het kleinst is 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Stap 4: Herbereken laag-en hoogdoorlaatfilter bij deze fc waarbij fout
@@ -102,21 +102,21 @@ fc=F-fstep*ki+fs/20										%fc waarbij de fout het kleinst is
 hLDF=kais(fc, fs, df, Astop, FLength);
 H_LDF=fft(hLDF,NFFT);
 H_HDF=fftshift(H_LDF);
-figure(1);
-clf;
-plot(0:fs/NFFT:fs-fs/NFFT,20*log10(abs(H_LDF)));title('HLDF & HHDF after fc optimization');
-hold on
-plot(0:fs/NFFT:fs-fs/NFFT,20*log10(abs(H_HDF)));grid
-zoom on
+% figure(1);
+% clf;
+% plot(0:fs/NFFT:fs-fs/NFFT,20*log10(abs(H_LDF)));title('HLDF & HHDF after fc optimization');
+% hold on
+% plot(0:fs/NFFT:fs-fs/NFFT,20*log10(abs(H_HDF)));grid
+% zoom on
 
 %einde zoektocht naar fc waarbij vermogen complementaire fout minimaal is
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Stap 5 : Bereken een nieuwe frequentierespons HIIR
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+HIIR = zeros(1,length(H_LDF));
 for w=1:length(H_LDF)
-	HIIR(w)=H_LDF(w)/sqrt(abs(H_LDF(w))^2 + abs(H_HDF(w))^2);;
+	HIIR(w)=H_LDF(w)/sqrt(abs(H_LDF(w))^2 + abs(H_HDF(w))^2);
 end;
 % kan sneller: HIIR = H_LDF./sqrt(abs(H_LDF).^2 + abs(H_HDF).^2);
 
@@ -134,12 +134,12 @@ hLDF=hfir;
 
 %plotten van HFIR
 
-figure(2);
-clf;
-HFIR=fft(hfir,NFFT);
-plot(0:fs/NFFT:fs-fs/NFFT,20*log10(abs(HFIR)));title('HFIR after 1 iteration');
-grid
-zoom on
+% figure(2);
+% clf;
+ %HFIR=fft(hfir,NFFT);
+% plot(0:fs/NFFT:fs-fs/NFFT,20*log10(abs(HFIR)));title('HFIR after 1 iteration');
+% grid
+% zoom on
 
 %***********************************************************************
 %Tot hiertoe heb ik voor de 1e maal een nieuwe frequentierespons :HFIR
@@ -155,10 +155,10 @@ zoom on
 
 H_LDF=fft(hLDF,NFFT);
 H_HDF=fftshift(H_LDF);
-figure(2);
-hold on
-plot(0:fs/NFFT:fs-fs/NFFT,20*log10(abs(H_HDF)));
-zoom on
+% figure(2);
+% hold on
+% plot(0:fs/NFFT:fs-fs/NFFT,20*log10(abs(H_HDF)));
+% zoom on
 p=1;
 epsin(p)=max(abs(10*log10(abs(H_LDF).^2+abs(H_HDF).^2))); 
 
@@ -187,34 +187,34 @@ while ((p < Niter) & (keepgoing == 1))
    % usually drops off monotonically
 end
 
-disp(['epsi final: ',num2str(epsin(p))]);		%geef kleinste fout 
-figure(3);
-plot(epsin);
+% disp(['epsi final: ',num2str(epsin(p))]);		%geef kleinste fout 
+% figure(3);
+% plot(epsin);
 
 %plotten van HFIR wanneer de  vermogen complementaire fout voldoende klein is
 hfir=real(hfir);
 hhp=(-1).^(0:length(hfir)-1).*hfir;
-figure(4);
-clf;
-subplot(2,2,1), stem(hfir);
-subplot(2,2,2), stem(hhp);
-HFIR=fft(hfir,NFFT);
-H_HDF=fft(hhp,NFFT);
-subplot(2,1,2);
-plot(0:fs/NFFT:fs-fs/NFFT,20*log10(abs(HFIR)));grid;
-title('H0,H1');
-hold on
-plot(0:fs/NFFT:fs-fs/NFFT,20*log10(abs(H_HDF)));
-zoom on
+% figure(4);
+% clf;
+% subplot(2,2,1), stem(hfir);
+% subplot(2,2,2), stem(hhp);
+%HFIR=fft(hfir,NFFT);
+%H_HDF=fft(hhp,NFFT);
+% subplot(2,1,2);
+% plot(0:fs/NFFT:fs-fs/NFFT,20*log10(abs(HFIR)));grid;
+% title('H0,H1');
+% hold on
+% plot(0:fs/NFFT:fs-fs/NFFT,20*log10(abs(H_HDF)));
+% zoom on
  
-figure(5);
-clf;
-subplot(2,1,1);
-plot(0:fs/NFFT:fs-fs/NFFT,20*log10(abs(H_LDF.^2 - H_HDF.^2))); 
-title('QMF reconstruction (dB)');
-subplot(2,1,2);
-plot(real(ifft(H_LDF.^2 - H_HDF.^2)));
-title('QMF reconstruction - impulse response');
+% figure(5);
+% clf;
+% subplot(2,1,1);
+% plot(0:fs/NFFT:fs-fs/NFFT,20*log10(abs(H_LDF.^2 - H_HDF.^2))); 
+% title('QMF reconstruction (dB)');
+% subplot(2,1,2);
+% plot(real(ifft(H_LDF.^2 - H_HDF.^2)));
+% title('QMF reconstruction - impulse response');
  
 h0=hfir;
 h1=hhp;
