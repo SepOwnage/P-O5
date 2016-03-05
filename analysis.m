@@ -1,4 +1,5 @@
-function [ output_links, output_rechts, filters ] = analysis(input, filter_lengths, Astops, depth)
+function [ output_links, output_rechts, filters ] = analysis(input, ...
+    filter_lengths, Astops, scalings, depth)
 %ANALYSIS Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -10,7 +11,7 @@ if mod(length(input),2^(depth+1))
 end
 
 input_links = input(1:2:end);
-[ out_low, out_high, filters ] = get_subbands(input_links, filter_lengths, Astops, depth);
+[ out_low, out_high, filters ] = get_subbands(input_links, filter_lengths, Astops, scalings, depth);
 if(size(out_low,1)>size(out_high,1))
     out_high(end+1:end+size(out_low,1)-size(out_high,1),:)...
         = zeros(size(out_low,1)-size(out_high,1), size(out_low,2));

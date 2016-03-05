@@ -1,4 +1,4 @@
-function [reconstructed_links_with_codec] = run(depth, filter_lengths, Astops, mus, phis)
+function [reconstructed_links_with_codec] = run(depth, filter_lengths, Astops, scalings, mus, phis)
 
     input = LoadWav('combined_8000.wav');
 
@@ -6,7 +6,7 @@ function [reconstructed_links_with_codec] = run(depth, filter_lengths, Astops, m
     input = int16(input/max(abs(input))*(2^15-1));
     
     %% analysis
-    [subbands_links, ~, filters] = analysis(input,filter_lengths, Astops,depth);
+    [subbands_links, ~, filters] = analysis(input,filter_lengths, Astops, scalings, depth);
     %subbands_links(:,1:4) = 0;
 
     %% compression (adaptive quantization)
@@ -23,4 +23,4 @@ function [reconstructed_links_with_codec] = run(depth, filter_lengths, Astops, m
 %    reconstructed_links = synthesis(subbands_links,filters);
 %    reconstructed_rechts = synthesis(subbands_rechts,filter);
 
-    reconstructed_links_with_codec = synthesis(subbands_links_codeced, filters);
+    reconstructed_links_with_codec = synthesis(subbands_links_codeced, filters, scalings);
