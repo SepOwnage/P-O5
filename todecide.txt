@@ -1,0 +1,6 @@
+elk niveau zelfde filter?
+binnen niveau elke band zelfde filter?
+aantal niveaus
+scaling juist krijgen: clipping <-> noise   (==> SNDR?)
+parameter van predictor
+parameter van stepsize
