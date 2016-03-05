@@ -30,3 +30,7 @@
 
 # Debug files
 *.dSYM/
+
+# Matlab temp
+*.m~
+*.asv
