@@ -1,6 +1,6 @@
 function [reconstructed_links_with_codec, pesq, bitrate, differentials_clipped] = ...
     run(depth, filter_lengths, Astops, scalings,...
-    mus, phis, maxima, encode_version, buffer_length)
+    mus, phis, maxima, encode_version, buffer_lengths)
 
     input = LoadWav('combined_8000_short.wav');
 
@@ -17,10 +17,10 @@ function [reconstructed_links_with_codec, pesq, bitrate, differentials_clipped] 
     differentials_clipped = zeros(1,size(subbands_links,2));
     for sb = 1:size(subbands_links,2)
        [quantized, nb_clips] = encode(subbands_links(:,sb),...
-           mus(sb), phis(sb), maxima(sb), encode_version, buffer_length);
+           mus(sb), phis(sb), maxima(sb), encode_version, buffer_lengths(sb));
        differentials_clipped(sb) = nb_clips;
        quantized_data(:,sb) = quantized;
-       dequantized = decode(quantized,mus(sb),phis(sb),buffer_length);
+       dequantized = decode(quantized,mus(sb),phis(sb),buffer_lengths(sb));
        subbands_links_codeced(:,sb) = (dequantized);
     end
 
