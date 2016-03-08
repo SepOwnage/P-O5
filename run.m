@@ -1,14 +1,14 @@
 function [reconstructed_links_with_codec, pesq, bitrate, differentials_clipped] = ...
-    run(depth, filter_lengths, Astops, scalings,...
+    run(filter_lengths, Astops, scalings,...
     mus, phis, maxima, encode_version, buffer_lengths)
 
-    input = LoadWav('combined_8000_short.wav');
+    input = LoadWav('combined_8000.wav');
 
     %Scale input
     input = int16(input/max(abs(input))*(2^15-1));
     
     %% analysis
-    [subbands_links, ~, filters] = analysis(input,filter_lengths, Astops, scalings, depth);
+    [subbands_links, ~, filters] = analysis(input,filter_lengths, Astops, scalings);
     %subbands_links(:,1:4) = 0;
 
     %% compression (adaptive quantization)

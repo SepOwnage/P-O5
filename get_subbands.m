@@ -1,5 +1,5 @@
 function [ out_low_downscaled, out_high_downscaled, filters_out ] =...
-    get_subbands(input,filter_lengths, Astops, scalings, depth)
+    get_subbands(input,filter_lengths, Astops, scalings)
 %GET_SUBBANDS Summary of this function goes here
 %   Detailed explanation goes here
 if(mod(length(input),2))
@@ -62,7 +62,7 @@ if length(Astops)>1
     scalings_low = scalings{2}{1};
     %recursive call
     [out_low_low, out_low_high, filters_low] = get_subbands(out_low_downscaled{1},...
-        filter_lengths_low, Astops_low, scalings_low, depth-1);
+        filter_lengths_low, Astops_low, scalings_low);
     %pad results to same length
     if(size(out_low_low,1)>size(out_low_high,1))
         out_low_high(end+1:end+size(out_low_low,1)-size(out_low_high,1),:)...
@@ -81,7 +81,7 @@ if length(Astops)>1
         scalings_high = scalings{2}{2};
         %recursive call
         [out_high_low, out_high_high, filters_high] = get_subbands(out_high_downscaled{1},...
-        filter_lengths_high, Astops_high, scalings_high, depth-1);
+        filter_lengths_high, Astops_high, scalings_high);
         %pad results to same length
         if(size(out_high_low,1)>size(out_high_high,1))
             out_high_high(end+1:end+size(out_high_low,1)-size(out_high_high,1),:)...
