@@ -1,32 +1,28 @@
-function [ out ] = synthesis( subbands, filters, scalings )
+function [ out, bands_used ] = synthesis( subbands, filters, scalings, bands_used )
 %SYNTHESIS Summary of this function goes here
 %   Detailed explanation goes here
 
 
 
-if(size(subbands,2) > 2)
-    scalings_low = scalings(2:end);
-    scalings_high = scalings(2:end);
-    filters_low = filters(2:end);
-    filters_high = filters(2:end);
-    for i=1:length(filters_low)
-        filters_low{i} = filters_low{i}{1};
-        filters_high{i} = filters_high{i}{2};
-        scalings_low{i}(end/2+1:end) = [];
-        scalings_high{i}(1:end/2) = [];
-    end;
-    low = synthesis(subbands(:,1:end/2), filters_low, scalings_low);
-    high = synthesis(subbands(:,end/2+1:end), filters_high, scalings_high);
+if(length(filters)>1)
+    scalings_low = scalings{2}{1};
+    filters_low = filters{2}{1};
+    [low, bands_used] = synthesis(subbands, filters_low, scalings_low, bands_used);
     
-    if(length(low)<length(high))
-        low(end+1:end+length(high)-length(low)) = 0;
-    else if (length(low)>length(high))
-        high(end+1:end+length(low)-length(high)) = 0;
-        end
+    if length(filters{2})>1
+        scalings_high = scalings{2}{2};
+        filters_high = filters{2}{2};
+        [high, bands_used] = synthesis(subbands, filters_high, scalings_high, bands_used);
+    else
+        high = subbands{bands_used+1};
+        bands_used = bands_used+1;
     end
 else
-    low=subbands(:,1);
-    high = subbands(:,2);
+    low = subbands{bands_used+1};
+    bands_used = bands_used+1;
+    high = subbands{bands_used+1};
+    bands_used = bands_used+1;
+    
 end
 scaling = scalings{1};
 filter = filters{1};
@@ -34,6 +30,12 @@ filter = filters{1};
 low = int32(low);
 high = int32(high);
 
+if length(low)> length(high)
+    high(end+1:end + length(low)- length(high)) = 0;
+else if length(low)< length(high) 
+        low(end+1:end - length(low)+ length(high)) = 0;
+    end
+end
 A1_input = low + high;
 A0_input = low - high;
 
