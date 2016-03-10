@@ -2,7 +2,7 @@ function [reconstructed_links_with_codec, pesq, bitrate, differentials_clipped] 
     run(filter_lengths, Astops, scalings,...
     mus, phis, maxima, encode_version, buffer_lengths)
 
-    input = LoadWav('combined_8000.wav');
+    input = LoadWav('combined_8000_short.wav');
 
     %Scale input
     input = int16(input/max(abs(input))*(2^15-1));
