@@ -1,11 +1,19 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "wavpcm_io.h"
 #include "globals.h"
-#include "fadeOutParameters.h"
-#include "fadeOut.h"  
-#include "wavpcm_io.h" 
+
+static short filter1_even[LENGHT_FILTER1_HALF] = FILTER1_EVEN;
+static short filter1_odd[LENGHT_FILTER1_HALF] = FILTER1_ODD;
+static short filter2_even[LENGHT_FILTER2_HALF] = FILTER2_EVEN;
+static short filter2_odd[LENGHT_FILTER2_HALF] = FILTER2_ODD;
+static short filter3_even[LENGHT_FILTER2_HALF] = FILTER3_EVEN;
+static short filter3_odd[LENGHT_FILTER2_HALF] = FILTER3_ODD;
+static short mus[4] = MUS;
+static short phis[4] = PHIS;
+static short buffer_lengths = BUFFER_LENGTHS;
+
 
 /* This is the function that is called when the program starts. */
 int main (int argc, char *argv[])
@@ -17,12 +25,7 @@ int main (int argc, char *argv[])
   short reconstructedBuffer[BUFFERSIZE];
   int bufPos, bufIndex, read;
 
-  struct fade_chunk chunk;
-  chunk.fadeOutCoefficient = FADEOUTCOEFFICIENT;
-  printf("chunk.fadeOutCoefficient: %f\n",chunk.fadeOutCoefficient);
-  chunk.currentFadeCoefficient = 1;
-
-  memset(&input, 0, sizeof(struct wavpcm_input));
+  memset(&input, 0, sizeof(struct wavpcm_input)); //Fill sizeof(...) bytes starting from input with
   input.resource=INPUTWAVFILE;
   memset(&output, 0, sizeof(struct wavpcm_output));
   output.resource=OUTPUTWAVFILE;
@@ -40,13 +43,6 @@ int main (int argc, char *argv[])
     read = wavpcm_input_read (&input, buffer);
 
     /* transform buffer */
-    if(bufPos<(2*(BUFFERSIZE/2)))
-      {
-      printf("chunk.fadeOutCoefficient: %f\n",chunk.fadeOutCoefficient);
-      printf("chunk.currentFadeCoefficient: %f\n",chunk.currentFadeCoefficient);
-      }
-
-    fadeOut(buffer,&chunk);
 
     /* if required, dump compressed output */
 
@@ -59,8 +55,8 @@ int main (int argc, char *argv[])
   }
 
   /* finalize output (write header) and close */
-  wavpcm_output_close (&output);  
+  wavpcm_output_close (&output);
+
   /* Return successful exit code. */
   return 0;
 }
-

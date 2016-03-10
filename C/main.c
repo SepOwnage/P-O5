@@ -14,7 +14,7 @@ int main (int argc, char *argv[])
   short reconstructedBuffer[BUFFERSIZE];
   int bufPos, bufIndex, read;
 
-  memset(&input, 0, sizeof(struct wavpcm_input));
+  memset(&input, 0, sizeof(struct wavpcm_input)); //Fill sizeof(...) bytes starting from input with
   input.resource=INPUTWAVFILE;
   memset(&output, 0, sizeof(struct wavpcm_output));
   output.resource=OUTPUTWAVFILE;
@@ -44,7 +44,8 @@ int main (int argc, char *argv[])
   }
 
   /* finalize output (write header) and close */
-  wavpcm_output_close (&output);  
+  wavpcm_output_close (&output);
+  wavpcm_input_close(&input);
 
   /* Return successful exit code. */
   return 0;

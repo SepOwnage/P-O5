@@ -17,7 +17,7 @@
     currentFadeCoefficient = currentFadeCoefficient*fadeOutCoefficient;
     }
 
-  chunk->currentFadeCoefficient = currentFadeCoefficient;
+  chunk->currentFadeCoefficient = currentFadeCoefficient; 
 
   return;
   }
