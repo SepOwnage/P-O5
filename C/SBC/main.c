@@ -4,12 +4,12 @@
 #include "wavpcm_io.h"
 #include "globals.h"
 
-static short filter1_even[LENGHT_FILTER1_HALF] = FILTER1_EVEN;
-static short filter1_odd[LENGHT_FILTER1_HALF] = FILTER1_ODD;
-static short filter2_even[LENGHT_FILTER2_HALF] = FILTER2_EVEN;
-static short filter2_odd[LENGHT_FILTER2_HALF] = FILTER2_ODD;
-static short filter3_even[LENGHT_FILTER2_HALF] = FILTER3_EVEN;
-static short filter3_odd[LENGHT_FILTER2_HALF] = FILTER3_ODD;
+static short filter1Even[LENGTH_FILTER1_HALF] = FILTER1_EVEN;
+static short filter1Odd[LENGTH_FILTER1_HALF] = FILTER1_ODD;
+static short filter2Even[LENGTH_FILTER2_HALF] = FILTER2_EVEN;
+static short filter2Odd[LENGTH_FILTER2_HALF] = FILTER2_ODD;
+static short filter3Even[LENGTH_FILTER2_HALF] = FILTER3_EVEN;
+static short filter3Odd[LENGTH_FILTER2_HALF] = FILTER3_ODD;
 static short mus[4] = MUS;
 static short phis[4] = PHIS;
 static short buffer_lengths = BUFFER_LENGTHS;
