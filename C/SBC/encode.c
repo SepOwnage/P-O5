@@ -1,25 +1,6 @@
 #include "encode.h"
-struct chunk{
-	unsigned short position1;
-	unsigned short position2;
-	signed short leftEven[BUFFERSIZE/4 + LENGTH_FILTER1_HALF];
-	signed short leftOdd[BUFFERSIZE/4 + LENGTH_FILTER1_HALF];
-	signed short rightEven[BUFFERSIZE/4 + LENGTH_FILTER1_HALF];
-	signed short rightOdd[BUFFERSIZE/4 + LENGTH_FILTER1_HALF];
-	
-	signed short leftLowEven[BUFFERSIZE/8 + LENGTH_FILTER2_HALF];
-	signed short leftLowOdd[BUFFERSIZE/8 + LENGTH_FILTER2_HALF];   
-	signed short leftHighEven[BUFFERSIZE/8 + LENGTH_FILTER2_HALF]; 
-	signed short leftHighOdd[BUFFERSIZE/8 + LENGTH_FILTER2_HALF];  
-	signed short rightLowEven[BUFFERSIZE/8 + LENGTH_FILTER2_HALF]; //TODO: filter3?
-	signed short rightLowOdd[BUFFERSIZE/8 + LENGTH_FILTER2_HALF];  
-    signed short rightHighEven[BUFFERSIZE/8 + LENGTH_FILTER2_HALF];
-    signed short rightHighOdd[BUFFERSIZE/8 + LENGTH_FILTER2_HALF]; 
-}
-
-
-
- void addBufferToHistory(short buffer[BUFFERSIZE], struct chunk *historyChunk){
+#include <stdio.h>
+void addBufferToHistory(short buffer[BUFFERSIZE], struct chunk *historyChunk){
 	int i;
 	for(i=0;i<BUFFERSIZE/4;i++){
 	    //printf("%x \n", historyChunk->leftEven);
@@ -70,34 +51,34 @@ void combine(short *upper, short *lower, short *out_low, short *out_high, unsign
 		lower++;
 		out_low++;
 		out_high++;
+		length--;
 	}while(length > 0);
 }
 
 void copyToLowerLayer(struct chunk *historyChunk){
 	int i;
-	
 	for(i=0;i < BUFFERSIZE/8;i++){   //   /8 ?/
 		*(historyChunk->leftLowEven + historyChunk->position2) = 
-			*(historyChunk->leftEven + historyChunk->position1 + (i<<1))
-		(historyChunk->leftLowOdd + historyChunk->position2) = 
-			*(historyChunk->leftEven + historyChunk->position1 + (i<<1) +1)
+			*(historyChunk->leftEven + historyChunk->position1 + (i<<1));
+		*(historyChunk->leftLowOdd + historyChunk->position2) = 
+			*(historyChunk->leftEven + historyChunk->position1 + (i<<1) +1);
 		
 		*(historyChunk->leftHighEven + historyChunk->position2) = 
-			*(historyChunk->leftOdd + historyChunk->position1 + (i<<1))
-		(historyChunk->leftHighOdd + historyChunk->position2) = 
-			*(historyChunk->leftOdd + historyChunk->position1 + (i<<1) +1)
+			*(historyChunk->leftOdd + historyChunk->position1 + (i<<1));
+		*(historyChunk->leftHighOdd + historyChunk->position2) = 
+			*(historyChunk->leftOdd + historyChunk->position1 + (i<<1) +1);
 		
 		*(historyChunk->rightLowEven + historyChunk->position2) = 
-			*(historyChunk->rightEven + historyChunk->position1 + (i<<1))
-		(historyChunk->rightLowOdd + historyChunk->position2) = 
-			*(historyChunk->rightEven + historyChunk->position1 + (i<<1) +1)
+			*(historyChunk->rightEven + historyChunk->position1 + (i<<1));
+		*(historyChunk->rightLowOdd + historyChunk->position2) = 
+			*(historyChunk->rightEven + historyChunk->position1 + (i<<1) +1);
 		
 		*(historyChunk->rightHighEven + historyChunk->position2) = 
-			*(historyChunk->rightOdd + historyChunk->position1 + (i<<1))
-		(historyChunk->rightHighOdd + historyChunk->position2) = 
-			*(historyChunk->rightOdd + historyChunk->position1 + (i<<1) +1)
+			*(historyChunk->rightOdd + historyChunk->position1 + (i<<1));
+		*(historyChunk->rightHighOdd + historyChunk->position2) = 
+			*(historyChunk->rightOdd + historyChunk->position1 + (i<<1) +1);
 		
-		(*(historyChunk->position2))++;
+		(historyChunk->position2) = ((historyChunk->position2)+1)%(BUFFERSIZE/8 + LENGTH_FILTER2_HALF);
 	}
 }
 
@@ -130,35 +111,36 @@ void encode(short buffer[BUFFERSIZE],struct chunk *historyChunk){
 			(historyChunk->rightEven) + (historyChunk->position1),
 			(historyChunk->rightOdd) + (historyChunk->position1),
 			BUFFERSIZE/4);
+	
 	//first filter depth done at this point		
 	copyToLowerLayer(historyChunk);
 	
 	//8 times convolve
 	convolve(historyChunk->leftLowEven, filter2Even,
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->leftLowEven+position2);
+				historyChunk->leftLowEven+historyChunk->position2);
 	convolve(historyChunk->leftLowOdd, filter2Odd,
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->leftLowOdd+position2);
+				historyChunk->leftLowOdd+historyChunk->position2);
 	convolve(historyChunk->leftHighEven, filter2Even,
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->leftHighEven+position2);
+				historyChunk->leftHighEven+historyChunk->position2);
 	convolve(historyChunk->leftHighOdd, filter2Odd,
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->leftHighOdd+position2);
+				historyChunk->leftHighOdd+historyChunk->position2);
 
-	convolve(historyChunk->rightLowEven, filter2Even,
+	convolve(historyChunk->rightLowEven, filter3Even,
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->rightLowEven+position2);
-	convolve(historyChunk->rightLowOdd, filter2Odd,
+				historyChunk->rightLowEven+historyChunk->position2);
+	convolve(historyChunk->rightLowOdd, filter3Odd,
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->rightLowOdd+position2);
-	convolve(historyChunk->rightHighEven, filter2Even,
+				historyChunk->rightLowOdd+historyChunk->position2);
+	convolve(historyChunk->rightHighEven, filter3Even,
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->rightHighEven+position2);
-	convolve(historyChunk->rightHighOdd, filter2Odd,
+				historyChunk->rightHighEven+historyChunk->position2);
+	convolve(historyChunk->rightHighOdd, filter3Odd,
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->rightHighOdd+position2);
+				historyChunk->rightHighOdd+historyChunk->position2);
 	//4 times combine
 	combine((historyChunk->leftLowEven) + (historyChunk->position2),
 			(historyChunk->leftLowOdd) + (historyChunk->position2),
