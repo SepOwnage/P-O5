@@ -51,8 +51,8 @@ int main (int argc, char *argv[])
 
     /* inverse transform buffer */
     for (bufIndex=0; bufIndex<BUFFERSIZE/8; bufIndex++){
-      reconstructedBuffer[2*bufIndex]=theChunk.leftLowEven[bufIndex];
-	  reconstructedBuffer[2*bufIndex+1]=theChunk.rightLowEven[bufIndex];
+      reconstructedBuffer[2*bufIndex]=theChunk.leftLowEven[(bufIndex+theChunk.position2)%(BUFFERSIZE/8 + LENGTH_FILTER2_HALF)];
+	  reconstructedBuffer[2*bufIndex+1]=theChunk.rightLowEven[(bufIndex+theChunk.position2)%(BUFFERSIZE/8 + LENGTH_FILTER2_HALF)];
 	}
     /* dump reconstructed output */
     wavpcm_output_write (&output, reconstructedBuffer, read/4);
