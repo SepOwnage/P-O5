@@ -35,7 +35,7 @@ function out = decode(input, mu, phi, buffer_length)
         out(i) = dequantized_sample;
         %predict the next value
         prediction = dequantized_sample -...
-            int16((int32(mu) * int32(prev_dequantized_sample))/2^16);  
+            int16((int32(mu) * int32(prev_dequantized_sample))/2^15);  
         prev_dequantized_sample = dequantized_sample;
     end
 

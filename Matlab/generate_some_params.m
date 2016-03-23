@@ -12,7 +12,7 @@ Astops = {60,{{50},{50}}};
 scalings = {17,{{15},{16}}};
 
 %adaptive quantization paramaters
-mus = int16([1 .1 0.125 0]*(2^15-1));
+mus = int16([.6 .05 0.95 0]*(2^15-1));
 phis = int16([.25 .5 .9 0]*(2^15-1)); 
 maxima = 2.^([5, 4, 3, 1]-1)-1;
 buffer_lengths = [10 10 10 1];
