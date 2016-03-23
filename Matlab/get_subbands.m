@@ -39,6 +39,7 @@ A1 = filter(2:2:end);
 %do the convolution and clip to range of DSP
 A0_out = int64(max(-2^39, min(conv(double(A0),double(input_e0)),2^39-1)));
 A1_out = int64(max(-2^39, min(conv(double(A1),double(input_e1)),2^39-1)));
+%TODO: keep track of amount of clips?  (same with synthesis)
 
 %extract the scaling factor and apply it
 scaling = scalings{1};
