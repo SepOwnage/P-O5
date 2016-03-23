@@ -1,21 +1,23 @@
 #include "globals.h"
 #include "quantize.h"
+#include <stdio.h>
 
  //Als wij ooit clippen/overflowen, gaat de fout zich voortplanten TODO
 void quantize(short quantized_differences[BUFFERSIZE/8], short samples[BUFFERSIZE/8],struct parameters *params, struct start_values *values){
 	// Variable declaration & initialisation
 	unsigned short phi = params->phi;
 	unsigned short mu = params->mu;
-	unsigned short buffer_length = params->buffer_length;
+	unsigned char buffer_length = params->buffer_length;
 	signed short difference; //Check if has to be short
 	short dequantized_difference; //Check if has to be short
 	signed short prediction = values->initial_prediction; //Check if has to be short (due to mu and subtraction)
 	unsigned short stepsize = values->initial_stepsize; //Check if has to be short
 	signed short dequantized_sample;
 	signed short prev_dequantized_sample = values->prev_dequantized_sample;
-	unsigned int buffersum;
+	unsigned int buffersum = values->buffersum;
 	unsigned short buffer[buffer_length]; //Same type as quantized_differences but unsigned
-	copy(buffer,values->buffer,params->buffer_length);
+	copy(buffer,values->buffer,params->buffer_length); //TODO is het nuttig om te kopieren?
+						//TODO misschien altijd in place werken in values
 	
 	
 	// Loop
@@ -31,6 +33,23 @@ void quantize(short quantized_differences[BUFFERSIZE/8], short samples[BUFFERSIZ
 		dequantized_sample = dequantized_difference + prediction;
 		prediction = dequantized_sample - mu * prev_dequantized_sample;
 		prev_dequantized_sample = dequantized_sample;
+
+		printf("Diff:%d ", difference);
+		printf("Prediction:%d ", prediction);
+		printf("quantized_diff%d ", quantized_differences[i]);
+		printf("Dequantized_difference:%d ", dequantized_difference);
+		printf("Buffersum:%d ", buffersum);
+		printf("stepsize%d ", stepsize);
+		printf("dequantized_sample%d ", dequantized_sample);
+		printf("prev_dequantized_sample%d\n\n ", prev_dequantized_sample);
+/*
+		printf("phi%d ", phi);
+		printf("buffersum%d ", buffersum);
+		printf("buffer_length%d ", buffer_length);
+		printf("division%d ", buffersum/buffer_length);
+		printf("stepsize%d ", stepsize);
+		printf("end");
+	*/	
 
 	}
 	
@@ -57,5 +76,4 @@ unsigned short max(unsigned int a,unsigned char b){ //TODO check type of a: phi*
 		return b;
 	}
 }
-
 
