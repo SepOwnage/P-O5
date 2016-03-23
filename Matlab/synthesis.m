@@ -1,8 +1,11 @@
 function [ out, bands_used ] = synthesis( subbands, filters, scalings, bands_used )
-%SYNTHESIS Summary of this function goes here
-%   Detailed explanation goes here
-
-
+%SYNTHESIS Thakes subbands and recombines them using QMF filters to a
+%single signal
+%   subbands: a cell array that contains the subband signals as arrays
+%   (integers)
+%   filters: as outputed by analysis. (see analysis).
+%   scalings: see analysis
+%   bands_used: for recursive calls.  Set to 0 for top call.
 
 if(length(filters)>1)
     scalings_low = scalings{2}{1};

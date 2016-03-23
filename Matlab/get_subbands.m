@@ -1,7 +1,16 @@
 function [ out_low_downscaled, out_high_downscaled, filters_out ] =...
     get_subbands(input,filter_lengths, Astops, scalings)
-%GET_SUBBANDS Summary of this function goes here
-%   Detailed explanation goes here
+%GET_SUBBANDS splits input into subbands using QMF-filters
+%   input: the input signal (1 channel, integers)
+%   filter_lengths, Astops, scalings: see analysis
+%   returns:
+%     out_low_downscaled: the lower frequency signals (as arrays in a cell
+%     array)
+%     out_high_downscaled: the higher frequency signals (as arrays in a cell
+%     array)
+%     filters_out: the created and used filters. (see analysis)
+
+
 if(mod(length(input),2))
     %warning('added zeros in get_subbands')
     input = [input; 0];

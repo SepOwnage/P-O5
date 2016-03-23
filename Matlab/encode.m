@@ -1,8 +1,21 @@
-function [out, nb_clips] = encode(input, mu, phi, maximum, encode_version, buffer_length)
+function [out, nb_clips] = encode(input, mu, phi, maximum, buffer_length)
+% ENCODE takes a signal and applies adaptive stepsize differential encoding
+% on it to compress it lossy. 
+%   input: input signal as integers ( int16 )
+%   mu: a parameter for the 1 step prediction of the next value.
+%   phi: a parameter that determines the stepsize - variance fraction
+%   buffer_length: the amount of samples over which the variance is
+%   calculated
+%   Maximum: the maximum absolute value of the output. Larger values are
+%   clipped.  This determines the bitrate.
+%   returns:
+%     out: the output signal
+%     nb_clips: the amount of difference that had to be clipped due to
+%     maximum. Only for analysis purposes.
+
     out = int16(zeros(length(input),1));
-    %unclipped = int16(zeros(length(input),1));
     prediction = 0;
-    stepsize = 1; %check scaling
+    stepsize = 1; 
     prev_dequantized_sample = 0;
     nb_clips = 0;
     buffer = zeros(buffer_length,1);
@@ -12,17 +25,11 @@ function [out, nb_clips] = encode(input, mu, phi, maximum, encode_version, buffe
         difference = sample - prediction;
         quantized_difference = round(difference/stepsize);
         nb_clips = nb_clips + double(abs(quantized_difference>maximum));
-        %unclipped(i) = quantized_difference;
-        if encode_version==1
-            quantized_difference = min(maximum, quantized_difference);
-            quantized_difference = max(-maximum, quantized_difference);
-            out(i) = quantized_difference;
-        else
-            out(i) = quantized_difference;
-            out(i) = min(maximum, out(i));
-            out(i) = max(-maximum, out(i));
-        end
         
+        quantized_difference = min(maximum, quantized_difference);
+        quantized_difference = max(-maximum, quantized_difference);
+        out(i) = quantized_difference;
+       
         
         dequantized_difference = quantized_difference * stepsize;
         
