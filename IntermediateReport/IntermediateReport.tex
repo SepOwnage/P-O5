@@ -1,0 +1,73 @@
+\documentclass[a4paper]{article}
+\usepackage{amssymb}
+
+\title{H09M0A P\&D Embedded Systems and Multimedia}
+\author{Seppe Iven - r0370830 \\ Koen Goetschalckx - r0375967}
+\begin{document} 
+\maketitle
+\begin{center} Yu-Hui Huang, Johan Van Rompay, Hugo Van hamme
+\end{center}
+
+\section{Introduction}
+This is an intermediate report about the matlab implementation of the P\&D assignment on subband coding, where a codec is implemented. The main techniques used to create such codec are subband filtering and adaptive quantisation, with the goal of compressing a stereo audio signal. This matlab implementation uses fixed point numbers and its parameters can be set in a flexible manner with the eye to optimal speech quality. \
+
+TODO edit this paragraph to include all sections of the report:
+This report contains a section on the main findings, an explanation about QMF filterbanks and the general matlab structure of the implementation of the assignment. It then explains the criteria for the optimal values of the parameters, followed by those values. Those values lead to a SNR and PESQ score for audio that has been encoded and decoded with this implementation.
+
+\section{Main design specifications}
+The following list contains the specifications that the design of the codec has to meet.
+
+\begin{itemize}
+\item It accepts stereo signals
+\item The sampling frequency is 8 kHz
+\item The bitrate is 24 kbit/s per channel codec, with good to very good speech quality
+\item The implementation consists of a QMF tree-structured filterbank with polyphase implementation
+\item An adaptive differential quantisation scheme should be used for every subband signal
+\item The filterbank of the codec consists of a minimum of 4 subbands
+\item The total delay of the coder and decoder must not exceed a certain threshold: the entire one way communication delay (ADC, coding, encryption, decryption, decoding, DAC) should be less than 150ms. This puts a maximum on the number of subbands, on the complexity of the filters and on the buffer size in the cryptography section. Note that the encryption and decryption functionality is provided by another group and is not a part of this assignment.
+
+\end{itemize}
+
+\section{Main findings}
+Don' really know what to put here but the assignment said we need this section
+
+\section{QMF and shizzle}
+Type something about how QMF works (so it can be skipped in get\_subbands.m). Talk about how many bits per subband, how this equals 24k bit/s etc..
+
+\section{Matlab structure - Implementation overview}
+This paper will now give a brief explanation of the matlab files that are used and their functionality.
+
+\subsection{generate\_some\_params.m}
+This script can be run to generate the parameters that are used to call run.m
+
+\subsection{run.m}
+This is the main file that is used to divide an audio file into subbands, encode and decode those subbands, and synthesize them again to create an audio signal that resembles the original signal. Audio inputs that are .wav-files can be processed with matlab. These inputs must be stereo or pairwise mono. The audio file that is used is that one named 'input.wav' TODO: Do we keep it this way or do we change input.wav to a parameter? 
+\\
+The input is scaled to a 16 bit integer. The input is then split into subbands by calling analysis.m. These subbands are first encoded by calling encoded.m and then decoded by calling decode.m. Finally, the subbands are combined by calling synthesis.m and the PESQ score for the reconstructed audio file is calculated.
+
+This file also checks for clipping of values greater than 16 bits.
+
+\subsection{analysis.m}
+TODO figures e.g. input and output signals of QMF system
+
+\subsection{get\_subbands.m}
+
+\subsection{encode.m}
+
+\subsection{decode.m}
+
+\subsection{synthesis.m}
+
+\section{Criterion for optimal values}
+
+\section{Optimal values of all controllable parameters}
+
+\section{Final SNR \& PESQ}
+
+\section{Conclusion}
+
+\end{document}
+
+TODO scan for codex instead of codec
+TODO include total delay of code/encode: should be less than 150ms
+TODO rechterdeel in run
