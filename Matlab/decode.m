@@ -7,29 +7,35 @@ function out = decode(input, mu, phi, buffer_length)
 %   buffer_length: the amount of samples over which the variance is
 %   calculated
 %   The last three parameters should be the same as used for encoding.
-
-    out = zeros(length(input),1);
     
-    prediction = 0;
+    %preallocation
+    out = int16(zeros(length(input),1));
+    %init
+    prediction = int16(0);
     stepsize = 1;
     prev_dequantized_sample = 0;
     buffer = zeros(buffer_length,1);
-    buffersum = 0;
+    buffersum = int32(0);
+    %go through input sequentially
     for i = 1:length(input)
         quantized_difference = input(i);
         dequantized_difference = quantized_difference * stepsize;
         %update the buffersum (don't recalculate fully)
-        buffersum = buffersum - buffer(mod(i,buffer_length)+1)...
-            + abs(dequantized_difference);
+        buffersum = buffersum - int32(buffer(mod(i,buffer_length)+1))...
+            + int32(abs(dequantized_difference));
         buffer(mod(i,buffer_length)+1) = abs(dequantized_difference);
         %extract used stepsize from buffersum (~ variance)
-        stepsize = max(phi*buffersum/buffer_length,1);
         %TODO decide on rounding (matlab divison) or truncating (c
         %division)
-        stepsize = max(phi*int16(sign(difference*stepsize)*floor(abs(double(buffersum)/double(buffer_length)))),1);
+        %update the stepsize
+        to_trunc = double(buffersum)*double(phi)/double(buffer_length*2^15);
+        stepsize = max(int16(sign(to_trunc)*floor(abs(to_trunc))),1);  %TODO: better solution? Problem: zero input=>zero var=>zero stepsize  %TODO: better solution? Problem: zero input=>zero var=>zero stepsize
+        %get the dequantized sample (=output)
         dequantized_sample = dequantized_difference + prediction;
         out(i) = dequantized_sample;
-        prediction = dequantized_sample - mu * prev_dequantized_sample;  
+        %predict the next value
+        prediction = dequantized_sample -...
+            int16((int32(mu) * int32(prev_dequantized_sample))/2^16);  
         prev_dequantized_sample = dequantized_sample;
     end
 

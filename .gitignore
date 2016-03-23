@@ -38,3 +38,6 @@
 *.pyc
 
 *.o
+*.log
+*.pdf
+*.synctex.gz
