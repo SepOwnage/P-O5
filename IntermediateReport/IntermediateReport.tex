@@ -29,20 +29,23 @@ The following list contains the specifications that the design of the codec has 
 \end{itemize}
 
 \section{Main findings}
-Don' really know what to put here but the assignment said we need this section
+Don' really know what to put here but the assignment said we need this section. Maybe this is an introduction/conclusion section?
 
 \section{QMF and shizzle}
 Type something about how QMF works (so it can be skipped in get\_subbands.m). Talk about how many bits per subband, how this equals 24k bit/s etc..
 TODO figures e.g. input and output signals of QMF system
+TODO zeggen dat onderste subbanden belangrijker blijken uit testen -> meer bits aan toekennen
+TODO over hoe we eerst 5 subbanden hadden (want onderste zijn belangrijker dan de rest), maar we er eigenlijk 4 moesten doen volgens die assistent
 
 \section{Adaptive differential quantisation and shizzle}
 TODO foto'ke van adaptive differential maar beter dan die in onze tekst.
 TODO dit is lossy normaal dus vermelden
+TODO delays implementeren want die afbeeding in het boek is ni goed 
 
 \section{Matlab structure - Implementation overview}
 This paper will now give a brief explanation of the matlab files that are used and their functionality.
 
-TODO: Talk about all the scalings to make the numbers fit integers as much as possible
+TODO: Talk about all the scalings to make the numbers fit integers as much as possible etc
 
 \subsection{generate\_some\_params.m}
 This script can be run to generate the parameters that are used to call run.m
@@ -71,15 +74,23 @@ This script is the inverse of encode.m: it takes the output of the adaptive diff
 This script is the inverse of get\_subbands.m: its input are the separate subbands and it combines (synthesizes) them using the same QMF filters. Todo: These filters are the same, right?
 
 \section{Criterion for optimal values}
+From p127, we got the values for phi TODO we assumed gaussian distribution
+Optimal values also includes: filter lengths etc just put here as many parameters as possible i guess
 
 \section{Optimal values of all controllable parameters}
+TODO hier onze finale waarden ingeven en zeggen hoe we eraan komen (zie boek: sommige vanuit theorie, sommigen bruteforce)
+TODO also zeggen dat we optimised hebben voor de combined shizzle omdat die ons beter lijkt dan voor één aparte; dan zeggen wat de optimale en de minst optimale pesq waarden zijn bij de verschillende .wav bestandjes
 
 \section{Final SNR \& PESQ}
+TODO zeggen dat we SNR niet hebben gebruikt en daar een reden voor verzinnen bv pesq is beter
 
 \section{Conclusion}
+TODO spekken (zie taalgebruik van bossie) over alle secties die we behandeld hebben in deze paper
+TODO zeggen dat we een goede maar niet finale matlab implementatie hebben (bv de deling die we nog aangepast hebben om op C te lijken; alsook dat onze final parameters nog niet final zijn maar subject to optimization)
 
 \end{document}
 
 TODO scan for codex instead of codec
 TODO include total delay of code/encode: should be less than 150ms
 TODO rechterdeel in run
+TODO iets over delay?
