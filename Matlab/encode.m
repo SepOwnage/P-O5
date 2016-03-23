@@ -10,7 +10,9 @@ function [out, nb_clips] = encode(input, mu, phi, maximum, encode_version, buffe
     for i = 1:length(input)
         sample = input(i);
         difference = sample - prediction;
-        quantized_difference = round(difference/stepsize);
+        %TODO decide on rounding (matlab divison) or truncating (c
+        %division) -> floor vs round
+        quantized_difference = int16(sign(difference*stepsize)*floor(abs(double(difference)/double(stepsize))));
         nb_clips = nb_clips + double(abs(quantized_difference>maximum));
         %unclipped(i) = quantized_difference;
         if encode_version==1
@@ -29,7 +31,9 @@ function [out, nb_clips] = encode(input, mu, phi, maximum, encode_version, buffe
         buffersum = buffersum - buffer(mod(i,buffer_length)+1)...
             + abs(dequantized_difference);
         buffer(mod(i,buffer_length)+1) = abs(dequantized_difference);
-        stepsize = max(phi*buffersum/buffer_length,1);  %TODO: better solution? Problem: zero input=>zero var=>zero stepsize
+        %TODO decide on rounding (matlab divison) or truncating (c
+        %division)
+        stepsize = max(phi*int16(sign(difference*stepsize)*floor(abs(double(buffersum)/double(buffer_length)))),1);  %TODO: better solution? Problem: zero input=>zero var=>zero stepsize
         dequantized_sample = dequantized_difference + prediction;
         prediction = dequantized_sample - mu * prev_dequantized_sample;  
         prev_dequantized_sample = dequantized_sample;

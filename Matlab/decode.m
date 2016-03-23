@@ -12,7 +12,10 @@ function out = decode(input, mu, phi, buffer_length)
         buffersum = buffersum - buffer(mod(i,buffer_length)+1)...
             + abs(dequantized_difference);
         buffer(mod(i,buffer_length)+1) = abs(dequantized_difference);
-        stepsize = max(phi*buffersum/buffer_length,1);
+         
+        %TODO decide on rounding (matlab divison) or truncating (c
+        %division)
+        stepsize = max(phi*int16(sign(difference*stepsize)*floor(abs(double(buffersum)/double(buffer_length)))),1);  %TODO: better solution? Problem: zero input=>zero var=>zero stepsize
         dequantized_sample = dequantized_difference + prediction;
         out(i) = dequantized_sample;
         prediction = dequantized_sample - mu * prev_dequantized_sample;  
