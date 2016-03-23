@@ -47,9 +47,11 @@ void combine(short *upper, short *lower, short *out_low, short *out_high,
 	int position;
 	for(i=0;i<length;i++){
 		position = (start + i) % arrayLength;
+		//printf("upper %d  lower  %d\n", *(upper+position), *(lower+position));
 		temp = (short)(   ((int) *(upper+position) + (int) *(lower+position))  >>1);
 		*(out_high+position) = (short)(   ((int) *(upper+position) - (int) *(lower+position))  >>1);
 		*(out_low+position) = temp;
+		
 	}
 }
 
@@ -57,24 +59,24 @@ void copyToLowerLayer(struct chunk *historyChunk){
 	int i;
 	for(i=0;i < BUFFERSIZE/8;i++){   //   /8 ?/
 		*(historyChunk->leftLowEven + historyChunk->position2) = 
-			*(historyChunk->leftEven + (historyChunk->position1 + (i<<1))%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
+			*(historyChunk->leftEven + (historyChunk->position1 + (i*2))%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
 		*(historyChunk->leftLowOdd + historyChunk->position2) = 
-			*(historyChunk->leftEven + (historyChunk->position1 + (i<<1)+1)%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
+			*(historyChunk->leftEven + (historyChunk->position1 + (i*2)+1)%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
 		
 		*(historyChunk->leftHighEven + historyChunk->position2) = 
-			*(historyChunk->leftOdd + (historyChunk->position1 + (i<<1))%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
+			*(historyChunk->leftOdd + (historyChunk->position1 + (i*2))%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
 		*(historyChunk->leftHighOdd + historyChunk->position2) = 
-			*(historyChunk->leftOdd + (historyChunk->position1 + (i<<1)+1)%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
+			*(historyChunk->leftOdd + (historyChunk->position1 + (i*2)+1)%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
 		
 		*(historyChunk->rightLowEven + historyChunk->position2) = 
-			*(historyChunk->rightEven + (historyChunk->position1 + (i<<1))%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
+			*(historyChunk->rightEven + (historyChunk->position1 + (i*2))%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
 		*(historyChunk->rightLowOdd + historyChunk->position2) = 
-			*(historyChunk->rightEven + (historyChunk->position1 + (i<<1)+1)%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
+			*(historyChunk->rightEven + (historyChunk->position1 + (i*2)+1)%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
 		
 		*(historyChunk->rightHighEven + historyChunk->position2) = 
-			*(historyChunk->rightOdd + (historyChunk->position1 + (i<<1))%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
+			*(historyChunk->rightOdd + (historyChunk->position1 + (i*2))%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
 		*(historyChunk->rightHighOdd + historyChunk->position2) = 
-			*(historyChunk->rightOdd + (historyChunk->position1 + (i<<1)+1)%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
+			*(historyChunk->rightOdd + (historyChunk->position1 + (i*2)+1)%(BUFFERSIZE/4+LENGTH_FILTER1_HALF));
 		
 		(historyChunk->position2) = ((historyChunk->position2)+1)%(BUFFERSIZE/8 + LENGTH_FILTER2_HALF);
 	}
