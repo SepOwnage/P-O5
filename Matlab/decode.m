@@ -7,14 +7,16 @@ function out = decode(input, mu, phi, buffer_length)
 %   buffer_length: the amount of samples over which the variance is
 %   calculated
 %   The last three parameters should be the same as used for encoding.
-
-    out = zeros(length(input),1);
     
+    %preallocation
+    out = int16(zeros(length(input),1));
+    %init
     prediction = 0;
     stepsize = 1;
     prev_dequantized_sample = 0;
     buffer = zeros(buffer_length,1);
     buffersum = 0;
+    %go through input sequentially
     for i = 1:length(input)
         quantized_difference = input(i);
         dequantized_difference = quantized_difference * stepsize;
@@ -23,12 +25,14 @@ function out = decode(input, mu, phi, buffer_length)
             + abs(dequantized_difference);
         buffer(mod(i,buffer_length)+1) = abs(dequantized_difference);
         %extract used stepsize from buffersum (~ variance)
-        stepsize = max(phi*buffersum/buffer_length,1);
         %TODO decide on rounding (matlab divison) or truncating (c
         %division)
+        %update the stepsize
         stepsize = max(phi*int16(sign(difference*stepsize)*floor(abs(double(buffersum)/double(buffer_length)))),1);
+        %get the dequantized sample (=output)
         dequantized_sample = dequantized_difference + prediction;
         out(i) = dequantized_sample;
+        %predict the next value
         prediction = dequantized_sample - mu * prev_dequantized_sample;  
         prev_dequantized_sample = dequantized_sample;
     end

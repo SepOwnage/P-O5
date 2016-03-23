@@ -12,35 +12,43 @@ function [out, nb_clips] = encode(input, mu, phi, maximum, buffer_length)
 %     out: the output signal
 %     nb_clips: the amount of difference that had to be clipped due to
 %     maximum. Only for analysis purposes.
-
+    
+    %preallocation
     out = int16(zeros(length(input),1));
+    %init
     prediction = 0;
     stepsize = 1; 
     prev_dequantized_sample = 0;
     nb_clips = 0;
     buffer = zeros(buffer_length,1);
     buffersum = 0;
+    %main loop
     for i = 1:length(input)
         sample = input(i);
+        %get the difference, quantize it using current stepsize
         difference = sample - prediction;
         %TODO decide on rounding (matlab divison) or truncating (c
         %division) -> floor vs round
         quantized_difference = int16(sign(difference*stepsize)*floor(abs(double(difference)/double(stepsize))));
         nb_clips = nb_clips + double(abs(quantized_difference>maximum));
-        
+
+        %clip the value to the given maximum
         quantized_difference = min(maximum, quantized_difference);
         quantized_difference = max(-maximum, quantized_difference);
         out(i) = quantized_difference;
        
-        
         dequantized_difference = quantized_difference * stepsize;
         
+        %calculate the variance of the dequantized difference 
+        %(dequantized => sender and receiver use same info)
         buffersum = buffersum - buffer(mod(i,buffer_length)+1)...
             + abs(dequantized_difference);
         buffer(mod(i,buffer_length)+1) = abs(dequantized_difference);
         %TODO decide on rounding (matlab divison) or truncating (c
         %division)
+        %update the stepsize
         stepsize = max(phi*int16(sign(difference*stepsize)*floor(abs(double(buffersum)/double(buffer_length)))),1);  %TODO: better solution? Problem: zero input=>zero var=>zero stepsize
+        %get the dequantized sample, and predict the next one
         dequantized_sample = dequantized_difference + prediction;
         prediction = dequantized_sample - mu * prev_dequantized_sample;  
         prev_dequantized_sample = dequantized_sample;

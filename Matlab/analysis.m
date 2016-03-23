@@ -20,20 +20,16 @@ function [ output_links, output_rechts, filters ] = analysis(input, ...
 %     array)
 %     The used filters  (same structure as filter_lengths)
 
-
+%extra the left channel from the source, and use get_subbands to split it in
+%subbands
 input_links = input(1:2:end);
 [ out_low, out_high, filters ] = get_subbands(input_links, filter_lengths, Astops, scalings);
-if(size(out_low,1)>size(out_high,1))
-    out_high(end+1:end+size(out_low,1)-size(out_high,1),:)...
-        = zeros(size(out_low,1)-size(out_high,1), size(out_low,2));
-else
-    out_low(end+1:end+size(out_high,1)-size(out_low,1),:)...
-        = zeros(size(out_high,1)-size(out_low,1), size(out_low,2));
-end
 output_links = [out_low out_high];
 
+%extra the left channel from the source, and use get_subbands to split it in
+%subbands
 input_rechts = input(2:2:end);
-[ out_low, out_high ] = get_subbands(input_rechts, filter_lengths, Astops, depth);
+[ out_low, out_high ] = get_subbands(input_rechts, filter_lengths, Astops, scalings);
 output_rechts = [out_low out_high];
 
 end
