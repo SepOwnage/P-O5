@@ -34,3 +34,7 @@
 # Matlab temp
 *.m~
 *.asv
+
+*.pyc
+
+*.o
