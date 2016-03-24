@@ -158,9 +158,6 @@ The perceptual metric PESQ is used to grade the quality of the codec. It was dec
 The parameters are optimized by maximizing the PESQ score for the audio file 'combined\_8000\_short.wav'. This is a combination of the audio files 'm116.wav', 'f116.wav' and 'f216.wav'. This is preferred to a single file, since it contains more variation as training data.
 
 \section{Set of optimal values of controllable parameters}
-NOW NAME ALL PARAMETERS! AND WRITE ABOUT MOTIVATION TO CHOOSE THEM! This includes:
-Amount of subbands
-Scalings
 
 This section will handle all of the parameters that define the implementation of the speech codec. Please note that although these values are currently our optimal values, they may be subject to changes in the future. This can be because of changes in the code, or because better values are found by (brute force) searching.
 
@@ -176,7 +173,7 @@ The QMF filters that are generated with the given function QMF\_design.m are cha
 \
 \end{itemize}
 
-The encoding parameters $\mu$, $\phi$, buffer\_length and the number of bits can be different for each subband. The values for all these parameters are listed in tables \ref{tab:parametervalues} and \ref{tab:scalingparameters}.
+The encoding parameters $\mu$, $\phi$, buffer\_length and the number of bits per sample can be different for each subband. The values for all these parameters are listed in tables \ref{tab:parametervalues} and \ref{tab:scalingparameters}.
 
 \begin{table}[h]
 \centering
