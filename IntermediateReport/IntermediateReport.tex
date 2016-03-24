@@ -72,15 +72,12 @@ After filtering into subbands, the data is now encoded with an adaptive differen
 \item s*(n) is the prediction of the next input signal 
 \end{itemize}
 
-As the name suggests, the stepsize is adaptive and based on the last values of d'(n) and a parameter $\phi$ TODO DAS NI PHI. The amount of values that influence the stepsize, is determined by the parameter 'buffer\_length'. Stepsize is calculated as follows:\\
+As the name suggests, the stepsize is adaptive and based on the last values of d'(n) and a parameter $\phi$. The amount of values that influence the stepsize, is determined by a parameter 'buffer\_length'. Stepsize is calculated as follows:\\
 $stepsize = round\_to\_zero(\phi*mean(abs(D'(n))))$
-where D'(n) contains the last buffer\_length values of d'(n). \\
-The reason that it uses d'(n) instead of d(n) is because the dequantizer only knows d'(n) and not d(n). For the same reason, the prediction is based on s'(n) and not in s(n). The prediction is a simple first order prediction, defined by the previous approximation of the signal s'(n) and a parameter $'\mu'$:\\
+where D'(n) contains the last buffer\_length values of d'(n). The mean should be zero, so this equals to the first central moment. This is chosen instead of the variance for easy of calculation. \\
+The reason of the use of d'(n) instead of d(n) is because the dequantizer only knows d'(n) and not d(n). For the same reason, the prediction is based on s'(n) and not in s(n). The prediction is a simple first order prediction, defined by the previous approximation of the signal s'(n) and a parameter $'\mu'$:\\
 $s*(n) = \mu*s'(n-1)$.\\
-The dequantizer can reconstruct s'(n) based on the z(n) it receives. It is thus lossy, since it cannot reconstruct s(n).
-
-
-
+The dequantizer can reconstruct s'(n) based on the z(n) it receives. It is thus lossy, since it cannot reconstruct the exact signal s(n). The benefit of this system is that only the transmitted signal is z(n), whose range is normally smaller than the range of s(n). Thus less bits are needed for encoding and transmitting z(n) than for s(n) and lossy compression is realized.
 \begin{figure}[hbt]
 \includegraphics[width = \textwidth]{Quantization.png}
 \caption{The Adaptive Differential Quantization scheme}
