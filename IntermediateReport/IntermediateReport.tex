@@ -34,8 +34,12 @@ The following list contains the specifications that the design of the codec has 
 
 \section{Splitting into subbands: QMF}
 An input audio file is split into subbands by using a Quadrature Mirror Filter bank.
-A QMF filter bank consists of a low-pass and high-pass filter $H_0(z)$ and $H_1(z)$, that split the audio file into a low-frequency and a high-frequency part. Such filter bank is used to efficiently create a two-way filter bank. A recursive implementation is used to split an audio file into four subbands. \\
-
+A QMF filter bank consists of a low-pass and high-pass filter $H_0(z)$ and $H_1(z)$, that split the audio file into a low-frequency and a high-frequency part. Such filter bank is used to efficiently create a two-way filter bank. A recursive implementation is used to split an audio file into four subbands as shown by figure \ref{fig:qmfrecursive}.\\
+\begin{figure}[hbt]
+\includegraphics[width = \textwidth]{qmfrecursive}
+\caption{4-way QMF filter bank}
+\label{fig:qmfrecursive}
+\end{figure} \\
 QMF filters have some special properties:
 \begin{itemize}
 \item if $H_0(z)$ is a QMF filter, then $H_1(z) = H_0(-z)$ has the frequency response of $H_0$ mirrored around $\pi/2$.
@@ -61,6 +65,8 @@ This leads to the efficient implementation of the filter bank shown in figure \r
 \caption{Polyphase implementation of QMF filter bank}
 \label{fig:qmf}
 \end{figure}
+
+For this project, both symmetric and asymmetric, where only one of the output bands of a QMF block are split further, structures were considered. Although for example 5 subbands created by always splitting the lower frequency band, may possibly have lead to better results, further use and study of these asymmetric structures were cancelled as the teacher assistant said these were never considered previously and would lead to more complex C implementation. Thus, the final structure consists of QMF filter bank symmetrically splitting the signal into four subbands, as in figure \ref{fig:qmfrecursive}.
 
 \section{Adaptive differential quantisation and shizzle}
 After filtering into subbands, the data is now encoded with an adaptive differential quantisation scheme. The quantizer can be seen in figure \ref{fig:quantization} and the dequantizer in figure \ref{fig:dequantization}. They contain the following signals:
@@ -121,9 +127,7 @@ This function is the inverse of encode.m: it takes the output of the adaptive di
 This function is the inverse of get\_subbands.m: its input are the separate subbands and it combines (synthesises) back into one signal. The filters used for this are the same QMF filters used for analysis, as explained earlier in the text. As in analysis, scaling is done to refit the values into the 16-bit range.
 
 \section{Criterion for optimal values}
-From p127, we got the values for phi TODO we assumed gaussian distribution
-Optimal values also includes: filter lengths etc just put here as many parameters as possible i guess
-From the book: mu is fixed per fequency band. Estimate it such that the energy of the prediction error s(n) - mu*s(n-1) is minimized
+The criterion used to evaluate the performance 
 
 \section{General findings on the behaviour of PESQ}
 Don' really know what to put here but the assignment said we need this section. Maybe this is an introduction/conclusion section?
