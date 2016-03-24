@@ -142,7 +142,7 @@ Scalings
 
 This section will handle all of the parameters that define the implementation of the speech codec. Please note that although these values are currently our optimal values, they may be subject to changes in the future. For example, a quantization method was recently changed from rounding to rounding towards zero, to better comply with rounding in C. This all may influence the optimal values of the parameters.
 
-The QMF filters that are generated with the given function QMF_design.m are characterized by the following parameters:
+The QMF filters that are generated with the given function QMF\_design.m are characterized by the following parameters:
 
 \begin{itemize}
 \item The sampling frequency, which is mandatory 8 kHz
@@ -159,9 +159,9 @@ The values of $\phi$, used in the calculation of the stepsize, are different for
 
 The number of bits per sample is also different for each subband. Lower subbands have more bits per sample, since they are more important to the human hearing. The lowest to highest subbands have 5, 4, 3 and 0 bits per sample respectively. Note that the highest subband is simply thrown away.
 
-The parameter buffer_lengths, used in the calculation of the stepsize, is equal to 10 for every subband.
+The parameter buffer\_lengths, used in the calculation of the stepsize, is equal to 10 for every subband.
 
-For the values of $\phi$, we started from the theory TODO reference. From there, all values of $\phi$, $\mu$ and buffer_lengths TODO also scalings were finetuned by trial and error: changing values, watching and following trends.
+For the values of $\phi$, we started from the theory TODO reference. From there, all values of $\phi$, $\mu$ and buffer\_lengths TODO also scalings were finetuned by trial and error: changing values, watching and following trends.
 
 \section{Delay of the implementation}
 The filters used in QMF filter bank lead to a delay. For each depth in the filterbank, the delay is given by $delay_i = (n_i-1) / sample\_rate_i$ with $i$ the depth, $n_i$ the amount of filtertaps at this depth and $sample\_rate_i$ the sample rate at this depth, equal to the original sample rate divided by $2^{i-1}$. With filters of 64 and 32 taps, the delay becomes:
