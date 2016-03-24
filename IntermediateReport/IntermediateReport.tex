@@ -176,9 +176,7 @@ The QMF filters that are generated with the given function QMF\_design.m are cha
 \
 \end{itemize}
 
-The values of $\mu$, $\phi$, buffer\_length and the number of bits can be different for each subband.\\
-
-The values for all these parameters are listed in tables \ref{tab:parametervalues} to \ref{tab:scalingparameters}.
+The encoding parameters $\mu$, $\phi$, buffer\_length and the number of bits can be different for each subband. The values for all these parameters are listed in tables \ref{tab:parametervalues} and \ref{tab:scalingparameters}.
 
 \begin{table}[h]
 \centering
@@ -206,7 +204,7 @@ depth 2 &  15 & • & 16  \\
 \caption{Current scaling parameters (\#bits to shift)}
 \label{tab:scalingparameters}
 \end{table}
-Lower subbands have more bits per sample, since they are more important to the human hearing. Finding the other values started by chosing the values for the scaling, because these give very high differences in PESQ scores. One division by 2 (one bitshift) too many results in a lower amplitude of the signal, one too few leads to clipping and thus distortion. Next the buffer\_lengths were changed. The length for the lowest frequency made a larger difference than the other. From this point on $\mu$, $\phi$ and buffer\_length values were changed one by one, always selecting a value that increased the PESQ score on combined\_8000\_short.wav. This lead to mentioned values.
+Lower subbands have more bits per sample, since they are more important to the human hearing. Finding the other values started by chosing the values for the scaling, because these give very high differences in PESQ scores. One division by 2 (one bitshift) too many results in a lower amplitude of the signal, one too few leads to clipping and thus distortion. Next the buffer\_lengths were changed. The length for the lowest frequency made a large difference. The others did not have much influence and were thus set to the same value for easy implementation. From this point on $\mu$, $\phi$ and buffer\_length values were changed one by one, always selecting a value that increased the PESQ score on combined\_8000\_short.wav. This lead to mentioned values.
 
 \section{Delay of the implementation}
 The filters used in the QMF filter bank lead to a delay. For each depth in the filterbank, the delay is given by $delay_i = (n_i-1) / sample\_rate_i$ with $i$ the depth, $n_i$ the amount of filter taps at this depth and $sample\_rate_i$ the sample rate at this depth, which is equal to the original sample rate divided by $2^{i-1}$. With filters of 64 and 32 taps, the delay becomes:
