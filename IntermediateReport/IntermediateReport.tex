@@ -87,7 +87,7 @@ $stepsize = round\_to\_zero(\phi*mean(abs(D'(n))))$\\
 where D'(n) contains the last buffer\_length values of d'(n). The mean should be zero, so this equals the first central moment. This is chosen instead of the variance for easy of calculation. \\
 The reason of the use of d'(n) instead of d(n) is because the dequantizer only knows d'(n) and not d(n). For the same reason, the prediction is based on s'(n) and not in s(n). The prediction is a simple first order prediction, defined by the previous approximation of the signal s'(n) and a parameter $\mu$:\\
 $s^*(n) = \mu*s'(n-1)$.\\
-The dequantizer can reconstruct s'(n) based on the z(n) it receives. It is thus lossy, since it cannot reconstruct the exact signal s(n). The benefit of this system is that only the transmitted signal is z(n), whose range is normally smaller than the range of s(n). Thus less bits are needed for encoding and transmitting z(n) than for s(n) and lossy compression is realized.
+The dequantizer can reconstruct s'(n) based on the z(n) it receives. It is thus lossy, since it cannot reconstruct the exact signal s(n). The benefit of this system is that the only transmitted signal is z(n), whose range is normally smaller than the range of s(n). Thus less bits are needed for encoding and transmitting z(n) than for s(n) and lossy compression is realized.
 \begin{figure}[hbt]
 \includegraphics[width = \textwidth]{Quantization.png}
 \caption{The Adaptive Differential Quantization scheme}
@@ -99,7 +99,7 @@ The dequantizer can reconstruct s'(n) based on the z(n) it receives. It is thus 
 \label{fig:dequantization}
 \end{figure}
 
-Both the quantizer and dequantizer are initialized with the initial prediction $s*(0) = 0$ and the initial $stepsize(0) = 1$.
+Both the quantizer and dequantizer are initialized with the initial prediction $s^*(0) = 0$ and the initial $stepsize(0) = 1$.
 
 \section{MATLAB structure - Implementation overview}
 This paper will now give a brief explanation of the MATLAB files that are used and their functionality.
@@ -108,31 +108,29 @@ This paper will now give a brief explanation of the MATLAB files that are used a
 This script can be run to generate the parameters that are used to call run.m
 
 \subsection{run.m}
-This is the main function that is used to divide an audio file into subbands, encode and decode those subbands, and synthesize them again to create an audio signal that closely resembles the original signal. Accepted audio files are .wav-files that are stereo or pairwise mono. The wanted input audio file for this should be named 'input.wav'.
+This is the main function that is used to divide an audio file into subbands, encode and decode those subbands, and synthesize them again to create an audio signal that closely resembles the original signal. Accepted audio files are .wav-files that are stereo or pairwise mono. The input audio file that should be used, has to be named 'input.wav'.
 \\
-The input is scaled to a 16 bit signed integer. The input is then split into subbands by calling analysis.m. These subbands are first encoded by calling encoded.m. The result is what would be transmitted or saved in real use. Next, the function decodes the result by calling decode.m. Finally, the subbands are recombined by calling synthesis.m and the PESQ score for the reconstructed audio file is calculated. For this calculation, only one channel is considered, because in most of the test files the two channels are the same (effectively mono). Even when this is not the case, a noticeable increase of score in one channel should lead to a similar increase in the other for real life signals.
+The input is scaled to a 16 bit signed integer. The input is then split into subbands by calling analysis.m. These subbands are first encoded by calling encode.m. The result that is now obtained, is the signal that would be saved or transmitted in real use. Next, the function decodes the result by calling decode.m. Finally, the subbands are recombined by calling synthesis.m and the PESQ score for the reconstructed audio file is calculated. For this calculation, only one channel is considered, because in most of the test files the two channels are the same (effectively mono). Even when this is not the case, a noticeable increase of score in one channel should lead to a similar increase in the other for real life signals.
 
 \subsection{analysis.m}
-This MATLAB function mainly splits the stereo (or pairwise mono) channels into separate channels, and feeds splits them into subbands by calling get\_subbands.m.
+This MATLAB function splits the stereo (or pairwise mono) channels into separate channels, and splits them into subbands by calling get\_subbands.m.
 
 \subsection{get\_subbands.m}
-This function recursively splits an audio channel into its subbands. It does this by applying polyphase QMF filters, as explained earlier in this paper. These filters are generated with a function that was given as as part of the assignment and defined by its parameters.\\
-Convolutions are used to apply the filters. Since this is a sum of products, the output values exceed the 16-bit range. The output must thus be downscaled again. This downscaling is done by division of a power of two, so it is easily implementable as a bit shift. The exponent of two can be chosen, as it is a parameter of this function. It should however be chosen with respect to the filter length: longer filters add more numbers, creating a larger result and thus the need for more downscaling. The choice of exponent gives rise to a trade-off between clipping and quantization noise. A too small exponent leads to the former, while a too large exponent leads to relatively larger quantization noise.
+This function recursively splits an audio signal into its subbands. It does this by applying polyphase QMF filters, as explained earlier in this paper. These filters are generated with a function that was given as part of the assignment and characterized defined by its parameters.\\
+Convolutions are used to apply the filters. Since this is a sum of products, the output values exceed the 16-bit range. The output must thus be downscaled again. This downscaling is done by division of a power of two, so it is easily implementable as a bit shift. The exponent of two can be chosen, as it is a parameter of this function. It should however be chosen with respect to the filter length: longer filters add more numbers, creating a larger result and thus the need for more downscaling. The choice of exponent gives rise to a trade-off between clipping and quantization noise. An exponent that is too small leads to the former, while a too large exponent leads to relatively larger quantization noise.
 
 \subsection{encode.m}
 This function uses an adaptive differential quantisation method to compress an input signal. Such method is covered in an earlier part of this paper. A parameter determines the maximum output and thereby the amount of bits needed. Larger values are clipped, which should be avoided. For analysis purposes, the function keeps track of the number of times this happened. $\phi$ and $\mu$ must be scaled to signed 16-bit integers.
 
 \subsection{decode.m}
-This function is the inverse of encode.m: it takes the output of the adaptive differential quantisation function and constructs s'(n), which approximates the original input signal s(n). Parameters $\phi$ and $\mu$ and buffer\_length should be the same as those used for encoding with encode.m.
+This function is the inverse of encode.m: it takes the output of the adaptive differential quantisation function and constructs s'(n), which approximate the original input signal s(n). Parameters $\phi$ and $\mu$ and 'buffer\_length' should be the same as those used for encoding with encode.m.
 
 
 \subsection{synthesis.m}
-This function is the inverse of get\_subbands.m: its inputs are the separate subbands and it combines (synthesizes) back into one signal. The filters used for this are the same QMF filters used for analysis, as explained earlier in the text. As in analysis, scaling is done to refit the values into the 16-bit range.
+This function is the inverse of get\_subbands.m: its inputs are the separate subbands and it combines (synthesizes) them into one signal. The filters used for this are the same QMF filters used for analysis, as explained earlier in the text. As in analysis.m, scaling is done to refit the values into the 16-bit range.
 
 \section{SNR \& PESQ score}
 The perceptual metric PESQ is used to grade the quality of the codec. It was decided to use PESQ instead of SNR since it takes features of the human hearing into account (such as masking). This is why the optimal values are chosen on basis of PESQ scores, and SNR is mainly ignored.
-
-TODO also zeggen dat we optimised hebben voor de combined shizzle omdat die ons beter lijkt dan voor één aparte; dan zeggen wat de optimale en de minst optimale PESQ waarden zijn bij de verschillende .wav bestandjes
 
 \begin{table}[bth]
 \begin{center}
@@ -217,7 +215,7 @@ depth 2 &  15 & • & 16  \\
 Finding these values started by chosing the values for the scaling, because these give very high differences in PESQ scores. One division by 2 (one bitshift) too many results in a lower amplitude of the signal, one too few leads to clipping and thus distortion. Next the buffer\_lengths were changed. The length for the lowest frequency made a larger difference than the other. From this point on $\mu$, $\phi$ and buffer\_length values were changed one by one, always selecting a value that increased the PESQ score on combined\_8000\_short.wav. This lead to mentioned values.
 
 \section{Delay of the implementation}
-The filters used in QMF filter bank lead to a delay. For each depth in the filterbank, the delay is given by $delay_i = (n_i-1) / sample\_rate_i$ with $i$ the depth, $n_i$ the amount of filter taps at this depth and $sample\_rate_i$ the sample rate at this depth, equal to the original sample rate divided by $2^{i-1}$. With filters of 64 and 32 taps, the delay becomes:
+The filters used in the QMF filter bank lead to a delay. For each depth in the filterbank, the delay is given by $delay_i = (n_i-1) / sample\_rate_i$ with $i$ the depth, $n_i$ the amount of filter taps at this depth and $sample\_rate_i$ the sample rate at this depth, which is equal to the original sample rate divided by $2^{i-1}$. With filters of 64 and 32 taps, the delay becomes:
 \begin{equation*}
 delay = \frac{(64-1)}{8000 Hz} + \frac{(32-1)}{4000 Hz} = 15.625 ms.
 \end{equation*}
