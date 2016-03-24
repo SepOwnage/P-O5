@@ -32,14 +32,14 @@ The following list contains the specifications that the design of the codec has 
 
 
 \section{QMF and shizzle}
-A Quadrature Mirror Filter, or QMF, is a special kind of filter that can be used to efficiently create a 2-way filter bank. Recursively applying QMFs can split the signal into more subbands if wanted. QMF filters have some special properties:
+A Quadrature Mirror Filter, or QMF, is a special kind of filter that can be used to efficiently create a 2-way filter bank. Recursively applying QMFs will split the signal into more subbands. QMF filters have some special properties:
 \begin{itemize}
 \item if $H_0(z)$ is a QMF filter, then $H_1(z) = H_0(-z)$ has the frequency response of $H_0$ mirrored around $\pi/2$.
 \item if $H_0(z)$ is a QMF filter, then analysis filters $H_0(z)$ and $H_1(z) = H_0(-z)$ and synthesis filters $F_0(z)=H_1(-z)=H_0(z)$ and $F_1(z)=-H_0(-z) = -H_1(z)$ form an alias-free filter bank.
 \end{itemize}
-The second property indicates that $H_0(z)$ can completely define a alias-free QMF filter bank. For linear phase, this $H_0$ should be chosen symmetrical. Also, the filter should have an even amount of taps to avoid distortion at half the Nyquist frequency. The first property indicates that if $H_0$ is a good low-pass filter, then $H_1$ is a good high-pass filter.
+The second property indicates that $H_0(z)$ alone can completely define an alias-free QMF filter bank. For the filter to be linear phase, this $H_0$ should be chosen symmetrical. Also, the filter should have an even amount of taps to avoid distortion at half the Nyquist frequency. The first property indicates that if $H_0$ is a good low-pass filter, then $H_1$ is a good high-pass filter.
 
-Given these properties and constraints, a simple polyphase implementation for a QMF filter bank can be designed. Writing the polyphase decomposition of $H_0(z)$ as $E_0(z^2) + z^{-1} E_1(z^2)$ the decomposition of $H_1(z)$ is $E_0(z^2) - z^{-1} E_1(z^2)$. This lead to an efficient implementation, as shown in figure \ref{fig:qmf}.
+Given these properties and constraints, a simple polyphase implementation for a QMF filter bank can be designed. Writing the polyphase decomposition of $H_0(z)$ as $E_0(z^2) + z^{-1} E_1(z^2)$ and the decomposition of $H_1(z)$ as $E_0(z^2) - z^{-1} E_1(z^2)$. This lead to an efficient implementation, as shown in figure \ref{fig:qmf}.
 
 \begin{figure}[hbt]
 \includegraphics[width = \textwidth]{qmf}
@@ -55,10 +55,9 @@ TODO over hoe we eerst 5 subbanden hadden (want onderste zijn belangrijker dan d
 
 \section{Adaptive differential quantisation and shizzle}
 TODO foto'ke van adaptive differential maar beter dan die in onze tekst.
-TODO dit is lossy normaal dus vermelden
 TODO delays implementeren want die afbeeding in het boek is ni goed 
 
-After filtering into subbands, the data is now encoded with an adaptive differential quantisation scheme. The quantizer can be seen in figure \ref{fig:quantization} and the dequantizer in figure \ref{fig:dequantization}. They contain the following signals:
+After filtering into subbands, the data is now encoded with the adaptive differential quantisation scheme proposed in the assignment. The quantizer can be seen in figure \ref{fig:quantization} and the dequantizer in figure \ref{dequantization}. They contain the following signals:
 
 \begin{itemize}
 \item s(n) is the (serial) input signal
@@ -69,12 +68,15 @@ After filtering into subbands, the data is now encoded with an adaptive differen
 \item s*(n) is the prediction of the next input signal 
 \end{itemize}
 
-As the name suggests, the stepsize is adaptive and based on the last values of d'(n) and a parameter $\phi$. The amount of values that influence the stepsize, is determined by a parameter 'buffer\_length'. Stepsize is calculated as follows:\\
+As the name suggests, the stepsize is adaptive and based on the last values of d'(n) and a parameter $\phi$ TODO DAS NI PHI. The amount of values that influence the stepsize, is determined by the parameter 'buffer\_length'. Stepsize is calculated as follows:\\
 $stepsize = round\_to\_zero(\phi*mean(abs(D'(n))))$
-where D'(n) contains the last buffer\_length values of d'(n). The mean should be zero, so this equals to the first central moment. This is chosen instead of the variance for easy of calculation. \\
-The reason of the use of d'(n) instead of d(n) is because the dequantizer only knows d'(n) and not d(n). For the same reason, the prediction is based on s'(n) and not in s(n). The prediction is a simple first order prediction, defined by the previous approximation of the signal s'(n) and a parameter $'\mu'$:\\
+where D'(n) contains the last buffer\_length values of d'(n). \\
+The reason that it uses d'(n) instead of d(n) is because the dequantizer only knows d'(n) and not d(n). For the same reason, the prediction is based on s'(n) and not in s(n). The prediction is a simple first order prediction, defined by the previous approximation of the signal s'(n) and a parameter $'\mu'$:\\
 $s*(n) = \mu*s'(n-1)$.\\
-The dequantizer can reconstruct s'(n) based on the z(n) it receives. It is thus lossy, since it cannot reconstruct the exact signal s(n). The benefit of this system is that only the transmitted signal is z(n), whose range is normally smaller than the range of s(n). Thus less bits are needed for encoding and transmitting z(n) than for s(n) and lossy compression is realized.
+The dequantizer can reconstruct s'(n) based on the z(n) it receives. It is thus lossy, since it cannot reconstruct s(n).
+
+
+
 \begin{figure}[hbt]
 \includegraphics[width = \textwidth]{Quantization.png}
 \caption{The Adaptive Differential Quantization scheme}
@@ -99,7 +101,7 @@ This script can be run to generate the parameters that are used to call run.m
 \subsection{run.m}
 This is the main script that is used to divide an audio file into subbands, encode and decode those subbands, and synthesize them again to create an audio signal that closely resembles the original signal. Accepted audio files are .wav-files that are stereo or pairwise mono. The audio file that is used is that one named 'input.wav' TODO: Do we keep it this way or do we change input.wav to a parameter? 
 \\
-The input is scaled to a 16 bit integer. The input is then split into subbands by calling analysis.m. These subbands are first encoded by calling encoded.m and then decoded by calling decode.m. Finally, the subbands are combined by calling synthesis.m and the PESQ score for the reconstructed audio file is calculated.
+The input is scaled to a 16 bit integer. The input is then split into subbands by calling analysis.m. These subbands are first encoded by calling encoded.m and then decoded by calling decode.m. Finally, the subbands are combined by calling synthesis.m and the PESQ score for the reconstructed audio file is calculated by calling alignpesq.m	.
 
 \subsection{analysis.m}
 This MATLAB script mainly splits the stereo (or pairwise mono) channels into separate channels, and feeds splits them into subbands by calling get\_subbands.m.
@@ -118,6 +120,9 @@ This script is the inverse of encode.m: it takes the output of the adaptive diff
 
 \subsection{synthesis.m}
 This script is the inverse of get\_subbands.m: its input are the separate subbands and it combines (synthesizes) them using the same QMF filters. Todo: These filters are the same, right?
+
+\subsection{alignpesq.m}
+This script aligns the original audio and the processed audio, and calculates the pesq score with the scripts that are provided with the assignment.
 
 \section{Criterion for optimal values}
 From p127, we got the values for phi TODO we assumed gaussian distribution
