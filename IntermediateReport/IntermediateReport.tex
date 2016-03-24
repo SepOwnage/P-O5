@@ -13,9 +13,9 @@
 \end{center}
 
 \section{Introduction}
-This is an intermediate report about the MATLAB implementation of the P\&D assignment on subband coding, about the implementation of a speech codec. The main techniques used to create the codec are subband filtering and adaptive quantisation, with the goal of compressing a stereo audio signal. The MATLAB implementation uses fixed point numbers to mimic the working of a DSP. The parameters can be set in a flexible manner with the eye to optimal speech quality. \
+This is an intermediate report about the MATLAB implementation of the P\&D assignment on subband coding, about the implementation of a speech codec. The main techniques used to create the codec are subband filtering and adaptive quantization, with the goal of compressing a stereo audio signal. The MATLAB implementation uses fixed point numbers to mimic the working of a DSP. The parameters can be set in a flexible manner with the eye to optimal speech quality. \
 
-This report first mentions the required specifications followed by the explanation of QMF filterbanks and adaptive differential quanisation. Next, this paper shows the general MATLAB structure of the implementation of the assignment and what all MATLAB scripts do. It then handles the PESQ scores and the criterion for optimal values. After this, the current set of optimal values is given. The final part of this paper is about the PESQ score for audio that has been encoded and decoded with this implementation and a general conclusion.
+This report first mentions the required specifications followed by the explanation of QMF filterbanks and adaptive differential quantization. Next, this paper shows the general MATLAB structure of the implementation of the assignment and what all MATLAB scripts do. It then handles the PESQ scores and the criterion for optimal values. After this, the current set of optimal values is given. The final part of this paper is about the PESQ score for audio that has been encoded and decoded with this implementation and a general conclusion.
 
 \section{Main design specifications}
 The following list contains the specifications that the design of the codec has to meet.
@@ -23,11 +23,11 @@ The following list contains the specifications that the design of the codec has 
 \begin{itemize}
 \item It accepts stereo signals
 \item The sampling frequency is 8 kHz
-\item The bitrate is 24 kbit/s per channel codec, with good to very good speech quality
+\item The bit rate is 24 kbit/s per channel codec, with good to very good speech quality
 \item The implementation consists of a QMF tree-structured filterbank with polyphase implementation
-\item An adaptive differential quantisation scheme should be used for every subband signal
+\item An adaptive differential quantization scheme should be used for every subband signal
 \item The filterbank of the codec consists of a minimum of 4 subbands
-\item The total delay of the coder and decoder must not exceed a certain threshold: the entire one way communication delay (ADC, coding, encryption, decryption, decoding, DAC) should be less than 150ms. This puts a maximum on the number of subbands, on the complexity of the filters and on the buffer size in the cryptography section. Note that the encryption and decryption functionality is provided by another group and is not a part of this assignment.
+\item The total delay of the coder and decoder must not exceed a certain threshold: the entire one way communication delay (ADC, coding, encryption, decryption, decoding, DAC) should be less than 150 ms. This puts a maximum on the number of subbands, on the complexity of the filters and on the buffer size in the cryptography section. Note that the encryption and decryption functionality is provided by another group and is not a part of this assignment.
 
 \end{itemize}
 
@@ -66,10 +66,10 @@ This leads to the efficient implementation of the filter bank shown in figure \r
 \label{fig:qmf}
 \end{figure}
 
-For this project, both symmetric and asymmetric, where only one of the output bands of a QMF block are split further, structures were considered. Although for example 5 subbands created by always splitting the lower frequency band, may possibly have lead to better results, further use and study of these asymmetric structures were cancelled as the teacher assistant said these were never considered previously and would lead to more complex C implementation. Thus, the final structure consists of QMF filter bank symmetrically splitting the signal into four subbands, as in figure \ref{fig:qmfrecursive}. Experiments show that four subbands can give good results in PESQ scores (discussed later). Eight or more subbands are thus not necessary but unwanted due to higher delay and computation complexity.
+For this project, both symmetric and asymmetric, where only one of the output bands of a QMF block are split further, structures were considered. Although for example 5 subbands created by always splitting the lower frequency band, may possibly have lead to better results, further use and study of these asymmetric structures were canceled as the teacher assistant said these were never considered previously and would lead to more complex C implementation. Thus, the final structure consists of QMF filter bank symmetrically splitting the signal into four subbands, as in figure \ref{fig:qmfrecursive}. Experiments show that four subbands can give good results in PESQ scores (discussed later). Eight or more subbands are thus not necessary but unwanted due to higher delay and computation complexity.
 
-\section{Adaptive differential quantisation and shizzle}
-After filtering into subbands, the data is now encoded with an adaptive differential quantisation scheme. The quantizer can be seen in figure \ref{fig:quantization} and the dequantizer in figure \ref{fig:dequantization}. They contain the following signals:
+\section{Adaptive differential quantization}
+After filtering into subbands, the data is now encoded with an adaptive differential quantization scheme. The quantizer can be seen in figure \ref{fig:quantization} and the dequantizer in figure \ref{fig:dequantization}. They contain the following signals:
 
 \begin{itemize}
 \item s(n) is the (serial) input signal
@@ -80,7 +80,7 @@ After filtering into subbands, the data is now encoded with an adaptive differen
 \item s*(n) is the prediction of the next input signal 
 \end{itemize}
 
-As the name suggests, the stepsize is adaptive and based on the last values of d'(n) and a parameter $\phi$. The amount of values that influence the stepsize, is determined by a parameter 'buffer\_length'. Stepsize is calculated as follows:\\
+As the name suggests, the step size is adaptive and based on the last values of d'(n) and a parameter $\phi$. The amount of values that influence the step size, is determined by a parameter 'buffer\_length'. Step size is calculated as follows:\\
 $stepsize = round\_to\_zero(\phi*mean(abs(D'(n))))$
 where D'(n) contains the last buffer\_length values of d'(n). The mean should be zero, so this equals to the first central moment. This is chosen instead of the variance for easy of calculation. \\
 The reason of the use of d'(n) instead of d(n) is because the dequantizer only knows d'(n) and not d(n). For the same reason, the prediction is based on s'(n) and not in s(n). The prediction is a simple first order prediction, defined by the previous approximation of the signal s'(n) and a parameter $'\mu'$:\\
@@ -97,7 +97,7 @@ The dequantizer can reconstruct s'(n) based on the z(n) it receives. It is thus 
 \label{fig:dequantization}
 \end{figure}
 
-Both the quantizer and dequantizer are initialised with the initial prediction $s*(0) = 0$ and the initial $stepsize(0) = 1$.
+Both the quantizer and dequantizer are initialized with the initial prediction $s*(0) = 0$ and the initial $stepsize(0) = 1$.
 
 \section{MATLAB structure - Implementation overview}
 This paper will now give a brief explanation of the MATLAB files that are used and their functionality.
@@ -117,16 +117,16 @@ This MATLAB function mainly splits the stereo (or pairwise mono) channels into s
 
 \subsection{get\_subbands.m}
 This function recursively splits an audio channel into its subbands. It does this by applying polyphase QMF filters, as explained earlier in this paper. These filters are generated with a function that was given as as part of the assignment and defined by its parameters.\\
-Convolutions are used to apply the filters. Since this is a sum of products, the output values exceed the 16-bit range. The output must thus be downscaled again. This downscaling is done by division of a power of two, so it is easily implementable as a bitshift. The exponent of two can be chosen, as it is a parameter of this function. It should however be chosen with respect to the filter length: longer filters add more numbers, creating a larger result and thus the need for more downscaling. The choice of exponent gives rise to a trade-off between clipping and quantisation noise. A too small exponent leads to the former, while a too large exponent leads to relatively larger quantisation noise.
+Convolutions are used to apply the filters. Since this is a sum of products, the output values exceed the 16-bit range. The output must thus be downscaled again. This downscaling is done by division of a power of two, so it is easily implementable as a bit shift. The exponent of two can be chosen, as it is a parameter of this function. It should however be chosen with respect to the filter length: longer filters add more numbers, creating a larger result and thus the need for more downscaling. The choice of exponent gives rise to a trade-off between clipping and quantization noise. A too small exponent leads to the former, while a too large exponent leads to relatively larger quantization noise.
 
 \subsection{encode.m}
-This function uses an adaptive differential quantisation method to compress an input signal. Such method is covered in an earlier part of this paper. A parameter determines the maximum output and thereby the amount of bits needed. Larger values are clipped, which should be avoided. For analysis purposes, the function keeps track of the number of times this happened.
+This function uses an adaptive differential quantization method to compress an input signal. Such method is covered in an earlier part of this paper. A parameter determines the maximum output and thereby the amount of bits needed. Larger values are clipped, which should be avoided. For analysis purposes, the function keeps track of the number of times this happened.
 
 \subsection{decode.m}
-This function is the inverse of encode.m: it takes the output of the adaptive differential quantisation function and constructs s'(n), which approximates the original input signal s(n).
+This function is the inverse of encode.m: it takes the output of the adaptive differential quantization function and constructs s'(n), which approximates the original input signal s(n).
 
 \subsection{synthesis.m}
-This function is the inverse of get\_subbands.m: its inputs are the separate subbands and it combines (synthesises) back into one signal. The filters used for this are the same QMF filters used for analysis, as explained earlier in the text. As in analysis, scaling is done to refit the values into the 16-bit range.
+This function is the inverse of get\_subbands.m: its inputs are the separate subbands and it combines (synthesizes) back into one signal. The filters used for this are the same QMF filters used for analysis, as explained earlier in the text. As in analysis, scaling is done to refit the values into the 16-bit range.
 
 \section{SNR \& PESQ score}
 The perceptual metric PESQ is used to grade the quality of the codec. It was decided to use PESQ instead of SNR since it takes features of the human hearing into account (such as masking). This is why the optimal values are chosen on basis of PESQ scores, and SNR is mainly ignored. \\
@@ -155,10 +155,10 @@ The perceptual metric PESQ is used to grade the quality of the codec. It was dec
 \end{center}
 \end{table}
 
-The parameters are optimised by maximising the PESQ score for the audio file 'combined\_8000\_short.wav'. This is a combination of the audio files 'm116.wav', 'f116.wav' and 'f216.wav'. This is preferred to a single file, since it contains more variation as training data.
+The parameters are optimized by maximizing the PESQ score for the audio file 'combined\_8000\_short.wav'. This is a combination of the audio files 'm116.wav', 'f116.wav' and 'f216.wav'. This is preferred to a single file, since it contains more variation as training data.
 
 \section{Set of optimal values of controllable parameters}
-NOW NAME ALL PARAMETETERS! AND WRITE ABOUT MOTIVATION TO CHOOSE THEM! This includes:
+NOW NAME ALL PARAMETERS! AND WRITE ABOUT MOTIVATION TO CHOOSE THEM! This includes:
 Amount of subbands
 Scalings
 
@@ -177,18 +177,18 @@ The QMF filters that are generated with the given function QMF\_design.m are cha
 
 The values of $\mu$, used in the prediction of the next signal, are different for each subband. TODO hoe gevonden, patterns erin? Also in welke scaling weergeven? $*2^15$ of niet?
 
-TODO From the book: mu is fixed per fequency band. Estimate it such that the energy of the prediction error s(n) - mu*s(n-1) is minimized
+TODO From the book: mu is fixed per frequency band. Estimate it such that the energy of the prediction error s(n) - mu*s(n-1) is minimized
 
-The values of $\phi$, used in the calculation of the stepsize, are different for each subband. 
+The values of $\phi$, used in the calculation of the step size, are different for each subband. 
 
 The number of bits per sample is also different for each subband. Lower subbands have more bits per sample, since they are more important to the human hearing. The lowest to highest subbands have 5, 4, 3 and 0 bits per sample respectively. Note that the highest subband is simply thrown away.
 
-The parameter buffer\_lengths, used in the calculation of the stepsize, is equal to 10 for every subband.
+The parameter buffer\_lengths, used in the calculation of the step size, is equal to 10 for every subband.
 
-For the values of $\phi$, we started from the theory that was given with the assignemtn. From there, all values of $\phi$, $\mu$ and buffer\_lengths TODO also scalings were finetuned by trial and error: changing values, watching and following trends.
+For the values of $\phi$, we started from the theory that was given with the assignment. From there, all values of $\phi$, $\mu$ and buffer\_lengths TODO also scalings were fine tuned by trial and error: changing values, watching and following trends.
 
 \section{Delay of the implementation}
-The filters used in QMF filter bank lead to a delay. For each depth in the filterbank, the delay is given by $delay_i = (n_i-1) / sample\_rate_i$ with $i$ the depth, $n_i$ the amount of filtertaps at this depth and $sample\_rate_i$ the sample rate at this depth, equal to the original sample rate divided by $2^{i-1}$. With filters of 64 and 32 taps, the delay becomes:
+The filters used in QMF filter bank lead to a delay. For each depth in the filterbank, the delay is given by $delay_i = (n_i-1) / sample\_rate_i$ with $i$ the depth, $n_i$ the amount of filter taps at this depth and $sample\_rate_i$ the sample rate at this depth, equal to the original sample rate divided by $2^{i-1}$. With filters of 64 and 32 taps, the delay becomes:
 \begin{equation*}
 delay = \frac{(64-1)}{8000 Hz} + \frac{(32-1)}{4000 Hz} = 15.625 ms.
 \end{equation*}
@@ -196,6 +196,8 @@ delay = \frac{(64-1)}{8000 Hz} + \frac{(32-1)}{4000 Hz} = 15.625 ms.
 \section{Conclusion}
 TODO spekken (zie taalgebruik van bossie) over alle secties die we behandeld hebben in deze paper
 TODO zeggen dat we een goede maar niet finale MATLAB implementatie hebben (bv de deling die we nog aangepast hebben om op C te lijken; alsook dat onze final parameters nog niet final zijn maar subject to optimization)
+
+This intermediate paper was about the MATLAB implementation of the P\&D assignment on subband coding, about the implementation of a speech codec. The paper discussed the design specifications, splitting an audio signal into subbands with QMF and quantizing it with an adaptive differential quantization scheme. It then explained the MATLAB structure and scripts. The achieved PESQ scores were shown. The optimal values of the parameters were found by searching for the highest PESQ score. Finally, the delay of the implementation was briefly discussed.
 
 \section{References}
 \begin{itemize}
