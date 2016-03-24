@@ -97,6 +97,8 @@ The dequantizer can reconstruct s'(n) based on the z(n) it receives. It is thus 
 \label{fig:dequantization}
 \end{figure}
 
+Both the quantizer and dequantizer are initialised with the initial prediction $s*(0) = 0$ and the initial $stepsize(0) = 1$.
+
 \section{MATLAB structure - Implementation overview}
 This paper will now give a brief explanation of the MATLAB files that are used and their functionality.
 
@@ -138,19 +140,32 @@ TODO also zeggen dat we optimised hebben voor de combined shizzle omdat die ons 
 TODO zeggen dat deze waarden subject to change zijn en mogelijk niet onze finale waarden
 
 NOW NAME ALL PARAMETETERS! AND WRITE ABOUT MOTIVATION TO CHOOSE THEM! This includes:
-Astop
-Filter ripple?
-Filter length
 Amount of subbands
-Amount of bits for each subbands
 Truncating vs rounding
-initial stepsize
-initial prediction
-df = fs/10;
-fstep = 10;
-Niter = 600;
-Buffer lengths
 Scalings
+
+This section will handle all of the parameters that define the implementation of the speech codec. Please note that although these values are currently our optimal values, they may be subject to changes in the future. For example, a quantization method was recently changed from rounding to rounding towards zero, to better comply with rounding in C. This all may influence the optimal values of the parameters.
+
+The QMF filters that are generated with the given function QMF\_design.m are characterized by the following parameters:
+
+\begin{itemize}
+\item The sampling frequency, which is mandatory 8 kHz
+\item The total transition width of the prototype filter. This is default at fs/10, and thus we have left it at 800
+\item The minimum stopband attenuation of the prototype filter, which we have left at the default value of 60 dB
+\item The frequency step for finding the optimal cut-off frequency, which we have left at the default value of 10
+\item The maximum number of iterations, which we have at 600
+\item The filter lengths, which we have at 64 for the filter at the first depth and 32 for the filters at the second depth. We have chosen these lengths as a compromise between filter quality and implementation delay
+\end{itemize}
+
+The values of $\mu$, used in the prediction of the next signal, are different for each subband. TODO hoe gevonden, patterns erin? Also in welke scaling weergeven? $*2^15$ of niet?
+
+The values of $\phi$, used in the calculation of the stepsize, are different for each subband. TODO hoe gevonden, patterns erin? Also in welke scaling weergeven? $*2^15$ of niet? TODO gestart vanuit paper
+
+The number of bits per sample is also different for each subband. Lower subbands have more bits per sample, since they are more important to the human hearing. The lowest to highest subbands have 5, 4, 3 and 0 bits per sample respectively. Note that the highest subband is simply thrown away.
+
+The parameter buffer\_lengths, used in the calculation of the stepsize, is equal to 10 for every subband.
+
+For the values of $\phi$, we started from the theory TODO reference. From there, all values of $\phi$, $\mu$ and buffer\_lengths TODO also scalings were finetuned by trial and error: changing values, watching and following trends.
 
 \section{Delay of the implementation}
 The filters used in QMF filter bank lead to a delay. For each depth in the filterbank, the delay is given by $delay_i = (n_i-1) / sample\_rate_i$ with $i$ the depth, $n_i$ the amount of filtertaps at this depth and $sample\_rate_i$ the sample rate at this depth, equal to the original sample rate divided by $2^{i-1}$. With filters of 64 and 32 taps, the delay becomes:
