@@ -209,7 +209,7 @@ depth 1 &  • & 17 & •  \\
 depth 2 &  15 & • & 16  \\ 
 \hline 
 \end{tabular} 
-\caption{Current scaling parameters}
+\caption{Current scaling parameters (\#bits to shift)}
 \label{tab:scalingparameters}
 \end{table}
 Finding these values started by chosing the values for the scaling, because these give very high differences in PESQ scores. One division by 2 (one bitshift) too many results in a lower amplitude of the signal, one too few leads to clipping and thus distortion. Next the buffer\_lengths were changed. The length for the lowest frequency made a larger difference than the other. From this point on $\mu$, $\phi$ and buffer\_length values were changed one by one, always selecting a value that increased the PESQ score on combined\_8000\_short.wav. This lead to mentioned values.
