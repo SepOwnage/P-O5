@@ -32,15 +32,29 @@ The following list contains the specifications that the design of the codec has 
 \section{Main findings}
 Don' really know what to put here but the assignment said we need this section. Maybe this is an introduction/conclusion section?
 
-\section{QMF and shizzle}
-A Quadrature Mirror Filter, or QMF, is a special kind of filter that can be used to efficiently create a 2-way filter bank. Recursively applying QMFs will split the signal into more subbands. QMF filters have some special properties:
+\section{Splitting into subbands: QMF}
+An input audio file is split into subbands by using a Quadrature Mirror Filter bank.
+A QMF filter bank consists of a low-pass and high-pass filter $H_0(z)$ and $H_1(z)$, that split the audio file into a low-frequency and a high-frequency part. Such filter bank is used to efficiently create a two-way filter bank. A recursive implementation is used to split an audio file into four subbands. \\
+
+QMF filters have some special properties:
 \begin{itemize}
 \item if $H_0(z)$ is a QMF filter, then $H_1(z) = H_0(-z)$ has the frequency response of $H_0$ mirrored around $\pi/2$.
 \item if $H_0(z)$ is a QMF filter, then analysis filters $H_0(z)$ and $H_1(z) = H_0(-z)$ and synthesis filters $F_0(z)=H_1(-z)=H_0(z)$ and $F_1(z)=-H_0(-z) = -H_1(z)$ form an alias-free filter bank.
 \end{itemize}
-The second property indicates that $H_0(z)$ alone can completely define an alias-free QMF filter bank. For the filter to be linear phase, this $H_0$ should be chosen symmetrical. Also, the filter should have an even amount of taps to avoid distortion at half the Nyquist frequency. The first property indicates that if $H_0$ is a good low-pass filter, then $H_1$ is a good high-pass filter.
 
-Given these properties and constraints, a simple polyphase implementation for a QMF filter bank can be designed. Writing the polyphase decomposition of $H_0(z)$ as $E_0(z^2) + z^{-1} E_1(z^2)$ and the decomposition of $H_1(z)$ as $E_0(z^2) - z^{-1} E_1(z^2)$. This lead to an efficient implementation, as shown in figure \ref{fig:qmf}.
+The second property indicates that a complete alias-free QMF filter bank can be defined by $H_0(z)$ alone. For the filter to be linear phase, this $H_0$ should be chosen symmetrical. Also, the filter should have an even amount of taps to avoid distortion at half the Nyquist frequency. \\
+
+The first property indicates that if $H_0$ is a good low-pass filter, then $H_1$ is a good high-pass filter. \\
+
+Given these properties and constraints, a simple polyphase implementation for a QMF filter bank can be designed, and is shown in figure \ref{fig:qmf}. The polyphase decomposition of $H_0(z)$ is:\\
+\begin{center}
+$H_0(z)$ = $E_0(z^2) + z^{-1} E_1(z^2)$ \\
+\end{center}
+From the first property, it follows that: \\
+\begin{center}
+$H_1(z)$ = $E_0(z^2) - z^{-1} E_1(z^2)$ \\
+\end{center}
+This leads to a very efficient implementation of the filter bank, as shown on the figure.
 
 \begin{figure}[hbt]
 \includegraphics[width = \textwidth]{qmf}
@@ -134,6 +148,22 @@ From the book: mu is fixed per fequency band. Estimate it such that the energy o
 TODO hier onze finale waarden ingeven en zeggen hoe we eraan komen (zie boek: sommige vanuit theorie, sommigen bruteforce)
 TODO also zeggen dat we optimised hebben voor de combined shizzle omdat die ons beter lijkt dan voor één aparte; dan zeggen wat de optimale en de minst optimale pesq waarden zijn bij de verschillende .wav bestandjes
 TODO zeggen dat deze waarden subject to change zijn en mogelijk niet onze finale waarden
+
+NOW NAME ALL PARAMETETERS! AND WRITE ABOUT MOTIVATION TO CHOOSE THEM! This includes:
+Astop
+Filter ripple?
+Filter length
+Amount of subbands
+Amount of bits for each subbands
+Truncating vs rounding
+initial stepsize
+initial prediction
+df = fs/10;
+fstep = 10;
+Niter = 600;
+Buffer lengths
+Scalings
+
 
 \section{Final SNR \& PESQ}
 TODO zeggen dat we SNR niet hebben gebruikt en daar een reden voor verzinnen bv pesq is beter
