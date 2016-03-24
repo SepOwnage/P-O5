@@ -61,11 +61,37 @@ TODO foto'ke van adaptive differential maar beter dan die in onze tekst.
 TODO dit is lossy normaal dus vermelden
 TODO delays implementeren want die afbeeding in het boek is ni goed 
 
-After filtering into subbands, the data is now encoded with an adaptive differential quantisation scheme.
+After filtering into subbands, the data is now encoded with an adaptive differential quantisation scheme. The quantizer can be seen in figure \ref{fig:quantization} and the dequantizer in figure \ref{dequantization}. They contain the following signals:
 
-\begin{figure}
+\begin{itemize}
+\item s(n) is the (serial) input signal
+\item d(n) is the difference signal between the input signal and the prediction of the signal
+\item z(n) is the quantized difference signal. This is also the output signal, hence the 'differential' in the name
+\item d'(n) is the difference signal after quantization and dequantization. It thus resembles d(n) but is not exactly the same value
+\item s'(n) is the sum of d'(n) and the prediction. It thus resembles s(n) but is not exactly the same value
+\item s*(n) is the prediction of the next input signal 
+\end{itemize}
 
+As the name suggests, the stepsize is adaptive and based on the last values of d'(n) and a parameter $\phi$ TODO DAS NI PHI. The amount of values that influence the stepsize, is determined by the parameter 'buffer\_length'. Stepsize is calculated as follows:\\
+$stepsize = round\_to\_zero(\phi*mean(abs(D'(n))))$
+where D'(n) contains the last buffer\_length values of d'(n). \\
+The reason that it uses d'(n) instead of d(n) is because the dequantizer only knows d'(n) and not d(n). For the same reason, the prediction is based on s'(n) and not in s(n). The prediction is a simple first order prediction, defined by the previous approximation of the signal s'(n) and a parameter $'\mu'$:\\
+$s*(n) = \mu*s'(n-1)$.\\
+The dequantizer can reconstruct s'(n) based on the z(n) it receives. It is thus lossy, since it cannot reconstruct s(n).
+
+
+
+\begin{figure}[hbt]
+\includegraphics[width = \textwidth]{Quantization.png}
+\caption{The Adaptive Differential Quantization scheme}
+\label{fig:quantization}
 \end{figure}
+\begin{figure}[hbt]
+\includegraphics[width = \textwidth]{Dequantization.png}
+\caption{The Adaptive Differential Dequantization scheme}
+\label{fig:dequantization}
+\end{figure}
+
 \section{Matlab structure - Implementation overview}
 This paper will now give a brief explanation of the matlab files that are used and their functionality.
 
@@ -100,6 +126,7 @@ This script is the inverse of get\_subbands.m: its input are the separate subban
 \section{Criterion for optimal values}
 From p127, we got the values for phi TODO we assumed gaussian distribution
 Optimal values also includes: filter lengths etc just put here as many parameters as possible i guess
+From the book: mu is fixed per fequency band. Estimate it such that the energy of the prediction error s(n) - mu*s(n-1) is minimized
 
 \section{Optimal values of all controllable parameters}
 TODO hier onze finale waarden ingeven en zeggen hoe we eraan komen (zie boek: sommige vanuit theorie, sommigen bruteforce)
