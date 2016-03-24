@@ -160,18 +160,15 @@ The parameters are optimised by maximising the PESQ score for the audio file 'co
 \section{Set of optimal values of controllable parameters}
 NOW NAME ALL PARAMETETERS! AND WRITE ABOUT MOTIVATION TO CHOOSE THEM! This includes:
 Amount of subbands
-Truncating vs rounding
 Scalings
 
-TODO zeggen dat we er niet lang op hebben gezocht omdat het niet dringend is en dat we het gewoon kunnen brute forcen
-
-This section will handle all of the parameters that define the implementation of the speech codec. Please note that although these values are currently our optimal values, they may be subject to changes in the future. For example, a quantization method was recently changed from rounding to rounding towards zero, to better comply with rounding in C. This all may influence the optimal values of the parameters.
+This section will handle all of the parameters that define the implementation of the speech codec. Please note that although these values are currently our optimal values, they may be subject to changes in the future. This can be because of changes in the code, or because better values are fond by brute force searching.
 
 The QMF filters that are generated with the given function QMF\_design.m are characterized by the following parameters:
 
 \begin{itemize}
 \item The sampling frequency, which is mandatory 8 kHz
-\item The total transition width of the prototype filter. This is default at fs/10, and thus we have left it at 800
+\item The total transition width of the prototype filter. This is default at a tenth of the sampling rate, and thus we have left it at 800
 \item The minimum stopband attenuation of the prototype filter, which we have left at the default value of 60 dB
 \item The frequency step for finding the optimal cut-off frequency, which we have left at the default value of 10
 \item The maximum number of iterations, which we have at 600
@@ -182,15 +179,13 @@ The values of $\mu$, used in the prediction of the next signal, are different fo
 
 TODO From the book: mu is fixed per fequency band. Estimate it such that the energy of the prediction error s(n) - mu*s(n-1) is minimized
 
-The values of $\phi$, used in the calculation of the stepsize, are different for each subband. TODO hoe gevonden, patterns erin? Also in welke scaling weergeven? $*2^15$ of niet? TODO gestart vanuit paper
-
-TODO From p127, we got the values for phi TODO we assumed gaussian distribution
+The values of $\phi$, used in the calculation of the stepsize, are different for each subband. 
 
 The number of bits per sample is also different for each subband. Lower subbands have more bits per sample, since they are more important to the human hearing. The lowest to highest subbands have 5, 4, 3 and 0 bits per sample respectively. Note that the highest subband is simply thrown away.
 
 The parameter buffer\_lengths, used in the calculation of the stepsize, is equal to 10 for every subband.
 
-For the values of $\phi$, we started from the theory TODO reference. From there, all values of $\phi$, $\mu$ and buffer\_lengths TODO also scalings were finetuned by trial and error: changing values, watching and following trends.
+For the values of $\phi$, we started from the theory that was given with the assignemtn. From there, all values of $\phi$, $\mu$ and buffer\_lengths TODO also scalings were finetuned by trial and error: changing values, watching and following trends.
 
 \section{Delay of the implementation}
 The filters used in QMF filter bank lead to a delay. For each depth in the filterbank, the delay is given by $delay_i = (n_i-1) / sample\_rate_i$ with $i$ the depth, $n_i$ the amount of filtertaps at this depth and $sample\_rate_i$ the sample rate at this depth, equal to the original sample rate divided by $2^{i-1}$. With filters of 64 and 32 taps, the delay becomes:
@@ -207,8 +202,3 @@ TODO zeggen dat we een goede maar niet finale MATLAB implementatie hebben (bv de
 \item S. K. Agrawal and O. P. Sahu, Two-Channel Quadrature Mirror Filter Bank: An Overview, 23/03/2016, \url{http://www.hindawi.com/journals/isrn/2013/815619/}
 \end{itemize}
 \end{document}
-
-TODO scan for codex instead of codec
-TODO include total delay of code/encode: should be less than 150ms
-TODO rechterdeel in run
-TODO iets over delay?
