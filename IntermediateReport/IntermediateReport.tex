@@ -74,17 +74,19 @@ After filtering into subbands, the data is now encoded with an adaptive differen
 \begin{itemize}
 \item s(n) is the (serial) input signal
 \item d(n) is the difference signal between the input signal and the prediction of the signal
-\item z(n) is the quantized difference signal. This is also the output signal, hence the 'differential' in the name
+\item z(n) is the quantized difference signal. This is also the output signal of the quantizer, hence the 'differential' in the name
 \item d'(n) is the difference signal after quantization and dequantization. It thus resembles d(n) but is not exactly the same value
 \item s'(n) is the sum of d'(n) and the prediction. It thus resembles s(n) but is not exactly the same value
 \item s*(n) is the prediction of the next input signal 
 \end{itemize}
 
-As the name suggests, the step size is adaptive and based on the last values of d'(n) and a parameter $\phi$. The amount of values that influence the step size, is determined by a parameter 'buffer\_length'. Step size is calculated as follows:\\
-$stepsize = round\_to\_zero(\phi*mean(abs(D'(n))))$
-where D'(n) contains the last buffer\_length values of d'(n). The mean should be zero, so this equals to the first central moment. This is chosen instead of the variance for easy of calculation. \\
-The reason of the use of d'(n) instead of d(n) is because the dequantizer only knows d'(n) and not d(n). For the same reason, the prediction is based on s'(n) and not in s(n). The prediction is a simple first order prediction, defined by the previous approximation of the signal s'(n) and a parameter $'\mu'$:\\
-$s*(n) = \mu*s'(n-1)$.\\
+The step size is adaptive and based on the last values of d'(n) and a parameter $\phi$. The amount of values that influence the step size, is determined by a parameter 'buffer\_length'. Step size is calculated as follows:\\
+\begin{center}
+$stepsize = round\_to\_zero(\phi*mean(abs(D'(n))))$\\
+\end{center}
+where D'(n) contains the last buffer\_length values of d'(n). The mean should be zero, so this equals the first central moment. This is chosen instead of the variance for easy of calculation. \\
+The reason of the use of d'(n) instead of d(n) is because the dequantizer only knows d'(n) and not d(n). For the same reason, the prediction is based on s'(n) and not in s(n). The prediction is a simple first order prediction, defined by the previous approximation of the signal s'(n) and a parameter $\mu$:\\
+$s^*(n) = \mu*s'(n-1)$.\\
 The dequantizer can reconstruct s'(n) based on the z(n) it receives. It is thus lossy, since it cannot reconstruct the exact signal s(n). The benefit of this system is that only the transmitted signal is z(n), whose range is normally smaller than the range of s(n). Thus less bits are needed for encoding and transmitting z(n) than for s(n) and lossy compression is realized.
 \begin{figure}[hbt]
 \includegraphics[width = \textwidth]{Quantization.png}
