@@ -1,7 +1,7 @@
 \documentclass[a4paper]{article}
 \usepackage{amssymb}
 \usepackage{graphicx}
-\usepackage{hyperref}
+%\usepackage{hyperref}
 \usepackage{microtype}
 \usepackage{amsmath, amsthm, amssymb} 
 
@@ -33,11 +33,11 @@ The following list contains the specifications that the design of the codec has 
 
 
 \section{Splitting into subbands: QMF}
-An input audio file is split into subbands by using a Quadrature Mirror Filter bank.
-A QMF filter bank consists of a low-pass and high-pass filter $H_0(z)$ and $H_1(z)$, that split the audio file into a low-frequency and a high-frequency part. Such filter bank is used to efficiently create a two-way filter bank. A recursive implementation is used to split an audio file into four subbands as shown by figure \ref{fig:qmfrecursive}.\\
+An input audio stream is split into subbands by using a Quadrature Mirror Filter bank.
+A QMF filter bank consists of a low-pass and high-pass filter $H_0(z)$ and $H_1(z)$. These split the audio file into a low-frequency and a high-frequency part. Such filter bank is used to efficiently create a two-way filter bank. A recursive implementation is used to split an audio file into four subbands as shown by figure \ref{fig:qmfrecursive}.\\
 \begin{figure}[hbt]
 \includegraphics[width = \textwidth]{qmfrecursive}
-\caption{4-way QMF filter bank}
+\caption{four subbands QMF filter bank}
 \label{fig:qmfrecursive}
 \end{figure} \\
 QMF filters have some special properties:
@@ -46,9 +46,7 @@ QMF filters have some special properties:
 \item if $H_0(z)$ is a QMF filter, then analysis filters $H_0(z)$ and $H_1(z) = H_0(-z)$ and synthesis filters $F_0(z)=H_1(-z)=H_0(z)$ and $F_1(z)=-H_0(-z) = -H_1(z)$ form an alias-free filter bank.
 \end{itemize}
 
-The second property indicates that a complete alias-free QMF filter bank can be defined by $H_0(z)$ alone. For the filter to be linear phase, this $H_0$ should be chosen symmetrical. Also, the filter should have an even amount of taps to avoid distortion at half the Nyquist frequency. \\
-
-The first property indicates that if $H_0$ is a good low-pass filter, then $H_1$ is a good high-pass filter. \\
+The second property indicates that a complete alias-free QMF filter bank can be defined by $H_0(z)$ alone. For the filter to be linear phase, this $H_0$ should be chosen symmetrical. Also, the filter should have an even amount of taps to avoid distortion at half the Nyquist frequency. The first property indicates that if $H_0$ is a good low-pass filter, then $H_1$ is a good high-pass filter. \\
 
 Given these properties and constraints, a simple polyphase implementation for a QMF filter bank can be designed, and is shown in figure \ref{fig:qmf}. The polyphase decomposition of $H_0(z)$ is:\\
 \begin{center}
@@ -80,14 +78,16 @@ After filtering into subbands, the data is now encoded with an adaptive differen
 \item s*(n) is the prediction of the next input signal 
 \end{itemize}
 
-The step size is adaptive and based on the last values of d'(n) and a parameter $\phi$. The amount of values that influence the step size, is determined by a parameter 'buffer\_length'. Step size is calculated as follows:\\
-\begin{center}
-$stepsize = round\_to\_zero(\phi*mean(abs(D'(n))))$\\
-\end{center}
-where D'(n) contains the last buffer\_length values of d'(n). The mean should be zero, so this equals the first central moment. This is chosen instead of the variance for easy of calculation. \\
-The reason of the use of d'(n) instead of d(n) is because the dequantizer only knows d'(n) and not d(n). For the same reason, the prediction is based on s'(n) and not in s(n). The prediction is a simple first order prediction, defined by the previous approximation of the signal s'(n) and a parameter $\mu$:\\
-$s^*(n) = \mu*s'(n-1)$.\\
-The dequantizer can reconstruct s'(n) based on the z(n) it receives. It is thus lossy, since it cannot reconstruct the exact signal s(n). The benefit of this system is that the only transmitted signal is z(n), whose range is normally smaller than the range of s(n). Thus less bits are needed for encoding and transmitting z(n) than for s(n) and lossy compression is realized.
+The step size is adaptive and based on the last values of d'(n) and a parameter $\phi$. The amount of values that influence the step size, is determined by a parameter 'buffer\_length'. Step size is calculated as follows:
+\begin{equation*}
+stepsize = round\_to\_zero(\phi*mean(abs(D'(n))))
+\end{equation*}
+Herein D'(n) contains the last buffer\_length values of d'(n). The mean should be zero, thus this equals the first central moment. This is chosen instead of the variance for easy of calculation. \\
+The reason of the use of d'(n) instead of d(n) is because the dequantizer only knows d'(n) and not d(n). For the same reason, the prediction is based on s'(n) and not in s(n). The prediction is a simple first order prediction, defined by the previous approximation of the signal s'(n) and a parameter $\mu$:
+\begin{equation*}
+s^*(n) = \mu*s'(n-1)
+\end{equation*}
+The dequantizer can reconstruct s'(n) based on the z(n) it receives. The system is thus lossy, since it cannot reconstruct the exact signal s(n). The benefit of this system is that the only transmitted signal is z(n), whose range is normally smaller than the range of s(n). Thus less bits are needed for encoding and transmitting z(n) than for s(n) and lossy compression is realized.
 \begin{figure}[hbt]
 \includegraphics[width = \textwidth]{Quantization.png}
 \caption{The Adaptive Differential Quantization scheme}
@@ -102,25 +102,26 @@ The dequantizer can reconstruct s'(n) based on the z(n) it receives. It is thus 
 Both the quantizer and dequantizer are initialized with the initial prediction $s^*(0) = 0$ and the initial $stepsize(0) = 1$.
 
 \section{MATLAB structure - Implementation overview}
-This paper will now give a brief explanation of the MATLAB files that are used and their functionality.
+This section gives a brief explanation of the used MATLAB files and their functionality.
 
 \subsection{generate\_some\_params.m}
-This script can be run to generate the parameters that are used to call run.m
+This script can be run to generate parameters used to call run.m
 
 \subsection{run.m}
-This is the main function that is used to divide an audio file into subbands, encode and decode those subbands, and synthesize them again to create an audio signal that closely resembles the original signal. Accepted audio files are .wav-files that are stereo or pairwise mono. The input audio file that should be used, has to be named 'input.wav'.
-\\
-The input is scaled to a 16 bit signed integer. The input is then split into subbands by calling analysis.m. These subbands are first encoded by calling encode.m. The result that is now obtained, is the signal that would be saved or transmitted in real use. Next, the function decodes the result by calling decode.m. Finally, the subbands are recombined by calling synthesis.m and the PESQ score for the reconstructed audio file is calculated. For this calculation, only one channel is considered, because in most of the test files the two channels are the same (effectively mono). Even when this is not the case, a noticeable increase of score in one channel should lead to a similar increase in the other for real life signals.
+This is the main function used to divide an audio file into subbands, encode and decode those subbands, and synthesize them again to create an audio signal that closely resembles the original signal. Accepted audio files are .wav-files that are stereo or pairwise mono. The input audio file that should be used, has to be named 'input.wav'.\\
+
+The input is scaled to a 16-bit signed integer. The input is then split into subbands by calling analysis.m. These subbands are first encoded by calling encode.m. The result that is now obtained, is the signal that would be saved or transmitted in real use. Next, the function decodes the result by calling decode.m. Finally, calling synthesis.m recombines the subbands and the PESQ score for the reconstructed audio file is calculated. For this calculation, only one channel is considered, because in most of the test files the two channels are the same (effectively mono). Even when this is not the case, a noticeable increase of score in one channel should lead to a similar increase in the other for real life signals.
 
 \subsection{analysis.m}
 This MATLAB function splits the stereo (or pairwise mono) channels into separate channels, and splits them into subbands by calling get\_subbands.m.
 
 \subsection{get\_subbands.m}
 This function recursively splits an audio signal into its subbands. It does this by applying polyphase QMF filters, as explained earlier in this paper. These filters are generated with a function that was given as part of the assignment and characterized defined by its parameters.\\
+
 Convolutions are used to apply the filters. Since this is a sum of products, the output values exceed the 16-bit range. The output must thus be downscaled again. This downscaling is done by division of a power of two, so it is easily implementable as a bit shift. The exponent of two can be chosen, as it is a parameter of this function. It should however be chosen with respect to the filter length: longer filters add more numbers, creating a larger result and thus the need for more downscaling. The choice of exponent gives rise to a trade-off between clipping and quantization noise. An exponent that is too small leads to the former, while a too large exponent leads to relatively larger quantization noise.
 
 \subsection{encode.m}
-This function uses an adaptive differential quantisation method to compress an input signal. Such method is covered in an earlier part of this paper. A parameter determines the maximum output and thereby the amount of bits needed. Larger values are clipped, which should be avoided. For analysis purposes, the function keeps track of the number of times this happened. $\phi$ and $\mu$ must be scaled to signed 16-bit integers.
+This function uses the earlier mentioned adaptive differential quantization method to compress an input signal. A parameter determines the maximum output and thereby the amount of bits needed. Larger values are clipped. This should be avoided by changing the other parameters. For analysis purposes, the function keeps track of the number of times the clippings happened. Input parameters $\phi$ and $\mu$ must be scaled to signed 16-bit integers.
 
 \subsection{decode.m}
 This function is the inverse of encode.m: it takes the output of the adaptive differential quantisation function and constructs s'(n), which approximate the original input signal s(n). Parameters $\phi$ and $\mu$ and 'buffer\_length' should be the same as those used for encoding with encode.m.
@@ -134,14 +135,13 @@ The perceptual metric PESQ is used to grade the quality of the codec. It was dec
 
 \begin{table}[bth]
 \begin{center}
-\begin{tabular}{ |l|l| }
-  \hline
+\begin{tabular}{ l|l }
   File name & PESQ score \\
   \hline
   belasting & 3.27 \\
   bir & 3.15 \\
   f116 & 3,05 \\
-  f216 & 3 \\
+  f216 & 3,00 \\
   m116 & 2,84 \\
   m216 & 2,73 \\
   words\_f & 3,13 \\
@@ -220,6 +220,7 @@ This intermediate paper was about the MATLAB implementation of the P\&D assignme
 
 \section{References}
 \begin{itemize}
-\item S. K. Agrawal and O. P. Sahu, Two-Channel Quadrature Mirror Filter Bank: An Overview, 23/03/2016, \url{http://www.hindawi.com/journals/isrn/2013/815619/}
+\item S. K. Agrawal and O. P. Sahu, Two-Channel Quadrature Mirror Filter Bank: An Overview, 23/03/2016,
+\texttt{http://www.hindawi.com/journals/ isrn/2013/815619/}
 \end{itemize}
 \end{document}
