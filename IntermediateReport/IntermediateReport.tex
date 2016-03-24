@@ -15,7 +15,7 @@
 \section{Introduction}
 This is an intermediate report about the MATLAB implementation of the P\&D assignment on subband coding, about the implementation of a speech codec. The main techniques used to create the codec are subband filtering and adaptive quantisation, with the goal of compressing a stereo audio signal. The MATLAB implementation uses fixed point numbers to mimic the working of a DSP. The parameters can be set in a flexible manner with the eye to optimal speech quality. \
 
-This report first mentions the required specifications followed by the explanation of QMF filterbanks and adaptive differential quanisation. Next, this paper shows the general MATLAB structure of the implementation of the assignment and what all MATLAB scripts do. It then explains the criteria for the optimal values of the parameters, followed by some conclusions on the behaviour of those values. After this, the current set of optimal values is given. The final part of this paper is about the PESQ score for audio that has been encoded and decoded with this implementation and a general conclusion.
+This report first mentions the required specifications followed by the explanation of QMF filterbanks and adaptive differential quanisation. Next, this paper shows the general MATLAB structure of the implementation of the assignment and what all MATLAB scripts do. It then handles the PESQ scores and the criterion for optimal values, followed by some conclusions on the behaviour of those values TODO is this true. After this, the current set of optimal values is given. The final part of this paper is about the PESQ score for audio that has been encoded and decoded with this implementation and a general conclusion.
 
 \section{Main design specifications}
 The following list contains the specifications that the design of the codec has to meet.
@@ -120,21 +120,15 @@ This function uses an adaptive differential quantisation method to compress an i
 This function is the inverse of encode.m: it takes the output of the adaptive differential quantisation function and constructs s'(n), which approximates the original input signal s(n).
 
 \subsection{synthesis.m}
-This function is the inverse of get\_subbands.m: its input are the separate subbands and it combines (synthesises) back into one signal. The filters used for this are the same QMF filters used for analysis, as explained earlier in the text. As in analysis, scaling is done to refit the values into the 16-bit range.
+This function is the inverse of get\_subbands.m: its inputs are the separate subbands and it combines (synthesises) back into one signal. The filters used for this are the same QMF filters used for analysis, as explained earlier in the text. As in analysis, scaling is done to refit the values into the 16-bit range.
 
-\section{Criterion for optimal values}
-From p127, we got the values for phi TODO we assumed gaussian distribution
-Optimal values also includes: filter lengths etc just put here as many parameters as possible i guess
-From the book: mu is fixed per fequency band. Estimate it such that the energy of the prediction error s(n) - mu*s(n-1) is minimized
+\section{SNR \& PESQ score}
+The perceptual metric PESQ is used to grade the quality of the codec. It was decided to use PESQ instead of SNR since it takes features of the human hearing into account (such as masking). This is why the optimal values are chosen on basis of PESQ scores, and SNR is mainly ignored.
 
-\section{General findings on the behaviour of PESQ}
-Don' really know what to put here but the assignment said we need this section. Maybe this is an introduction/conclusion section?
+TODO also zeggen dat we optimised hebben voor de combined shizzle omdat die ons beter lijkt dan voor één aparte; dan zeggen wat de optimale en de minst optimale PESQ waarden zijn bij de verschillende .wav bestandjes
+
 
 \section{Set of optimal values of controllable parameters}
-TODO hier onze finale waarden ingeven en zeggen hoe we eraan komen (zie boek: sommige vanuit theorie, sommigen bruteforce)
-TODO also zeggen dat we optimised hebben voor de combined shizzle omdat die ons beter lijkt dan voor één aparte; dan zeggen wat de optimale en de minst optimale PESQ waarden zijn bij de verschillende .wav bestandjes
-TODO zeggen dat deze waarden subject to change zijn en mogelijk niet onze finale waarden
-
 NOW NAME ALL PARAMETETERS! AND WRITE ABOUT MOTIVATION TO CHOOSE THEM! This includes:
 Amount of subbands
 Truncating vs rounding
@@ -155,7 +149,11 @@ The QMF filters that are generated with the given function QMF\_design.m are cha
 
 The values of $\mu$, used in the prediction of the next signal, are different for each subband. TODO hoe gevonden, patterns erin? Also in welke scaling weergeven? $*2^15$ of niet?
 
+TODO From the book: mu is fixed per fequency band. Estimate it such that the energy of the prediction error s(n) - mu*s(n-1) is minimized
+
 The values of $\phi$, used in the calculation of the stepsize, are different for each subband. TODO hoe gevonden, patterns erin? Also in welke scaling weergeven? $*2^15$ of niet? TODO gestart vanuit paper
+
+TODO From p127, we got the values for phi TODO we assumed gaussian distribution
 
 The number of bits per sample is also different for each subband. Lower subbands have more bits per sample, since they are more important to the human hearing. The lowest to highest subbands have 5, 4, 3 and 0 bits per sample respectively. Note that the highest subband is simply thrown away.
 
@@ -168,9 +166,6 @@ The filters used in QMF filter bank lead to a delay. For each depth in the filte
 \begin{equation*}
 delay = \frac{(64-1)}{8000 Hz} + \frac{(32-1)}{4000 Hz} = 15.625 ms.
 \end{equation*}
-
-\section{Final SNR \& PESQ}
-TODO zeggen dat we SNR niet hebben gebruikt en daar een reden voor verzinnen bv PESQ is beter
 
 \section{Conclusion}
 TODO spekken (zie taalgebruik van bossie) over alle secties die we behandeld hebben in deze paper
