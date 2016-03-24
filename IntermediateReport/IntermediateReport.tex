@@ -1,5 +1,6 @@
 \documentclass[a4paper]{article}
 \usepackage{amssymb}
+\usepackage{graphicx}
 
 \title{H09M0A P\&D Embedded Systems and Multimedia}
 \author{Seppe Iven - r0370830 \\ Koen Goetschalckx - r0375967}
@@ -36,9 +37,16 @@ A Quadrature Mirror Filter, or QMF, is a special kind of filter that can be used
 \begin{itemize}
 \item if $H_0(z)$ is a QMF filter, then $H_1(z) = H_0(-z)$ has the frequency response of $H_0$ mirrored around $\pi/2$.
 \item if $H_0(z)$ is a QMF filter, then analysis filters $H_0(z)$ and $H_1(z) = H_0(-z)$ and synthesis filters $F_0(z)=H_1(-z)=H_0(z)$ and $F_1(z)=-H_0(-z) = -H_1(z)$ form an alias-free filter bank.
-The second property indicates that $H_0(z)$ can completely define a alias-free QMF filter bank. For linear phase, this $H_0$ should be chosen symmetrical. Also, the filter should have an even amount of taps to avoid distortion at half the Nyquist frequency. 
 \end{itemize}
-Given all these properties and constraints, a simple polyphase implementation for a QMF filter bank can be designed. Writing the polyphase decomposition of $H_0(z)$ as $E_0(z^2) + z^{-1} E_1(z^2)$ the decomposition of $H_1(z)$ is $E_0(z^2) - z^{-1} E_1(z^2)$. This lead to an efficient implementation, as shown in figure \ref{fig:qmf}.
+The second property indicates that $H_0(z)$ can completely define a alias-free QMF filter bank. For linear phase, this $H_0$ should be chosen symmetrical. Also, the filter should have an even amount of taps to avoid distortion at half the Nyquist frequency. The first property indicates that if $H_0$ is a good low-pass filter, then $H_1$ is a good high-pass filter.
+
+Given these properties and constraints, a simple polyphase implementation for a QMF filter bank can be designed. Writing the polyphase decomposition of $H_0(z)$ as $E_0(z^2) + z^{-1} E_1(z^2)$ the decomposition of $H_1(z)$ is $E_0(z^2) - z^{-1} E_1(z^2)$. This lead to an efficient implementation, as shown in figure \ref{fig:qmf}.
+
+\begin{figure}[hbt]
+\includegraphics[width = \textwidth]{qmf}
+\caption{Polyphase implementation of QMF filter bank}
+\label{fig:qmf}
+\end{figure}
 
 TODO: show figure
 
