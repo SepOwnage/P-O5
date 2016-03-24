@@ -12,9 +12,9 @@
 \end{center}
 
 \section{Introduction}
-This is an intermediate report about the MATLAB implementation of the P\&D assignment on subband coding, about the implementation of a codec. The main techniques used to create the codec are subband filtering and adaptive quantisation, with the goal of compressing a stereo audio signal. The MATLAB implementation uses fixed point numbers to mimic the working of a DSP. The parameters can be set in a flexible manner with the eye to optimal speech quality. \
+This is an intermediate report about the MATLAB implementation of the P\&D assignment on subband coding, about the implementation of a speech codec. The main techniques used to create the codec are subband filtering and adaptive quantisation, with the goal of compressing a stereo audio signal. The MATLAB implementation uses fixed point numbers to mimic the working of a DSP. The parameters can be set in a flexible manner with the eye to optimal speech quality. \
 
-This report first mentions the required specifications followed by explanations about QMF filterbanks and adaptive differential quanisation. Next, this paper shows the general MATLAB structure of the implementation of the assignment. It then explains the criteria for the optimal values of the parameters, followed by some general conclusions on the behaviour of those values. After this, a set of optimal values is given. Those values lead to a PESQ score for audio that has been encoded and decoded with this implementation.
+This report first mentions the required specifications followed by the explanation of QMF filterbanks and adaptive differential quanisation. Next, this paper shows the general MATLAB structure of the implementation of the assignment and what all MATLAB scripts do. It then explains the criteria for the optimal values of the parameters, followed by some conclusions on the behaviour of those values. After this, the current set of optimal values is given. The final part of this paper is about the PESQ score for audio that has been encoded and decoded with this implementation and a general conclusion.
 
 \section{Main design specifications}
 The following list contains the specifications that the design of the codec has to meet.
@@ -71,7 +71,7 @@ TODO over hoe we eerst 5 subbanden hadden (want onderste zijn belangrijker dan d
 TODO foto'ke van adaptive differential maar beter dan die in onze tekst.
 TODO delays implementeren want die afbeeding in het boek is ni goed 
 
-After filtering into subbands, the data is now encoded with the adaptive differential quantisation scheme proposed in the assignment. The quantizer can be seen in figure \ref{fig:quantization} and the dequantizer in figure \ref{dequantization}. They contain the following signals:
+After filtering into subbands, the data is now encoded with the adaptive differential quantisation scheme proposed in the assignment. The quantizer can be seen in figure \ref{fig:quantization} and the dequantizer in figure \ref{fig:dequantization}. They contain the following signals:
 
 \begin{itemize}
 \item s(n) is the (serial) input signal
@@ -166,6 +166,12 @@ Niter = 600;
 Buffer lengths
 Scalings
 
+\section{Delay of the implementation}
+Delay due to: 
+Filtering/convolving (filter length and time to execute this (=1?))
+Quantization
+Dequantization
+Filtering/convolving
 
 \section{Final SNR \& PESQ}
 TODO zeggen dat we SNR niet hebben gebruikt en daar een reden voor verzinnen bv PESQ is beter
