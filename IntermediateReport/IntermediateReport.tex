@@ -3,6 +3,7 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{microtype}
+\usepackage{amsmath, amsthm, amssymb} 
 
 \title{H09M0A P\&D Embedded Systems and Multimedia}
 \author{Seppe Iven - r0370830 \\ Koen Goetschalckx - r0375967}
@@ -110,7 +111,7 @@ This MATLAB function mainly splits the stereo (or pairwise mono) channels into s
 
 \subsection{get\_subbands.m}
 This function recursively splits an audio channel into its subbands. It does this by applying polyphase QMF filters, as explained earlier in this paper. These filters are generated with a script that was given as as part of the assignment and defined by its parameters.
-Convolutions are used to apply the filters. Since this is a sum of products, the output values exceed the 16-bit range. The output is thus downscaled again. This downscaling is done by division of a power of two, so it is easily implementable as a bitshift. The exponent of two can be chosen, as it is a parameter. This gives rise to a trade-off between clipping and quantisation noise. A too small exponent leads to the former, while a too large exponent leads to relatively larger quantisation noise.
+Convolutions are used to apply the filters. Since this is a sum of products, the output values exceed the 16-bit range. The output must thus be downscaled again. This downscaling is done by division of a power of two, so it is easily implementable as a bitshift. The exponent of two can be chosen, as it is a parameter. This gives rise to a trade-off between clipping and quantisation noise. A too small exponent leads to the former, while a too large exponent leads to relatively larger quantisation noise.
 
 \subsection{encode.m}
 This function uses an adaptive differential quantisation method to compress an input signal. Such method is covered in an earlier part of this paper. A parameter determines the maximum output and thereby the amount of bits needed. Larger values are clipped, which should be avoided. For analysis purposes, the function keeps track of the number of times this happened.
@@ -119,7 +120,7 @@ This function uses an adaptive differential quantisation method to compress an i
 This function is the inverse of encode.m: it takes the output of the adaptive differential quantisation function and constructs s'(n), which approximates the original input signal s(n).
 
 \subsection{synthesis.m}
-This function is the inverse of get\_subbands.m: its input are the separate subbands and it combines (synthesises) back into one signal. The filters used for this are the same QMF filters used for analysis, as explained earlier in the text.
+This function is the inverse of get\_subbands.m: its input are the separate subbands and it combines (synthesises) back into one signal. The filters used for this are the same QMF filters used for analysis, as explained earlier in the text. As in analysis, scaling is done to refit the values into the 16-bit range.
 
 \section{Criterion for optimal values}
 From p127, we got the values for phi TODO we assumed gaussian distribution
@@ -163,11 +164,10 @@ The parameter buffer_lengths, used in the calculation of the stepsize, is equal 
 For the values of $\phi$, we started from the theory TODO reference. From there, all values of $\phi$, $\mu$ and buffer_lengths TODO also scalings were finetuned by trial and error: changing values, watching and following trends.
 
 \section{Delay of the implementation}
-Delay due to: 
-Filtering/convolving (filter length and time to execute this (=1?))
-Quantization
-Dequantization
-Filtering/convolving
+The filters used in QMF filter bank lead to a delay. For each depth in the filterbank, the delay is given by $delay_i = (n_i-1) / sample\_rate_i$ with $i$ the depth, $n_i$ the amount of filtertaps at this depth and $sample\_rate_i$ the sample rate at this depth, equal to the original sample rate divided by $2^{i-1}$. With filters of 64 and 32 taps, the delay becomes:
+\begin{equation*}
+delay = \frac{(64-1)}{8000 Hz} + \frac{(32-1)}{4000 Hz} = 15.625 ms.
+\end{equation*}
 
 \section{Final SNR \& PESQ}
 TODO zeggen dat we SNR niet hebben gebruikt en daar een reden voor verzinnen bv PESQ is beter
