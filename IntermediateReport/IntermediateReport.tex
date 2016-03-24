@@ -37,7 +37,7 @@ An input audio file is split into subbands by using a Quadrature Mirror Filter b
 A QMF filter bank consists of a low-pass and high-pass filter $H_0(z)$ and $H_1(z)$, that split the audio file into a low-frequency and a high-frequency part. Such filter bank is used to efficiently create a two-way filter bank. A recursive implementation is used to split an audio file into four subbands as shown by figure \ref{fig:qmfrecursive}.\\
 \begin{figure}[hbt]
 \includegraphics[width = \textwidth]{qmfrecursive}
-\caption{4-subband QMF filter bank}
+\caption{4-way QMF filter bank}
 \label{fig:qmfrecursive}
 \end{figure} \\
 QMF filters have some special properties:
@@ -120,50 +120,25 @@ This function recursively splits an audio channel into its subbands. It does thi
 Convolutions are used to apply the filters. Since this is a sum of products, the output values exceed the 16-bit range. The output must thus be downscaled again. This downscaling is done by division of a power of two, so it is easily implementable as a bitshift. The exponent of two can be chosen, as it is a parameter of this function. It should however be chosen with respect to the filter length: longer filters add more numbers, creating a larger result and thus the need for more downscaling. The choice of exponent gives rise to a trade-off between clipping and quantisation noise. A too small exponent leads to the former, while a too large exponent leads to relatively larger quantisation noise.
 
 \subsection{encode.m}
-This function uses an adaptive differential quantisation method to compress an input signal. Such method is covered in an earlier part of this paper. A parameter determines the maximum output and thereby the amount of bits needed. Larger values are clipped, which should be avoided. For analysis purposes, the function keeps track of the number of times this happened.
+This function uses an adaptive differential quantisation method to compress an input signal. Such method is covered in an earlier part of this paper. A parameter determines the maximum output and thereby the amount of bits needed. Larger values are clipped, which should be avoided. For analysis purposes, the function keeps track of the number of times this happened. $\phi$ and $\mu$ must be scaled to signed 16-bit integers.
 
 \subsection{decode.m}
-This function is the inverse of encode.m: it takes the output of the adaptive differential quantisation function and constructs s'(n), which approximates the original input signal s(n).
+This function is the inverse of encode.m: it takes the output of the adaptive differential quantisation function and constructs s'(n), which approximates the original input signal s(n). Parameters $\phi$ and $\mu$ and buffer\_length should be the same as those used for encoding with encode.m.
 
 \subsection{synthesis.m}
 This function is the inverse of get\_subbands.m: its inputs are the separate subbands and it combines (synthesises) back into one signal. The filters used for this are the same QMF filters used for analysis, as explained earlier in the text. As in analysis, scaling is done to refit the values into the 16-bit range.
 
 \section{SNR \& PESQ score}
-The perceptual metric PESQ is used to grade the quality of the codec. It was decided to use PESQ instead of SNR since it takes features of the human hearing into account (such as masking). This is why the optimal values are chosen on basis of PESQ scores, and SNR is mainly ignored. \\
+The perceptual metric PESQ is used to grade the quality of the codec. It was decided to use PESQ instead of SNR since it takes features of the human hearing into account (such as masking). This is why the optimal values are chosen on basis of PESQ scores, and SNR is mainly ignored.
 
-\begin{table}[bth]
-\begin{center}
-\begin{tabular}{ |l|l| }
-  \hline
-  File name & PESQ score \\
-  \hline
-  belasting & 3.27 \\
-  bir & 3.15 \\
-  f116 & 3,05 \\
-  f216 & 3 \\
-  m116 & 2,84 \\
-  m216 & 2,73 \\
-  words\_f & 3,13 \\
-  words\_m & 3,03 \\
-  combined\_8000\_short & 3,34 \\
-  combined\_8000 & 3,54 \\
-  \hline
-\end{tabular}
-  \caption{PESQ scores for different audio files}
-\label{fig:pesqscores}
+TODO also zeggen dat we optimised hebben voor de combined shizzle omdat die ons beter lijkt dan voor één aparte; dan zeggen wat de optimale en de minst optimale PESQ waarden zijn bij de verschillende .wav bestandjes
 
-\end{center}
-\end{table}
-
-The parameters are optimised by maximising the PESQ score for the audio file 'combined\_8000\_short.wav'. This is a combination of the audio files 'm116.wav', 'f116.wav' and 'f216.wav'. This is preferred to a single file, since it contains more variation as training data.
 
 \section{Set of optimal values of controllable parameters}
 NOW NAME ALL PARAMETETERS! AND WRITE ABOUT MOTIVATION TO CHOOSE THEM! This includes:
 Amount of subbands
 Truncating vs rounding
 Scalings
-
-TODO zeggen dat we er niet lang op hebben gezocht omdat het niet dringend is en dat we het gewoon kunnen brute forcen
 
 This section will handle all of the parameters that define the implementation of the speech codec. Please note that although these values are currently our optimal values, they may be subject to changes in the future. For example, a quantization method was recently changed from rounding to rounding towards zero, to better comply with rounding in C. This all may influence the optimal values of the parameters.
 
