@@ -186,9 +186,10 @@ The number of bits per sample is also different for each subband. Lower subbands
 
 The parameter buffer\_lengths, used in the calculation of the step size, is equal to 10 for every subband.
 
-The values for all these parameters are listed in table \ref{tab:parametervalues}.
+The values for all these parameters are listed in tables \ref{tab:parametervalues} to \ref{tab:scalingparameters}.
 
-\begin{table}
+\begin{table}[h]
+\centering
 \begin{tabular}{l|cccc} 
 band frequency & lowest & low & high & highest \\ 
 \hline 
@@ -198,10 +199,22 @@ buffer\_length & 10 & 10 & 10 & / \\
 \#bits & 5 & 4 & 3 & 0 \\ 
 \hline 
 \end{tabular}
-\caption{Current optimal values of parameters}
+\caption{Current optimal values of encoding parameters}
 \label{tab:parametervalues}
 \end{table}
-Finding these values started by chosing the values for the scaling, because these give very high differences in PESQ scores. One division by 2 (one bitshift) too many results in a lower amplitude of the signal, one too few leads to clipping and thus distortion. 
+\begin{table}[h]
+\centering
+\begin{tabular}{c|ccc}
+scalings & lower frequencies & • &  higher frequencies \\ 
+\hline 
+depth 1 &  • & 17 & •  \\ 
+depth 2 &  15 & • & 16  \\ 
+\hline 
+\end{tabular} 
+\caption{Current scaling parameters}
+\label{tab:scalingparameters}
+\end{table}
+Finding these values started by chosing the values for the scaling, because these give very high differences in PESQ scores. One division by 2 (one bitshift) too many results in a lower amplitude of the signal, one too few leads to clipping and thus distortion. Next the buffer\_lengths were changed. The length for the lowest frequency made a larger difference than the other. From this point on $\mu$, $\phi$ and buffer\_length values were changed one by one, always selecting a value that increased the PESQ score on combined\_8000\_short.wav. This lead to mentioned values.
 
 \section{Delay of the implementation}
 The filters used in QMF filter bank lead to a delay. For each depth in the filterbank, the delay is given by $delay_i = (n_i-1) / sample\_rate_i$ with $i$ the depth, $n_i$ the amount of filter taps at this depth and $sample\_rate_i$ the sample rate at this depth, equal to the original sample rate divided by $2^{i-1}$. With filters of 64 and 32 taps, the delay becomes:
