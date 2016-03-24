@@ -32,6 +32,17 @@ The following list contains the specifications that the design of the codec has 
 Don' really know what to put here but the assignment said we need this section. Maybe this is an introduction/conclusion section?
 
 \section{QMF and shizzle}
+A Quadrature Mirror Filter, or QMF, is a special kind of filter that can be used to efficiently create a 2-way filter bank. Recursively applying QMFs can split the signal into more subbands if wanted. QMF filters have some special properties:
+\begin{itemize}
+\item if $H_0(z)$ is a QMF filter, then $H_1(z) = H_0(-z)$ has the frequency response of $H_0$ mirrored around $\pi/2$.
+\item if $H_0(z)$ is a QMF filter, then analysis filters $H_0(z)$ and $H_1(z) = H_0(-z)$ and synthesis filters $F_0(z)=H_1(-z)=H_0(z)$ and $F_1(z)=-H_0(-z) = -H_1(z)$ form an alias-free filter bank.
+The second property indicates that $H_0(z)$ can completely define a alias-free QMF filter bank. For linear phase, this $H_0$ should be chosen symmetrical. Also, the filter should have an even amount of taps to avoid distortion at half the Nyquist frequency. 
+
+Given all these properties and constraints, a simple polyphase implementation for a QMF filter bank can be designed.
+
+TODO: bron vermelden? http://www.hindawi.com/journals/isrn/2013/815619/
+
+\end{itemize}
 Type something about how QMF works (so it can be skipped in get\_subbands.m). Talk about how many bits per subband, how this equals 24k bit/s etc..
 TODO figures e.g. input and output signals of QMF system
 TODO zeggen dat onderste subbanden belangrijker blijken uit testen -> meer bits aan toekennen
