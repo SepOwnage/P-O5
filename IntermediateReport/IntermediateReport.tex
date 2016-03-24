@@ -34,8 +34,12 @@ The following list contains the specifications that the design of the codec has 
 
 \section{Splitting into subbands: QMF}
 An input audio file is split into subbands by using a Quadrature Mirror Filter bank.
-A QMF filter bank consists of a low-pass and high-pass filter $H_0(z)$ and $H_1(z)$, that split the audio file into a low-frequency and a high-frequency part. Such filter bank is used to efficiently create a two-way filter bank. A recursive implementation is used to split an audio file into four subbands. \\
-
+A QMF filter bank consists of a low-pass and high-pass filter $H_0(z)$ and $H_1(z)$, that split the audio file into a low-frequency and a high-frequency part. Such filter bank is used to efficiently create a two-way filter bank. A recursive implementation is used to split an audio file into four subbands as shown by figure \ref{fig:qmfrecursive}.\\
+\begin{figure}[hbt]
+\includegraphics[width = \textwidth]{qmfrecursive}
+\caption{4-way QMF filter bank}
+\label{fig:qmfrecursive}
+\end{figure} \\
 QMF filters have some special properties:
 \begin{itemize}
 \item if $H_0(z)$ is a QMF filter, then $H_1(z) = H_0(-z)$ has the frequency response of $H_0$ mirrored around $\pi/2$.
@@ -61,6 +65,8 @@ This leads to the efficient implementation of the filter bank shown in figure \r
 \caption{Polyphase implementation of QMF filter bank}
 \label{fig:qmf}
 \end{figure}
+
+For this project, both symmetric and asymmetric, where only one of the output bands of a QMF block are split further, structures were considered. Although for example 5 subbands created by always splitting the lower frequency band, may possibly have lead to better results, further use and study of these asymmetric structures were cancelled as the teacher assistant said these were never considered previously and would lead to more complex C implementation. Thus, the final structure consists of QMF filter bank symmetrically splitting the signal into four subbands, as in figure \ref{fig:qmfrecursive}.
 
 \section{Adaptive differential quantisation and shizzle}
 After filtering into subbands, the data is now encoded with an adaptive differential quantisation scheme. The quantizer can be seen in figure \ref{fig:quantization} and the dequantizer in figure \ref{fig:dequantization}. They contain the following signals:
@@ -110,7 +116,7 @@ The input is scaled to a 16 bit signed integer. The input is then split into sub
 This MATLAB function mainly splits the stereo (or pairwise mono) channels into separate channels, and feeds splits them into subbands by calling get\_subbands.m.
 
 \subsection{get\_subbands.m}
-This function recursively splits an audio channel into its subbands. It does this by applying polyphase QMF filters, as explained earlier in this paper. These filters are generated with a script that was given as as part of the assignment and defined by its parameters.
+This function recursively splits an audio channel into its subbands. It does this by applying polyphase QMF filters, as explained earlier in this paper. These filters are generated with a function that was given as as part of the assignment and defined by its parameters.\\
 Convolutions are used to apply the filters. Since this is a sum of products, the output values exceed the 16-bit range. The output must thus be downscaled again. This downscaling is done by division of a power of two, so it is easily implementable as a bitshift. The exponent of two can be chosen, as it is a parameter. This gives rise to a trade-off between clipping and quantisation noise. A too small exponent leads to the former, while a too large exponent leads to relatively larger quantisation noise.
 
 \subsection{encode.m}
