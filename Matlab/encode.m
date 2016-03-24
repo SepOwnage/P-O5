@@ -16,7 +16,7 @@ function [out, nb_clips] = encode(input, mu, phi, maximum, buffer_length)
     %preallocation
     out = int16(zeros(length(input),1));
     %init
-    prediction = 0;
+    prediction = int16(0);
     stepsize = 1; 
     prev_dequantized_sample = 0;
     nb_clips = 0;
