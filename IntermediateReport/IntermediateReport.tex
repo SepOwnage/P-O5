@@ -1,6 +1,8 @@
 \documentclass[a4paper]{article}
 \usepackage{amssymb}
 \usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{microtype}
 
 \title{H09M0A P\&D Embedded Systems and Multimedia}
 \author{Seppe Iven - r0370830 \\ Koen Goetschalckx - r0375967}
@@ -10,10 +12,9 @@
 \end{center}
 
 \section{Introduction}
-This is an intermediate report about the matlab implementation of the P\&D assignment on subband coding, where a codec is implemented. The main techniques used to create such codec are subband filtering and adaptive quantisation, with the goal of compressing a stereo audio signal. This matlab implementation uses fixed point numbers and its parameters can be set in a flexible manner with the eye to optimal speech quality. \
+This is an intermediate report about the MATLAB implementation of the P\&D assignment on subband coding, about the implementation of a codec. The main techniques used to create the codec are subband filtering and adaptive quantisation, with the goal of compressing a stereo audio signal. The MATLAB implementation uses fixed point numbers to mimic the working of a DSP. The parameters can be set in a flexible manner with the eye to optimal speech quality. \
 
-TODO edit this paragraph to include all sections of the report:
-This report contains a section on the main findings, an explanation about QMF filterbanks and the general matlab structure of the implementation of the assignment. It then explains the criteria for the optimal values of the parameters, followed by those values. Those values lead to a SNR and PESQ score for audio that has been encoded and decoded with this implementation.
+This report first mentions the required specifications followed by explanations about QMF filterbanks and adaptive differential quanisation. Next, this paper shows the general MATLAB structure of the implementation of the assignment. It then explains the criteria for the optimal values of the parameters, followed by some general conclusions on the behaviour of those values. After this, a set of optimal values is given. Those values lead to a PESQ score for audio that has been encoded and decoded with this implementation.
 
 \section{Main design specifications}
 The following list contains the specifications that the design of the codec has to meet.
@@ -29,8 +30,6 @@ The following list contains the specifications that the design of the codec has 
 
 \end{itemize}
 
-\section{Main findings}
-Don' really know what to put here but the assignment said we need this section. Maybe this is an introduction/conclusion section?
 
 \section{Splitting into subbands: QMF}
 An input audio file is split into subbands by using a Quadrature Mirror Filter bank.
@@ -62,9 +61,7 @@ This leads to a very efficient implementation of the filter bank, as shown on th
 \label{fig:qmf}
 \end{figure}
 
-TODO: show figure
-
-TODO: bron vermelden? http://www.hindawi.com/journals/isrn/2013/815619/
+TODO: bron vermelden? 
 Type something about how QMF works (so it can be skipped in get\_subbands.m). Talk about how many bits per subband, how this equals 24k bit/s etc..
 TODO figures e.g. input and output signals of QMF system
 TODO zeggen dat onderste subbanden belangrijker blijken uit testen -> meer bits aan toekennen
@@ -105,8 +102,10 @@ The dequantizer can reconstruct s'(n) based on the z(n) it receives. It is thus 
 \label{fig:dequantization}
 \end{figure}
 
-\section{Matlab structure - Implementation overview}
-This paper will now give a brief explanation of the matlab files that are used and their functionality.
+
+
+\section{MATLAB structure - Implementation overview}
+This paper will now give a brief explanation of the MATLAB files that are used and their functionality.
 
 TODO: Talk about all the scalings to make the numbers fit integers as much as possible etc
 
@@ -119,7 +118,7 @@ This is the main script that is used to divide an audio file into subbands, enco
 The input is scaled to a 16 bit integer. The input is then split into subbands by calling analysis.m. These subbands are first encoded by calling encoded.m and then decoded by calling decode.m. Finally, the subbands are combined by calling synthesis.m and the PESQ score for the reconstructed audio file is calculated by calling alignpesq.m	.
 
 \subsection{analysis.m}
-This matlab script mainly splits the stereo (or pairwise mono) channels into separate channels, and feeds splits them into subbands by calling get\_subbands.m.
+This MATLAB script mainly splits the stereo (or pairwise mono) channels into separate channels, and feeds splits them into subbands by calling get\_subbands.m.
 
 \subsection{get\_subbands.m}
 This script recursively splits an audio channel into its subbands. It does this by applying polyphase QMF filters, as has been explained earlier in this paper TODO Is this true?. These filters are generated with a script that is given with the assignment and defined by its parameters.
@@ -144,9 +143,12 @@ From p127, we got the values for phi TODO we assumed gaussian distribution
 Optimal values also includes: filter lengths etc just put here as many parameters as possible i guess
 From the book: mu is fixed per fequency band. Estimate it such that the energy of the prediction error s(n) - mu*s(n-1) is minimized
 
-\section{Optimal values of all controllable parameters}
+\section{General findings on the behaviour of PESQ}
+Don' really know what to put here but the assignment said we need this section. Maybe this is an introduction/conclusion section?
+
+\section{Set of optimal values of controllable parameters}
 TODO hier onze finale waarden ingeven en zeggen hoe we eraan komen (zie boek: sommige vanuit theorie, sommigen bruteforce)
-TODO also zeggen dat we optimised hebben voor de combined shizzle omdat die ons beter lijkt dan voor één aparte; dan zeggen wat de optimale en de minst optimale pesq waarden zijn bij de verschillende .wav bestandjes
+TODO also zeggen dat we optimised hebben voor de combined shizzle omdat die ons beter lijkt dan voor één aparte; dan zeggen wat de optimale en de minst optimale PESQ waarden zijn bij de verschillende .wav bestandjes
 TODO zeggen dat deze waarden subject to change zijn en mogelijk niet onze finale waarden
 
 NOW NAME ALL PARAMETETERS! AND WRITE ABOUT MOTIVATION TO CHOOSE THEM! This includes:
@@ -166,12 +168,16 @@ Scalings
 
 
 \section{Final SNR \& PESQ}
-TODO zeggen dat we SNR niet hebben gebruikt en daar een reden voor verzinnen bv pesq is beter
+TODO zeggen dat we SNR niet hebben gebruikt en daar een reden voor verzinnen bv PESQ is beter
 
 \section{Conclusion}
 TODO spekken (zie taalgebruik van bossie) over alle secties die we behandeld hebben in deze paper
-TODO zeggen dat we een goede maar niet finale matlab implementatie hebben (bv de deling die we nog aangepast hebben om op C te lijken; alsook dat onze final parameters nog niet final zijn maar subject to optimization)
+TODO zeggen dat we een goede maar niet finale MATLAB implementatie hebben (bv de deling die we nog aangepast hebben om op C te lijken; alsook dat onze final parameters nog niet final zijn maar subject to optimization)
 
+\section{References}
+\begin{itemize}
+\item S. K. Agrawal and O. P. Sahu, Two-Channel Quadrature Mirror Filter Bank: An Overview, 23/03/2016, \url{http://www.hindawi.com/journals/isrn/2013/815619/}
+\end{itemize}
 \end{document}
 
 TODO scan for codex instead of codec
