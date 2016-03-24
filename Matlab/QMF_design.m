@@ -1,4 +1,4 @@
-function [h0, h1, f0, f1] = QMF_design()
+function [h0, h1, f0, f1] = QMF_designQMF_design(fs, df, Astop, fstep, Niter, FLength)
 
 % PURPOSE: Design of the LowPass (0) and HighPass (1) linear phase impulse
 %	   responses of the analysis (h) and synthesis (f) filters for a
