@@ -12,9 +12,9 @@
 \end{center}
 
 \section{Introduction}
-This is an intermediate report about the MATLAB implementation of the P\&D assignment on subband coding, about the implementation of a codec. The main techniques used to create the codec are subband filtering and adaptive quantisation, with the goal of compressing a stereo audio signal. The MATLAB implementation uses fixed point numbers to mimic the working of a DSP. The parameters can be set in a flexible manner with the eye to optimal speech quality. \
+This is an intermediate report about the MATLAB implementation of the P\&D assignment on subband coding, about the implementation of a speech codec. The main techniques used to create the codec are subband filtering and adaptive quantisation, with the goal of compressing a stereo audio signal. The MATLAB implementation uses fixed point numbers to mimic the working of a DSP. The parameters can be set in a flexible manner with the eye to optimal speech quality. \
 
-This report first mentions the required specifications followed by explanations about QMF filterbanks and adaptive differential quanisation. Next, this paper shows the general MATLAB structure of the implementation of the assignment. It then explains the criteria for the optimal values of the parameters, followed by some general conclusions on the behaviour of those values. After this, a set of optimal values is given. Those values lead to a PESQ score for audio that has been encoded and decoded with this implementation.
+This report first mentions the required specifications followed by the explanation of QMF filterbanks and adaptive differential quanisation. Next, this paper shows the general MATLAB structure of the implementation of the assignment and what all MATLAB scripts do. It then explains the criteria for the optimal values of the parameters, followed by some conclusions on the behaviour of those values. After this, the current set of optimal values is given. The final part of this paper is about the PESQ score for audio that has been encoded and decoded with this implementation and a general conclusion.
 
 \section{Main design specifications}
 The following list contains the specifications that the design of the codec has to meet.
@@ -31,15 +31,29 @@ The following list contains the specifications that the design of the codec has 
 \end{itemize}
 
 
-\section{QMF and shizzle}
-A Quadrature Mirror Filter, or QMF, is a special kind of filter that can be used to efficiently create a 2-way filter bank. Recursively applying QMFs can split the signal into more subbands if wanted. QMF filters have some special properties:
+\section{Splitting into subbands: QMF}
+An input audio file is split into subbands by using a Quadrature Mirror Filter bank.
+A QMF filter bank consists of a low-pass and high-pass filter $H_0(z)$ and $H_1(z)$, that split the audio file into a low-frequency and a high-frequency part. Such filter bank is used to efficiently create a two-way filter bank. A recursive implementation is used to split an audio file into four subbands. \\
+
+QMF filters have some special properties:
 \begin{itemize}
 \item if $H_0(z)$ is a QMF filter, then $H_1(z) = H_0(-z)$ has the frequency response of $H_0$ mirrored around $\pi/2$.
 \item if $H_0(z)$ is a QMF filter, then analysis filters $H_0(z)$ and $H_1(z) = H_0(-z)$ and synthesis filters $F_0(z)=H_1(-z)=H_0(z)$ and $F_1(z)=-H_0(-z) = -H_1(z)$ form an alias-free filter bank.
 \end{itemize}
-The second property indicates that $H_0(z)$ can completely define a alias-free QMF filter bank. For linear phase, this $H_0$ should be chosen symmetrical. Also, the filter should have an even amount of taps to avoid distortion at half the Nyquist frequency. The first property indicates that if $H_0$ is a good low-pass filter, then $H_1$ is a good high-pass filter.
 
-Given these properties and constraints, a simple polyphase implementation for a QMF filter bank can be designed. Writing the polyphase decomposition of $H_0(z)$ as $E_0(z^2) + z^{-1} E_1(z^2)$ the decomposition of $H_1(z)$ is $E_0(z^2) - z^{-1} E_1(z^2)$. This lead to an efficient implementation, as shown in figure \ref{fig:qmf}.
+The second property indicates that a complete alias-free QMF filter bank can be defined by $H_0(z)$ alone. For the filter to be linear phase, this $H_0$ should be chosen symmetrical. Also, the filter should have an even amount of taps to avoid distortion at half the Nyquist frequency. \\
+
+The first property indicates that if $H_0$ is a good low-pass filter, then $H_1$ is a good high-pass filter. \\
+
+Given these properties and constraints, a simple polyphase implementation for a QMF filter bank can be designed, and is shown in figure \ref{fig:qmf}. The polyphase decomposition of $H_0(z)$ is:\\
+\begin{center}
+$H_0(z)$ = $E_0(z^2) + z^{-1} E_1(z^2)$ \\
+\end{center}
+From the first property, it follows that: \\
+\begin{center}
+$H_1(z)$ = $E_0(z^2) - z^{-1} E_1(z^2)$ \\
+\end{center}
+This leads to the efficient implementation of the filter bank shown in figure \ref{fig:qmf}.
 
 \begin{figure}[hbt]
 \includegraphics[width = \textwidth]{qmf}
@@ -117,6 +131,28 @@ Don' really know what to put here but the assignment said we need this section. 
 TODO hier onze finale waarden ingeven en zeggen hoe we eraan komen (zie boek: sommige vanuit theorie, sommigen bruteforce)
 TODO also zeggen dat we optimised hebben voor de combined shizzle omdat die ons beter lijkt dan voor één aparte; dan zeggen wat de optimale en de minst optimale PESQ waarden zijn bij de verschillende .wav bestandjes
 TODO zeggen dat deze waarden subject to change zijn en mogelijk niet onze finale waarden
+
+NOW NAME ALL PARAMETETERS! AND WRITE ABOUT MOTIVATION TO CHOOSE THEM! This includes:
+Astop
+Filter ripple?
+Filter length
+Amount of subbands
+Amount of bits for each subbands
+Truncating vs rounding
+initial stepsize
+initial prediction
+df = fs/10;
+fstep = 10;
+Niter = 600;
+Buffer lengths
+Scalings
+
+\section{Delay of the implementation}
+Delay due to: 
+Filtering/convolving (filter length and time to execute this (=1?))
+Quantization
+Dequantization
+Filtering/convolving
 
 \section{Final SNR \& PESQ}
 TODO zeggen dat we SNR niet hebben gebruikt en daar een reden voor verzinnen bv PESQ is beter
