@@ -3,6 +3,7 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{microtype}
+\usepackage{amsmath, amsthm, amssymb} 
 
 \title{H09M0A P\&D Embedded Systems and Multimedia}
 \author{Seppe Iven - r0370830 \\ Koen Goetschalckx - r0375967}
@@ -148,11 +149,10 @@ Buffer lengths
 Scalings
 
 \section{Delay of the implementation}
-Delay due to: 
-Filtering/convolving (filter length and time to execute this (=1?))
-Quantization
-Dequantization
-Filtering/convolving
+The filters used in QMF filter bank lead to a delay. For each depth in the filterbank, the delay is given by $delay_i = (n_i-1) / sample\_rate_i$ with $i$ the depth, $n_i$ the amount of filtertaps at this depth and $sample\_rate_i$ the sample rate at this depth, equal to the original sample rate divided by $2^{i-1}$. With filters of 64 and 32 taps, the delay becomes:
+\begin{equation*}
+delay = \frac{(64-1)}{8000 Hz} + \frac{(32-1)}{4000 Hz} = 15.625 ms.
+\end{equation*}
 
 \section{Final SNR \& PESQ}
 TODO zeggen dat we SNR niet hebben gebruikt en daar een reden voor verzinnen bv PESQ is beter
