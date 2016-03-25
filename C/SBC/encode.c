@@ -28,12 +28,12 @@ void convolve(short *input, short *reversedFilter,
 	unsigned short i,j;
 	long long result;
 	unsigned short stop = inputL-filterL; // 10
-
+	printf("stop: %d", stop);
 	for(j=0; j < stop; j++){ // 0 tem 9
 		result = 0;
 		unsigned short smallstop = filterL;
 		for(i = 0; i<smallstop; i++){ // 1 tem 40   ....   10 tem 49
-		    //printf("bufsample: %x ,  filtersample: %x \n", (input+(i+inputOffset)%inputL),(reversedFilter+i));
+		    //printf("j:%d i:%d bufsample: %p ,  filtersample: %p \n",j,i,(void *)  (input+(i+inputOffset+j+1)%inputL),(void *) (reversedFilter+i));
 		    //printf("bufsample: %d ,  filtersample: %d \n", *(input+(i+inputOffset)%inputL),*(reversedFilter+i));
 		    //printf("%d,%d|",i, (i+inputOffset)%inputL);
 			result += (*(input+(i+inputOffset+j+1)%inputL)) * (*(reversedFilter+i));    //laatste  = input+i = input+filterL+j = input+filterL+inputL-filterL
@@ -43,6 +43,7 @@ void convolve(short *input, short *reversedFilter,
 			result = 32767;
 		else if (result < -32768)
 			result = -32767;
+		printf("outsample %p",(void *) ( output + (j+outputOffset)%outputLength));
 		*(output + (j+outputOffset)%outputLength) = (short)(result);
 	} 
 }

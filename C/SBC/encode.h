@@ -20,7 +20,11 @@ struct chunk{
 
 void encode(short buffer[BUFFERSIZE],struct chunk * historyChunk);
 void addBufferToHistory(short buffer[BUFFERSIZE], struct chunk *historyChunk);
-void convolve(short *input, short *reversedFilter, unsigned short inputOffset, unsigned short inputL,unsigned short filterL, short *output, unsigned short outputOffset, unsigned short outputLength);
+void convolve(short *input, short *reversedFilter,
+		unsigned short inputOffset, unsigned short inputL,
+		unsigned short filterL, 
+		short *output, unsigned short outputOffset, 
+		unsigned short outputLength, unsigned short amountToShift);
 void combine(short *upper, short *lower, short *out_low, short *out_high,
 			 unsigned short length, unsigned short start, unsigned short arrayLength);
 void copyToLowerLayer(struct chunk *historyChunk);
