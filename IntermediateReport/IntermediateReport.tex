@@ -138,24 +138,24 @@ The perceptual metric PESQ is used to grade the quality of the codec. It was dec
 \begin{tabular}{ l|l }
   File name & PESQ score \\
   \hline
-  belasting & 3.27 \\
-  bir & 3.15 \\
-  f116 & 3,05 \\
-  f216 & 3,00 \\
-  m116 & 2,84 \\
-  m216 & 2,73 \\
-  words\_f & 3,13 \\
-  words\_m & 3,03 \\
-  combined\_8000\_short & 3,34 \\
-  combined\_8000 & 3,54 \\
+  belasting & 3.35 \\
+  bir & 3.66 \\
+  f116 & 3.04 \\
+  f216 & 2.97 \\
+  m116 & 3.38 \\
+  m216 & 3.43 \\
+  words\_f & 3.46 \\
+  words\_m & 3.28 \\
+  combined\_8000\_short & 3.34 \\
+  combined\_8000 & 3.54 \\
   \hline
 \end{tabular}
   \caption{PESQ scores for different audio files}
-\label{fig:pesqscores}
+\label{tab:pesqscores}
 \end{center}
 \end{table}
 
-The parameters are optimized by maximizing the PESQ score for the audio file 'combined\_8000\_short.wav'. This is a combination of the audio files 'm116.wav', 'f116.wav' and 'f216.wav'. This is preferred to a single file, since it contains more variation as training data.
+The parameters are optimized by maximizing the PESQ score for the audio file 'combined\_8000\_short.wav'. This is a combination of the audio files 'm116.wav', 'f116.wav' and 'f216.wav'. This is preferred to a single file, since it contains more variation as training data. All audio streams were delivered at 16kHz sampling rate, but the system is designed for 8kHz. Using Audacity, an anti-aliasing filter with 70dB attenuation for frequencies above 4kHz was applied to these audio files, before downsampling them to 8kHz. The values in table \ref{tab:pesqscores} are obtained using run.m with these downsampled versions.
 
 \section{Set of optimal values of controllable parameters}
 This section handles all of the parameters that define the implementation of the speech codec. Please note that although these values are currently our optimal values, they may be subject to changes in the future. This can be because of changes in the code, or because better values are found by (brute force) searching.\\
@@ -210,10 +210,11 @@ delay = \frac{(64-1)}{8000 Hz} + \frac{(32-1)}{4000 Hz} = 15.625 ms.
 
 \section{Conclusion}
 This intermediate paper was about the MATLAB implementation of the P\&D assignment on subband coding, about the implementation of a speech codec. The paper discussed the design specifications, splitting an audio signal into subbands with QMF and quantizing it with an adaptive differential quantization scheme. It then explained the MATLAB structure and scripts. The MATLAB functions work with fixed point values. This simulates the working on a DSP. All performance results should therefore not change when the system is run on a DSP. The achieved PESQ scores (2,73 to 3,54) were shown and indicate good performance. The optimal values of the parameters were found by searching for the highest PESQ score by changing the parameters. Finally, the delay of the implementation was briefly discussed and calculated to be less than $16ms$. This leaves $134ms$ for the encryption and decryption.
-
+\clearpage
 \section{References}
 \begin{itemize}
 \item S. K. Agrawal and O. P. Sahu, Two-Channel Quadrature Mirror Filter Bank: An Overview, 23/03/2016,
 \texttt{http://www.hindawi.com/journals/ isrn/2013/815619/}
+\item -, Audacity, 25/03/2016, \texttt{http://www.audacityteam.org/}
 \end{itemize}
 \end{document}
