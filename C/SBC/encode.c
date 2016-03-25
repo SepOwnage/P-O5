@@ -25,6 +25,7 @@ void convolve(short *input, short *reversedFilter,
 		unsigned short filterL, 
 		short *output, unsigned short outputOffset, 
 		unsigned short outputLength, unsigned short amountToShift){ //must be able to work in place? => works in place when output == input
+	//TODO: bitshift does floor instead of to zero
 	unsigned short i,j;
 	long long result;
 	unsigned short stop = inputL-filterL; // 10
@@ -43,7 +44,7 @@ void convolve(short *input, short *reversedFilter,
 			result = 32767;
 		else if (result < -32768)
 			result = -32767;
-		printf("outsample %p",(void *) ( output + (j+outputOffset)%outputLength));
+		//printf("outsample %p",(void *) ( output + (j+outputOffset)%outputLength));
 		*(output + (j+outputOffset)%outputLength) = (short)(result);
 	} 
 }
