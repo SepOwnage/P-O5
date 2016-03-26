@@ -39,7 +39,7 @@ void convolve(short *input, short *reversedFilter,
 		    //printf("%d,%d|",i, (i+inputOffset)%inputL);
 			result += (*(input+(i+inputOffset+j+1)%inputL)) * (*(reversedFilter+i));    //laatste  = input+i = input+filterL+j = input+filterL+inputL-filterL
 		}
-		result = result>>amountToShift;
+		result = result/(1<<amountToShift);
 		if (result> 32767)
 			result = 32767;
 		else if (result < -32768)
@@ -50,19 +50,31 @@ void convolve(short *input, short *reversedFilter,
 }
 
 void combine(short *upper, short *lower, short *out_low, short *out_high,
-			 unsigned short length, unsigned short start, unsigned short arrayLength){
+			 unsigned short length, unsigned short start, unsigned short arrayLength,
+			 unsigned short *combineTransfer){
 			//can work in place with in and outputs the same
-	short i;	
-	int temp;
-	int position;
-	for(i=0;i<length;i++){
+	short i;
+	short highToWrite;
+	int uppervalue, lowervalue;
+	short position;
+	//first one using transfer
+	position = start % arrayLength;
+	uppervalue = *(upper + position);
+	lowervalue = *combineTransfer;	
+	*(out_low + position) = (uppervalue + lowervalue) / 2;
+	highToWrite = (uppervalue - lowervalue) / 2;
+	lowervalue = *(lower + position);
+	*(out_high + position) = highToWrite;
+
+	for(i=1;i<length;i++){
 		position = (start + i) % arrayLength;
-		//printf("upper %d  lower  %d\n", *(upper+position), *(lower+position));
-		temp = (short)(   ((int) *(upper+position) + (int) *(lower+position))  >>1);
-		*(out_high+position) = (short)(   ((int) *(upper+position) - (int) *(lower+position))  >>1);
-		*(out_low+position) = temp;
-		
+		uppervalue = *(upper + position);
+		*(out_low + position) = (uppervalue + lowervalue) / 2;
+		highToWrite = (uppervalue - lowervalue) / 2;
+		lowervalue = *(lower + position);
+		*(out_high + position) = highToWrite;
 	}
+	*combineTransfer = lowervalue;
 }
 
 void copyToLowerLayer(struct chunk *historyChunk){
@@ -117,14 +129,16 @@ void encode(short buffer[BUFFERSIZE],struct chunk *historyChunk){
 			historyChunk->leftOdd,
 			BUFFERSIZE/4,
 			historyChunk->position1,
-            BUFFERSIZE/4 + LENGTH_FILTER1_HALF);
+            BUFFERSIZE/4 + LENGTH_FILTER1_HALF,
+		    &(historyChunk->leftCombineTransfer));
 	combine(historyChunk->rightEven,
 			historyChunk->rightOdd,
 			historyChunk->rightEven,
 			historyChunk->rightOdd,
 			BUFFERSIZE/4,
 			historyChunk->position1,
-            BUFFERSIZE/4 + LENGTH_FILTER1_HALF);
+            BUFFERSIZE/4 + LENGTH_FILTER1_HALF,
+			&(historyChunk->rightCombineTransfer));
 	
 	//first filter depth done at this point		
 	copyToLowerLayer(historyChunk);
@@ -162,28 +176,32 @@ void encode(short buffer[BUFFERSIZE],struct chunk *historyChunk){
 			(historyChunk->leftLowOdd),
 			BUFFERSIZE/8,
 			historyChunk->position2,
-			BUFFERSIZE/8 + LENGTH_FILTER2_HALF);
+			BUFFERSIZE/8 + LENGTH_FILTER2_HALF,
+			&(historyChunk->leftLowCombineTransfer));
 	combine((historyChunk->leftHighEven),
 			(historyChunk->leftHighOdd),
 			(historyChunk->leftHighEven),
 			(historyChunk->leftHighOdd),
 			BUFFERSIZE/8,
 			historyChunk->position2,
-			BUFFERSIZE/8 + LENGTH_FILTER2_HALF);
+			BUFFERSIZE/8 + LENGTH_FILTER2_HALF,
+			&(historyChunk->leftHighCombineTransfer));
 	combine((historyChunk->rightLowEven),
 			(historyChunk->rightLowOdd),
 			(historyChunk->rightLowEven),
 			(historyChunk->rightLowOdd),
 			BUFFERSIZE/8,
 			historyChunk->position2,
-			BUFFERSIZE/8 + LENGTH_FILTER2_HALF);
+			BUFFERSIZE/8 + LENGTH_FILTER2_HALF,
+			&(historyChunk->rightLowCombineTransfer));
 	combine((historyChunk->rightHighEven),
 			(historyChunk->rightHighOdd),
 			(historyChunk->rightHighEven),
 			(historyChunk->rightHighOdd),
 			BUFFERSIZE/8,
 			historyChunk->position2,
-			BUFFERSIZE/8 + LENGTH_FILTER2_HALF);
+			BUFFERSIZE/8 + LENGTH_FILTER2_HALF,
+			&(historyChunk->rightHighCombineTransfer));
 	//shit is done
 	
 }

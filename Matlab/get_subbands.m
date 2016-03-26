@@ -44,8 +44,8 @@ A1_out = int64(max(-2^39, min(conv(double(A1),double(input_e1)),2^39-1)));
 %extract the scaling factor and apply it
 scaling = scalings{1};
 
-A0_out_downscaled = int32(A0_out/2^scaling);  %32 for next lines already, 
-A1_out_downscaled = int32(A1_out/2^scaling);  %numbers dont go over 16
+A0_out_downscaled = int32(fix(double(A0_out)/double(2^scaling)));  %32 for next lines already, 
+A1_out_downscaled = int32(fix(double(A1_out)/double(2^scaling)));  %numbers dont go over 16
 
 %combine the polyphase outputs to get the subbands
 out_low = A0_out_downscaled + A1_out_downscaled;
