@@ -52,8 +52,8 @@ out_low = A0_out_downscaled + A1_out_downscaled;
 out_high = A0_out_downscaled - A1_out_downscaled;
 
 %again, scale the result
-out_low_downscaled = {int16(out_low/2)};
-out_high_downscaled = {int16(out_high/2)};
+out_low_downscaled = {int16(fix(double(out_low)/double(2)))};
+out_high_downscaled = {int16(fix(double(out_high)/double(2)))};
 
 
 if length(Astops)>1  % if this, further splitting of the lower subband must be done

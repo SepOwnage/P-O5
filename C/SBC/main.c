@@ -12,12 +12,14 @@ static short buffer_lengths[4] = BUFFER_LENGTHS;
 */
 
 struct wavpcm_input input;
-struct wavpcm_output output_LL, output_LH, output_HL, output_HH;
+struct wavpcm_output output_LL, output_LH, output_HL, output_HH, output_L, output_H;
 short buffer[BUFFERSIZE];
 short reconstructedBuffer_LL[BUFFERSIZE / 4];
 short reconstructedBuffer_LH[BUFFERSIZE / 4];
 short reconstructedBuffer_HL[BUFFERSIZE / 4];
 short reconstructedBuffer_HH[BUFFERSIZE / 4];
+short reconstructedBuffer_L[BUFFERSIZE / 2];
+short reconstructedBuffer_H[BUFFERSIZE / 2];
 
 struct chunk theChunk;
 int bufPos, bufIndex, read;
@@ -35,11 +37,14 @@ int main(int argc, char *argv[])
 	memset(&output_LH, 0, sizeof(struct wavpcm_output));
 	memset(&output_HL, 0, sizeof(struct wavpcm_output));
 	memset(&output_HH, 0, sizeof(struct wavpcm_output));
+	memset(&output_L, 0, sizeof(struct wavpcm_output));
+	memset(&output_H, 0, sizeof(struct wavpcm_output));
 	output_LL.resource = "output_LL.wav";
 	output_LH.resource = "output_LH.wav";
 	output_HL.resource = "output_HL.wav";
 	output_HH.resource = "output_HH.wav";
-
+	output_L.resource = "output_L.wav";
+	output_H.resource = "output_H.wav";
 
 	/* First open input file and parse header, */
 	wavpcm_input_open(&input);
@@ -52,10 +57,16 @@ int main(int argc, char *argv[])
 	(output_HL.samplingRate) /= 4;
 	wavpcm_output_copy_settings(&input, &output_HH);
 	(output_HH.samplingRate) /= 4;
+	wavpcm_output_copy_settings(&input, &output_L);
+	(output_HH.samplingRate) /= 2;
+	wavpcm_output_copy_settings(&input, &output_H);
+	(output_HH.samplingRate) /= 2;
 	wavpcm_output_open(&output_LL);
 	wavpcm_output_open(&output_LH);
 	wavpcm_output_open(&output_HL);
 	wavpcm_output_open(&output_HH);
+	wavpcm_output_open(&output_L);
+	wavpcm_output_open(&output_H);
 
 	/*bufPos expressed in temporal samples*/
 	for (bufPos = 0; bufPos < input.samplesAvailable; bufPos += (BUFFERSIZE / 2)) {
@@ -81,11 +92,19 @@ int main(int argc, char *argv[])
 			reconstructedBuffer_HH[2 * bufIndex] = theChunk.leftHighOdd[(bufIndex + theChunk.position2) % (BUFFERSIZE / 8 + LENGTH_FILTER2_HALF)];
 			reconstructedBuffer_HH[2 * bufIndex + 1] = theChunk.rightHighOdd[(bufIndex + theChunk.position2) % (BUFFERSIZE / 8 + LENGTH_FILTER2_HALF)];
 		}
+		for (bufIndex = 0; bufIndex < BUFFERSIZE / 4; bufIndex++) {
+			reconstructedBuffer_L[2 * bufIndex] = theChunk.leftEven[(bufIndex + theChunk.position1) % (BUFFERSIZE / 4 + LENGTH_FILTER1_HALF)];
+			reconstructedBuffer_L[2 * bufIndex + 1] = theChunk.rightEven[(bufIndex + theChunk.position1) % (BUFFERSIZE / 4 + LENGTH_FILTER1_HALF)];
+			reconstructedBuffer_H[2 * bufIndex] = theChunk.leftOdd[(bufIndex + theChunk.position1) % (BUFFERSIZE / 4 + LENGTH_FILTER1_HALF)];
+			reconstructedBuffer_H[2 * bufIndex + 1] = theChunk.rightOdd[(bufIndex + theChunk.position1) % (BUFFERSIZE / 4 + LENGTH_FILTER1_HALF)];
+		}
 		/* dump reconstructed output */
 		wavpcm_output_write(&output_LL, reconstructedBuffer_LL, read / 4);
 		wavpcm_output_write(&output_LH, reconstructedBuffer_LH, read / 4);
 		wavpcm_output_write(&output_HL, reconstructedBuffer_HL, read / 4);
 		wavpcm_output_write(&output_HH, reconstructedBuffer_HH, read / 4);
+		wavpcm_output_write(&output_L, reconstructedBuffer_L, read / 2);
+		wavpcm_output_write(&output_H, reconstructedBuffer_H, read / 2);
 	}
 
 	/* finalize output (write header) and close */
@@ -93,7 +112,9 @@ int main(int argc, char *argv[])
 	wavpcm_output_close(&output_LH);
 	wavpcm_output_close(&output_HL);
 	wavpcm_output_close(&output_HH);
-
+	wavpcm_output_close(&output_L);
+	wavpcm_output_close(&output_H);
+	wavpcm_input_close(&input);
 	/* Return successful exit code. */
 	return 0;
 }

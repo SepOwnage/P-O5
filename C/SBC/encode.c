@@ -29,7 +29,6 @@ void convolve(short *input, short *reversedFilter,
 	unsigned short i,j;
 	long long result;
 	unsigned short stop = inputL-filterL; // 10
-	printf("stop: %d", stop);
 	for(j=0; j < stop; j++){ // 0 tem 9
 		result = 0;
 		unsigned short smallstop = filterL;
@@ -40,10 +39,12 @@ void convolve(short *input, short *reversedFilter,
 			result += (*(input+(i+inputOffset+j+1)%inputL)) * (*(reversedFilter+i));    //laatste  = input+i = input+filterL+j = input+filterL+inputL-filterL
 		}
 		result = result/(1<<amountToShift);
-		if (result> 32767)
+		if (result > 32767)
 			result = 32767;
 		else if (result < -32768)
 			result = -32767;
+		else if (result > 32000)
+			printf("|");
 		//printf("outsample %p",(void *) ( output + (j+outputOffset)%outputLength));
 		*(output + (j+outputOffset)%outputLength) = (short)(result);
 	} 
@@ -51,7 +52,7 @@ void convolve(short *input, short *reversedFilter,
 
 void combine(short *upper, short *lower, short *out_low, short *out_high,
 			 unsigned short length, unsigned short start, unsigned short arrayLength,
-			 unsigned short *combineTransfer){
+			 signed short *combineTransfer){
 			//can work in place with in and outputs the same
 	short i;
 	short highToWrite;
