@@ -32,7 +32,8 @@ void convolve(short *input, short *reversedFilter,
 		short *output, unsigned short outputOffset, 
 		unsigned short outputLength, unsigned short amountToShift);
 void combine(short *upper, short *lower, short *out_low, short *out_high,
-			 unsigned short length, unsigned short start, unsigned short arrayLength);
+	unsigned short length, unsigned short start, unsigned short arrayLength,
+	signed short *combineTransfer);
 void copyToLowerLayer(struct chunk *historyChunk);
 
 
