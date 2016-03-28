@@ -51,6 +51,7 @@ struct wavpcm_output
 };
 
 void wavpcm_input_open (struct wavpcm_input *input);
+void wavpcm_input_close(struct wavpcm_input *input);
 int  wavpcm_input_read (struct wavpcm_input *input, short buffer[BUFFERSIZE]);
 void wavpcm_output_open (struct wavpcm_output *output);
 void wavpcm_output_copy_settings (struct wavpcm_input *input, struct wavpcm_output *output);
