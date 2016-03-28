@@ -2,7 +2,7 @@
 /* represents buffer array elements: equivalent to BUFFERSIZE/2 temporal sample positions */
 #define BUFFERSIZE 40
 
-#define INPUTWAVFILE  "input.wav"
+#define INPUTWAVFILE  "combined_8000_short.wav"
 #define OUTPUTWAVFILE "output.wav"
 
 #define VERBOSE
