@@ -1,5 +1,5 @@
 function [reconstructed_links_with_codec, reconstructed_rechts_with_codec,...
-    pesq, differentials_clipped] = run(filter_lengths, Astops, scalings,...
+    pesq, snr, pesq_calculated_delay, differentials_clipped] = run(filter_lengths, Astops, scalings,...
                                         mus, phis, maxima, buffer_lengths)
 % RUN: runs QMF-filterbank analysis, adaptive stepsize differential
 % encoding followed by the corresponding decoding and synthesis.
@@ -15,10 +15,10 @@ function [reconstructed_links_with_codec, reconstructed_rechts_with_codec,...
 %    -pesq: calculated pesq score. Based on left channel only.
 %    -differentials_clipped: amount of encoded differences that had to be
 %        clipped. For analysis purposes only.
-    input = LoadWav('../C/SBC/input.wav');
+    input = LoadWav('8000/words_m.wav');
 
     %Scale input
-    input = int16(input*(2^15));
+    input = int16(input/max(abs(input))*(2^15-1));
     
     %% analysis
     [subbands_links, subbands_rechts, filters] = analysis(input,filter_lengths, Astops, scalings);
@@ -53,3 +53,8 @@ function [reconstructed_links_with_codec, reconstructed_rechts_with_codec,...
     reconstructed_rechts_with_codec = synthesis(subbands_rechts_codeced, filters, scalings,0);
     %% pesq score
     pesq = alignpesq(input(1:2:end),reconstructed_links_with_codec);
+    %only works for symmetrical depth 2 
+    delay = ((filter_lengths{1}-1)+(filter_lengths{2}{1}{1}-1)*2);
+    pesq_calculated_delay = alignpesq(input(1:2:end),reconstructed_links_with_codec(1+delay:end-delay));
+    snr = snrseg(double(reconstructed_links_with_codec(1+delay:end-delay)), double(input(1:2:end)), 8e3);
+    close all;
