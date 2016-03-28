@@ -4,6 +4,7 @@ struct parameters{ //This is characterised by the subband
 	unsigned short phi; //TODO check all these types
 	unsigned short mu;
 	unsigned char buffer_length;
+	unsigned short maximum;
 };
 
 struct start_values{ //This is characterised by previous samples
