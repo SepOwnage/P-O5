@@ -12,6 +12,7 @@ struct start_values{ //This is characterised by previous samples
 	unsigned long stepsize; //Check if this can be short
 	signed short prev_dequantized_sample;
 	unsigned int buffersum;
+	unsigned short buffer_position_counter;
 	unsigned short *buffer; //* since this struct doesn't know buffer_length: Maybe this is cumbersome and both structs should be combined into one struct
 };
 
