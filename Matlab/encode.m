@@ -26,19 +26,19 @@ function [out, nb_clips] = encode(input, mu, phi, maximum, buffer_length)
     for i = 1:length(input)
         sample = input(i);
         %get the difference, quantize it using current stepsize
-        difference = sample - prediction;
+        difference = int32(sample) - int32(prediction);
         %TODO decide on rounding (matlab divison) or truncating (c
         %division) -> floor vs round
         to_trunc = double(difference)/double(stepsize);
-        quantized_difference = int16(sign(to_trunc)*floor(abs(to_trunc)));
+        quantized_difference = int16(fix(to_trunc));
         nb_clips = nb_clips + double(abs(quantized_difference>maximum));
 
         %clip the value to the given maximum
         quantized_difference = min(maximum, quantized_difference);
-        quantized_difference = max(-maximum, quantized_difference);
+        quantized_difference = max(-(maximum+1), quantized_difference);
         out(i) = quantized_difference;
        
-        dequantized_difference = quantized_difference * stepsize;
+        dequantized_difference = int32(quantized_difference) * int32(stepsize);
         
         %calculate the variance of the dequantized difference 
         %(dequantized => sender and receiver use same info)
@@ -49,9 +49,9 @@ function [out, nb_clips] = encode(input, mu, phi, maximum, buffer_length)
         %division)
         %update the stepsize
         to_trunc = double(buffersum)*double(phi)/double(buffer_length*2^15);
-        stepsize = max(int16(sign(to_trunc)*floor(abs(to_trunc))),1);  %TODO: better solution? Problem: zero input=>zero var=>zero stepsize
+        stepsize = max(int16(fix(to_trunc)),1);  %TODO: better solution? Problem: zero input=>zero var=>zero stepsize
         %get the dequantized sample, and predict the next one
-        dequantized_sample = dequantized_difference + prediction;
+        dequantized_sample = int16(dequantized_difference) + prediction;
         prediction = dequantized_sample -...
             int16((int32(mu) * int32(prev_dequantized_sample))/2^15);    
         prev_dequantized_sample = dequantized_sample;
