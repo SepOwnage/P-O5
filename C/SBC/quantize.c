@@ -3,68 +3,79 @@
 #include <stdio.h>
 
  //Als wij ooit clippen/overflowen, gaat de fout zich voortplanten TODO
-void quantize(short *quantized_differences, short *samples, short samples_length, struct parameters *params, struct start_values *values){
-
+void quantize(short *quantized_differences, short *start_of_samples_array,
+	short start_position_in_samples_array, short length_of_samples_array,
+	short nb_samples_to_do, struct parameters *params, struct start_values *values) {
+	/*
+	Quantized_difference: start location of output
+	start_of_samples_array: pointer to start of the array holding the samples
+	start_position_in_samples_array: where in the array holding the samples the current samples are
+	length_of_samples_array: the length of the array holding the samples (reading after this length=reading at the beginning)
+	nb_samples_to_do: the amount of samples to process
+	params: holding subband specific paramters
+	values: from previous calls, holding the history.
+	*/
 	// Variable declaration & initialisation
-	unsigned short phi = params->phi;
-	unsigned short mu = params->mu;
+	short phi = params->phi;
+	short mu = params->mu;
 	unsigned char buffer_length = params->buffer_length;
-	unsigned short maximum = params->maximum;
+	short maximum = params->maximum;
 	int difference;
 	int quantized_difference;
 	int dequantized_difference;
-	signed short dequantized_sample;
-	unsigned long stepsize = values->stepsize;
-	signed short prediction = values->prediction;
+	short dequantized_sample;
+	int stepsize = values->stepsize;
+	short prediction = values->prediction;
 	unsigned int buffersum = values->buffersum; //It's an int so don't use too many additions ->low samples_length
-	signed short prev_dequantized_sample = values->prev_dequantized_sample;
-	// Loop
-	for(unsigned char i = values->buffer_position_counter; i < ((values->buffer_position_counter)+samples_length); i++){	
-		difference = *(samples+i) - prediction; //Diff = sample - prediction
-		quantized_difference = (difference/stepsize);
-		if(quantized_difference > maximum){ //Clip the value of the quantized difference to the given maximum
+	short prev_dequantized_sample = values->prev_dequantized_sample;
+	unsigned short *buffer = values->buffer;
+	unsigned short buffer_position_counter = values->buffer_position_counter;
+	unsigned char i = 0; //loop counter
+	short sample;
+
+	for (; i < nb_samples_to_do; i++) {
+		sample = *(start_of_samples_array + (start_position_in_samples_array + i) % length_of_samples_array);
+
+
+		//Diff = sample - prediction.  Quantize it and write to output
+		difference = sample - prediction;
+		quantized_difference = (difference / stepsize);
+		if (quantized_difference > maximum) { //Clip the value of the quantized difference to the given maximum
 			quantized_difference = maximum;
-		}else if(quantized_difference < -(maximum+1)){
-			quantized_difference = -(maximum+1);
 		}
-		*(quantized_differences+i) = (short) quantized_difference;
+		else if (quantized_difference < -(maximum + 1)) {
+			quantized_difference = -(maximum + 1);
+		}
+		*(quantized_differences + i) = (short)quantized_difference;
+		//dequantize
 		dequantized_difference = quantized_difference * stepsize;
-		if(dequantized_difference < 0){ //dequantized_difference = abs(dequantized_difference)
-			dequantized_difference = dequantized_difference * -1;
-		}
-		buffersum = buffersum - (values->buffer[i % buffer_length]) + dequantized_difference; //Update buffersum
-		values->buffer[i % buffer_length] = dequantized_difference; //Update buffer
-		stepsize = (short) ((((long long)buffersum) / buffer_length * phi)>>15);
-		if(stepsize == 0){ //stepsize cannot be 0
-			stepsize = 1;
-		}
-		dequantized_sample = (short) (difference + prediction);
-		prediction = (short) (((int) dequantized_sample) - ((mu * prev_dequantized_sample)>>15));
+		
+		//update prediction
+		dequantized_sample = (short)(dequantized_difference + prediction);
+		prediction = (short)(((int)dequantized_sample) - ((mu * prev_dequantized_sample)/(1<<15)));
 		prev_dequantized_sample = dequantized_sample;
 
-/*
-		printf("Diff: %d ", difference);
-		printf("quantized_diff: %d ", quantized_difference);
-		printf("quantized_diff_maximum: %d ", quantized_difference);
-		printf("Dequantized_difference: %d ", dequantized_difference);
-		printf("Buffersum: %d ", buffersum);
-		printf("Buffer value: %d ", values->buffer[i % buffer_length]);
-		printf("stepsize: %lu ", stepsize);
-		printf("dequantized_sample: %d ", dequantized_sample);
-		printf("mu*prev: %d",(mu * prev_dequantized_sample));
-		printf("mu*prev shifted: %d", ((mu * prev_dequantized_sample)>>15));
-		printf("Prediction:%d ", prediction);
-		printf("prev_dequantized_sample: %d\n\n ", prev_dequantized_sample);
-*/
+		//take absolute value
+		if (dequantized_difference < 0) {
+			dequantized_difference = -dequantized_difference;
+		}
+
+		//update the buffersum (=> var => stepsize ) and the buffer itself
+		buffersum = buffersum - *(buffer + buffer_position_counter) + dequantized_difference; //Update buffersum
+		*(buffer + buffer_position_counter) = dequantized_difference; //Update buffer
+		stepsize = (short)((((long long)buffersum) * phi / buffer_length) >> 15);
+		if (!stepsize) { //stepsize cannot be 0
+			stepsize = 1;
+		}
+
+		//increment the buffer_position_counter
+		buffer_position_counter = (buffer_position_counter + 1) % buffer_length;
 	}
-	
-	//Store parameters in values and params structs
+
+	//restore values to struct
 	values->prediction = prediction;
 	values->stepsize = stepsize;
 	values->prev_dequantized_sample = prev_dequantized_sample;
-	values->buffer_position_counter = values->buffer_position_counter + samples_length;
-	while((values->buffer_position_counter) >= buffer_length){ //This is used to keep track of the index of the buffer since buffer_length can exceed samples_length
-		values->buffer_position_counter = values->buffer_position_counter - buffer_length;
-	}
+	values->buffer_position_counter = buffer_position_counter;
 	values->buffersum = buffersum;
 }

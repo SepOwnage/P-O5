@@ -53,7 +53,7 @@ function [out, nb_clips] = encode(input, mu, phi, maximum, buffer_length)
         %get the dequantized sample, and predict the next one
         dequantized_sample = int16(dequantized_difference) + prediction;
         prediction = dequantized_sample -...
-            int16((int32(mu) * int32(prev_dequantized_sample))/2^15);    
+            int16(fix(  double(mu) * double(prev_dequantized_sample)/double(2^15))  );    
         prev_dequantized_sample = dequantized_sample;
     end
 end
