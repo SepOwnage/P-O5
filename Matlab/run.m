@@ -18,7 +18,7 @@ function [reconstructed_links_with_codec, reconstructed_rechts_with_codec,...
     input = LoadWav('8000/words_m.wav');
 
     %Scale input
-    input = int16(input/max(abs(input))*(2^15-1));
+    input = int16(input*2^15);
     
     %% analysis
     [subbands_links, subbands_rechts, filters] = analysis(input,filter_lengths, Astops, scalings);
