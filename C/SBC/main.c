@@ -49,7 +49,7 @@ int main (int argc, char *argv[])
     /* Try to read BUFFERSIZE samples (16 bits, pairwise identical if input is mono, interleaved if input is stereo)  */
     /* into buffer, with read the actual amount read (expressed in bytes! =  (2*read)/(channels * bitDepth/8) array elements)*/
     read = wavpcm_input_read (&input, buffer);
-	for (i = 0; i < BUFFERSIZE / 2; i++)
+	for (i = 0; i < 80 / 2; i++)
 		left_buffer[i] = buffer[2 * i];
 
     /* transform buffer */
@@ -58,9 +58,10 @@ int main (int argc, char *argv[])
         dequantize(outputbuffer, quantizedbuffer, 5, &params, &valuesDecode);
 		for (i = 0; i < 5; i++){
 			ToWavBuffer[2 * i] = ToWavBuffer[2 * i + 1] = outputbuffer[i];
-			printf("%d, ", outputbuffer[i]);
+			printf("%d, ", ToWavBuffer[2*i]);
+			printf("%d, ", ToWavBuffer[2*i+1]);
 		}
-		wavpcm_output_write(&output, outputbuffer, 10);
+		wavpcm_output_write(&output, ToWavBuffer, 10);
 	}
 	printf("\n");
   }
