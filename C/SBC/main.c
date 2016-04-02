@@ -3,65 +3,79 @@
 #include <string.h>
 #include "globals.h"
 #include "wavpcm_io.h"
-#include "encode.h"
-#include "quantize.h"
+#include "decode.h"
 
-/*
-static short mus[4] = MUS;
-static short phis[4] = PHIS;
-static short buffer_lengths[4] = BUFFER_LENGTHS;
-*/
 
-struct wavpcm_input input;
+struct wavpcm_input input_LL, input_LH, input_HL;
 struct wavpcm_output output;
 short buffer[BUFFERSIZE];
-short left_buffer[BUFFERSIZE / 2];
-short quantizedbuffer[5];
-short outputbuffer[10];
-struct parameters params = {8192,19660,10,15};
-unsigned short valuesbuffer[10] = {0,0,0,0,0,0,0,0,0,0};
-struct start_values values = {0,1,0,0,0,valuesbuffer};
+short LLbuffer[BUFFERSIZE];
+short LHbuffer[BUFFERSIZE];
+short HLbuffer[BUFFERSIZE];
 
+struct chunk theChunk;
 
 
 /* This is the function that is called when the program starts. */
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-  /* Variable declarations. */
-  int bufPos, bufIndex, read, quantPos;
-  int i;
+	/* Variable declarations. */
+	int bufPos, bufIndex, read;
+	int i;
 
+	memset(&theChunk, 0, sizeof(struct chunk));
 
-  memset(&input, 0, sizeof(struct wavpcm_input)); //Fill sizeof(...) bytes starting from input with
-  input.resource=INPUTWAVFILE;
-  memset(&output, 0, sizeof(struct wavpcm_output));
-  output.resource = OUTPUTWAVFILE;
- /* First open input file and parse header, */
-  wavpcm_input_open (&input);
-  wavpcm_output_copy_settings(&input, &output);
-  wavpcm_output_open(&output);
-  for (bufPos=0; bufPos<0; bufPos+=(BUFFERSIZE/2)) {
-  /*bufPos expressed in temporal samples*/
-    /* Try to read BUFFERSIZE samples (16 bits, pairwise identical if input is mono, interleaved if input is stereo)  */
-    /* into buffer, with read the actual amount read (expressed in bytes! =  (2*read)/(channels * bitDepth/8) array elements)*/
-    read = wavpcm_input_read (&input, buffer);
-	for (i = 0; i < BUFFERSIZE / 2; i++)
-		left_buffer[i] = buffer[2 * i];
+	memset(&output, 0, sizeof(struct wavpcm_output)); //Fill sizeof(...) bytes starting from input with
+	output.resource = "output.wav";
+	memset(&input_LL, 0, sizeof(struct wavpcm_input));
+	memset(&input_LH, 0, sizeof(struct wavpcm_input));
+	memset(&input_HL, 0, sizeof(struct wavpcm_input));
+	input_LL.resource = "../saved_subbands/LL.wav";
+	input_LH.resource = "../saved_subbands/LH.wav";
+	input_HL.resource = "../saved_subbands/HL.wav";
 
-    /* transform buffer */
-	for (quantPos = 0; quantPos<4; quantPos++){
-		quantize(quantizedbuffer, left_buffer, quantPos * 5, BUFFERSIZE / 2, 5, &params, &values);
-		for (i = 0; i < 5; i++){
-			outputbuffer[2 * i] = outputbuffer[2 * i + 1] = quantizedbuffer[i];
-			printf("%d, ", quantizedbuffer[i]);
+	/* First open input file and parse header, */
+	wavpcm_input_open(&input_LL);
+	wavpcm_input_open(&input_LH);
+	wavpcm_input_open(&input_HL);
+	/* and then use this same header configuration for the output file */
+	wavpcm_output_copy_settings(&input_LL, &output);
+	(output.samplingRate) *= 4;
+	wavpcm_output_open(&output);
+
+	/*bufPos expressed in temporal samples*/
+	for (bufPos = 0; bufPos < input_LL.samplesAvailable; bufPos += (BUFFERSIZE / 2)) {
+		/* Try to read BUFFERSIZE samples (16 bits, pairwise identical if input is mono, interleaved if input is stereo)  */
+		/* into buffer, with read the actual amount read (expressed in bytes! =  (2*read)/(channels * bitDepth/8) array elements)*/
+		read = wavpcm_input_read(&input_LL, LLbuffer);
+		if (read != BUFFERSIZE)
+			printf("Not a full buffer read, amount read: %d", read);
+		read = wavpcm_input_read(&input_LH, LHbuffer);
+		if (read != BUFFERSIZE)
+			printf("Not a full buffer read, amount read: %d", read);
+		read = wavpcm_input_read(&input_HL, HLbuffer);
+		if (read != BUFFERSIZE)
+			printf("Not a full buffer read, amount read: %d", read);
+
+		//make mono
+		for (int i = 0; i < BUFFERSIZE / 2; i++) {
+			LLbuffer[i] = LLbuffer[2 * i];
+			LHbuffer[i] = LHbuffer[2 * i];
+			HLbuffer[i] = HLbuffer[2 * i];
 		}
-		wavpcm_output_write(&output, outputbuffer, 10);
-	}
-	printf("\n");
-  }
 
-  wavpcm_output_close(&output);
-  wavpcm_input_close(&input);
-  /* Return successful exit code. */
-  return 0;
+		//run four times (read BUFFERSIZE instead of BUFFERSIZE/4. Not an argument of wavpcm_input_read :(  )
+		for (int i = 0; i < 20; i += 5) {
+			decode(buffer, LLbuffer + i, LHbuffer + i, HLbuffer + i, LLbuffer + i, LHbuffer + i, HLbuffer + i, &theChunk);
+			wavpcm_output_write(&output, buffer, BUFFERSIZE);
+		}
+	}
+
+	/* finalize output (write header) and close */
+	wavpcm_input_close(&input_LL);
+	wavpcm_input_close(&input_HL);
+	wavpcm_input_close(&input_LH);
+	wavpcm_output_close(&output);
+	/* Return successful exit code. */
+	return 0;
 }
