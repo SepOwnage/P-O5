@@ -5,6 +5,13 @@
 
 void dequantize(short *dequantized_samples, short *samples,
                 short nb_samples_to_do, struct parameters *params, struct start_values *values){
+    /*
+	Dequantized_difference: start location of output
+	Samples: pointer to the array containing the samples to be dequantized
+	nb_samples_to_do: the amount of samples to process
+	params: holding subband specific parameters
+    values: structure containing information from previous calls of this function
+	*/
 
 	// Variable declaration & initialisation
 	short phi = params->phi;
@@ -24,21 +31,21 @@ void dequantize(short *dequantized_samples, short *samples,
 	for(; i < nb_samples_to_do; i++){
         sample = *(samples+i);
 
-        //dequantize
+        //Dequantize
         dequantized_difference = sample * stepsize;
 
-        //update prediction and output dequantized sample
+        //Update prediction and output dequantized sample
 		dequantized_sample = (short)(dequantized_difference + prediction);
 		*(dequantized_samples+i) = dequantized_sample;
 		prediction = (short)(((int)dequantized_sample) - ((mu * prev_dequantized_sample)/(1<<15)));
 		prev_dequantized_sample = dequantized_sample;
 
-        //take absolute value
+		//dequantized_difference = abs(dequantized_difference)
 		if (dequantized_difference < 0) {
 			dequantized_difference = -dequantized_difference;
 		}
 
-        //update the buffersum (=> var => stepsize ) and the buffer itself
+        //Update the buffersum (=> var => stepsize ) and the buffer itself
 		buffersum = buffersum - *(buffer + buffer_position_counter) + dequantized_difference; //Update buffersum
 		*(buffer + buffer_position_counter) = dequantized_difference; //Update buffer
 		stepsize = (short)((((long long)buffersum) * phi / buffer_length) >> 15);
@@ -46,11 +53,11 @@ void dequantize(short *dequantized_samples, short *samples,
 			stepsize = 1;
 		}
 
-        //increment the buffer_position_counter
+        //Increment the buffer_position_counter
 		buffer_position_counter = (buffer_position_counter + 1) % buffer_length;
 	}
 
-    //restore values to struct
+    //Save values to struct
 	values->prediction = prediction;
 	values->stepsize = stepsize;
 	values->prev_dequantized_sample = prev_dequantized_sample;

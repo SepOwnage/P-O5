@@ -22,8 +22,8 @@ short outputbuffer[5];
 short ToWavBuffer[10];
 struct parameters params = {8192,19660,10,15};
 unsigned short valuesbufferEncode[10] = {0,0,0,0,0,0,0,0,0,0};
-unsigned short valuesbufferDecode[10] = {0,0,0,0,0,0,0,0,0,0};
 struct start_values valuesEncode = {0,1,0,0,0,valuesbufferEncode};
+unsigned short valuesbufferDecode[10] = {0,0,0,0,0,0,0,0,0,0};
 struct start_values valuesDecode = {0,1,0,0,0,valuesbufferDecode};
 
 
@@ -49,10 +49,14 @@ int main (int argc, char *argv[])
     /* Try to read BUFFERSIZE samples (16 bits, pairwise identical if input is mono, interleaved if input is stereo)  */
     /* into buffer, with read the actual amount read (expressed in bytes! =  (2*read)/(channels * bitDepth/8) array elements)*/
     read = wavpcm_input_read (&input, buffer);
+    if(read != BUFFERSIZE)
+		printf("Not a full buffer read, amount read: %d" , read);
 	for (i = 0; i < 80 / 2; i++)
 		left_buffer[i] = buffer[2 * i];
 
     /* transform buffer */
+
+    /* Quantize and dequantize buffer */
 	for (quantPos = 0; quantPos<4; quantPos++){
 		quantize(quantizedbuffer, left_buffer, quantPos * 5, BUFFERSIZE / 2, 5, &params, &valuesEncode);
         dequantize(outputbuffer, quantizedbuffer, 5, &params, &valuesDecode);
