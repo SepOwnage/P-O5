@@ -15,7 +15,7 @@ function [reconstructed_links_with_codec, reconstructed_rechts_with_codec,...
 %    -pesq: calculated pesq score. Based on left channel only.
 %    -differentials_clipped: amount of encoded differences that had to be
 %        clipped. For analysis purposes only.
-    input = LoadWav('../C/SBC/input.wav');
+    input = LoadWav('../C/SBC/combined_8000_short.wav');
 
     %Scale input
     input = int16(input*2^15);

@@ -19,6 +19,7 @@ short buffer[BUFFERSIZE];
 short left_buffer[BUFFERSIZE / 2];
 short quantizedbuffer[5];
 short outputbuffer[5];
+short ToWavBuffer[10];
 struct parameters params = {8192,19660,10,15};
 unsigned short valuesbufferEncode[10] = {0,0,0,0,0,0,0,0,0,0};
 unsigned short valuesbufferDecode[10] = {0,0,0,0,0,0,0,0,0,0};
@@ -43,7 +44,7 @@ int main (int argc, char *argv[])
   wavpcm_input_open (&input);
   wavpcm_output_copy_settings(&input, &output);
   wavpcm_output_open(&output);
-  for (bufPos=0; bufPos<80; bufPos+=(BUFFERSIZE/2)) {
+  for (bufPos=0; bufPos<input.samplesAvailable; bufPos+=(BUFFERSIZE/2)) {
   /*bufPos expressed in temporal samples*/
     /* Try to read BUFFERSIZE samples (16 bits, pairwise identical if input is mono, interleaved if input is stereo)  */
     /* into buffer, with read the actual amount read (expressed in bytes! =  (2*read)/(channels * bitDepth/8) array elements)*/
@@ -56,10 +57,10 @@ int main (int argc, char *argv[])
 		quantize(quantizedbuffer, left_buffer, quantPos * 5, BUFFERSIZE / 2, 5, &params, &valuesEncode);
         dequantize(outputbuffer, quantizedbuffer, 5, &params, &valuesDecode);
 		for (i = 0; i < 5; i++){
-		//	outputbuffer[2 * i] = outputbuffer[2 * i + 1] = quantizedbuffer[i];
+			ToWavBuffer[2 * i] = ToWavBuffer[2 * i + 1] = outputbuffer[i];
 			printf("%d, ", outputbuffer[i]);
 		}
-		//wavpcm_output_write(&output, outputbuffer, 10);
+		wavpcm_output_write(&output, outputbuffer, 10);
 	}
 	printf("\n");
   }

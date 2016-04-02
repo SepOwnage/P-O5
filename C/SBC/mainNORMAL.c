@@ -18,7 +18,7 @@ struct wavpcm_output output;
 short buffer[BUFFERSIZE];
 short left_buffer[BUFFERSIZE / 2];
 short quantizedbuffer[5];
-short outputbuffer[5];
+short outputbuffer[10];
 struct parameters params = {8192,19660,10,15};
 unsigned short valuesbuffer[10] = {0,0,0,0,0,0,0,0,0,0};
 struct start_values values = {0,1,0,0,0,valuesbuffer};
