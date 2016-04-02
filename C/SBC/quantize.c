@@ -2,7 +2,6 @@
 #include "quantize.h"
 #include <stdio.h>
 
- //Als wij ooit clippen/overflowen, gaat de fout zich voortplanten TODO
 void quantize(short *quantized_differences, short *start_of_samples_array,
 	short start_position_in_samples_array, short length_of_samples_array,
 	short nb_samples_to_do, struct parameters *params, struct start_values *values) {
@@ -49,7 +48,7 @@ void quantize(short *quantized_differences, short *start_of_samples_array,
 		*(quantized_differences + i) = (short)quantized_difference;
 		//dequantize
 		dequantized_difference = quantized_difference * stepsize;
-		
+
 		//update prediction
 		dequantized_sample = (short)(dequantized_difference + prediction);
 		prediction = (short)(((int)dequantized_sample) - ((mu * prev_dequantized_sample)/(1<<15)));

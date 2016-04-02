@@ -19,7 +19,7 @@ function out = decode(input, mu, phi, buffer_length)
     %go through input sequentially
     for i = 1:length(input)
         quantized_difference = input(i);
-        dequantized_difference = quantized_difference * stepsize;
+        dequantized_difference = int32(quantized_difference) * int32(stepsize);
         %update the buffersum (don't recalculate fully)
         buffersum = buffersum - int32(buffer(mod(i,buffer_length)+1))...
             + int32(abs(dequantized_difference));
@@ -29,13 +29,13 @@ function out = decode(input, mu, phi, buffer_length)
         %division)
         %update the stepsize
         to_trunc = double(buffersum)*double(phi)/double(buffer_length*2^15);
-        stepsize = max(int16(sign(to_trunc)*floor(abs(to_trunc))),1);  %TODO: better solution? Problem: zero input=>zero var=>zero stepsize  %TODO: better solution? Problem: zero input=>zero var=>zero stepsize
+         stepsize = max(int16(fix(to_trunc)),1);  %TODO: better solution? Problem: zero input=>zero var=>zero stepsize  %TODO: better solution? Problem: zero input=>zero var=>zero stepsize
         %get the dequantized sample (=output)
-        dequantized_sample = dequantized_difference + prediction;
+        dequantized_sample = int16(dequantized_difference) + prediction;
         out(i) = dequantized_sample;
         %predict the next value
         prediction = dequantized_sample -...
-            int16((int32(mu) * int32(prev_dequantized_sample))/2^15);  
+            int16(fix(  double(mu) * double(prev_dequantized_sample)/double(2^15))  );   
         prev_dequantized_sample = dequantized_sample;
     end
 
