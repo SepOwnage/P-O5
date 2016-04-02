@@ -5,6 +5,7 @@
 #include "wavpcm_io.h"
 #include "encode.h"
 #include "quantize.h"
+#include "dequantize.h"
 
 /*
 static short mus[4] = MUS;
@@ -17,7 +18,7 @@ struct wavpcm_output output;
 short buffer[BUFFERSIZE];
 short left_buffer[BUFFERSIZE / 2];
 short quantizedbuffer[5];
-short outputbuffer[10];
+short outputbuffer[5];
 struct parameters params = {8192,19660,10,15};
 unsigned short valuesbuffer[10] = {0,0,0,0,0,0,0,0,0,0};
 struct start_values values = {0,1,0,0,0,valuesbuffer};
@@ -51,11 +52,12 @@ int main (int argc, char *argv[])
     /* transform buffer */
 	for (quantPos = 0; quantPos<4; quantPos++){
 		quantize(quantizedbuffer, left_buffer, quantPos * 5, BUFFERSIZE / 2, 5, &params, &values);
+        dequantize(outputbuffer, quantizedbuffer, 5, &params, &values);
 		for (i = 0; i < 5; i++){
-			outputbuffer[2 * i] = outputbuffer[2 * i + 1] = quantizedbuffer[i];
+		//	outputbuffer[2 * i] = outputbuffer[2 * i + 1] = quantizedbuffer[i];
 			printf("%d, ", quantizedbuffer[i]);
 		}
-		wavpcm_output_write(&output, outputbuffer, 10);
+		//wavpcm_output_write(&output, outputbuffer, 10);
 	}
 	printf("\n");
   }
