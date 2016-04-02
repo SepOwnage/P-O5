@@ -40,9 +40,8 @@ int main (int argc, char *argv[])
   wavpcm_input_open (&input);
   wavpcm_output_copy_settings(&input, &output);
   wavpcm_output_open(&output);
-
+  for (bufPos=0; bufPos<0; bufPos+=(BUFFERSIZE/2)) {
   /*bufPos expressed in temporal samples*/
-  for (bufPos=0; bufPos<input.samplesAvailable; bufPos+=(BUFFERSIZE/2)) {
     /* Try to read BUFFERSIZE samples (16 bits, pairwise identical if input is mono, interleaved if input is stereo)  */
     /* into buffer, with read the actual amount read (expressed in bytes! =  (2*read)/(channels * bitDepth/8) array elements)*/
     read = wavpcm_input_read (&input, buffer);
