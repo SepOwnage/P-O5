@@ -49,7 +49,7 @@ int main (int argc, char *argv[])
 */
     /* transform buffer */
 	for (quantPos = 0; quantPos<8; quantPos++){
-        dequantize(dequantizedbuffer, buffer[5*quantPos], 5, &params, &values);
+        dequantize(dequantizedbuffer, *(buffer+5*quantPos), 5, &params, &values);
         j = 0;
 		for(; j < BUFFERSIZE/8; j++) {
         		printf("%d ", dequantizedbuffer[j]);
