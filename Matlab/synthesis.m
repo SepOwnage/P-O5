@@ -46,19 +46,19 @@ end
 A1_input = low + high;
 A0_input = low - high;
 
-A1_input_downscaled = int16(A1_input/2);
-A0_input_downscaled = int16(A0_input/2);
+A1_input_downscaled = int16(fix(double(A1_input)/double(2)));
+A0_input_downscaled = int16(fix(double(A0_input)/double(2)));
 
 %get filter polyphase componens
 A0 = filter(1:2:end);
 A1 = filter(2:2:end);
 
 %apply the filter: convolute
-A0_out = int64(max(-2^39, min(conv(double(A0),double(A0_input_downscaled)),2^39-1)));
-A1_out = int64(max(-2^39, min(conv(double(A1),double(A1_input_downscaled)),2^39-1)));
+A0_out = max(-2^39, min(conv(double(A0),double(A0_input_downscaled)),2^39-1));
+A1_out = max(-2^39, min(conv(double(A1),double(A1_input_downscaled)),2^39-1));
 %scale the result
-A0_out_downscaled = int16(A0_out/2^scaling);  
-A1_out_downscaled = int16(A1_out/2^scaling);
+A0_out_downscaled = int16(fix(A0_out/2^scaling));  
+A1_out_downscaled = int16(fix(A1_out/2^scaling));
 
 %upsample results and put them together
 A1_upsampled = int16(zeros(max(length(A1_out),length(A0_out))*2,1));

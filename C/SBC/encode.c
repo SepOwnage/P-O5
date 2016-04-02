@@ -211,6 +211,8 @@ void encode(short buffer[BUFFERSIZE],struct chunk *historyChunk){
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
 				historyChunk->rightHighOdd, historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, 16);
 	//4 times combine
+	//TODO: filter 3??
+	//TODO: skip fourth band? => faster but should be +- neglible compared to convolve
 	combine((historyChunk->leftLowEven),
 			(historyChunk->leftLowOdd),
 			(historyChunk->leftLowEven),
