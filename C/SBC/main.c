@@ -9,14 +9,21 @@
 #include "bitmanipulation.h" 
 
 struct parameters LowLowParams = { 8192, 19660, 10, 15 };
-short LowLowValues[15];
-struct start_values LowLowStartValues = { 0, 1, 0, 0, 0, LowLowValues };
+short LowLowValuesLeft[15];
+struct start_values LowLowStartValuesLeft = { 0, 1, 0, 0, 0, LowLowValuesLeft };
 struct parameters LowHighParams = { 16384, 1638, 10, 7 };
-short LowHighValues[15];
-struct start_values LowHighStartValues = { 0, 1, 0, 0, 0, LowHighValues };
+short LowHighValuesLeft[15];
+struct start_values LowHighStartValuesLeft = { 0, 1, 0, 0, 0, LowHighValuesLeft };
 struct parameters HighParams = { 29490, 31129, 10, 3 };
-short HighValues[15];
-struct start_values HighStartValues = { 0, 1, 0, 0, 0, HighValues };
+short HighValuesLeft[15];
+struct start_values HighStartValuesLeft = { 0, 1, 0, 0, 0, HighValuesLeft };
+
+short LowLowValuesRight[15];
+struct start_values LowLowStartValuesRight = { 0, 1, 0, 0, 0, LowLowValuesRight };
+short LowHighValuesRight[15];
+struct start_values LowHighStartValuesRight = { 0, 1, 0, 0, 0, LowHighValuesRight };
+short HighValuesRight[15];
+struct start_values HighStartValuesRight = { 0, 1, 0, 0, 0, HighValuesRight };
 
 struct chunk historyChunk;
 short quantizedBuffer[BUFFERSIZE * 3 / 4];
@@ -24,7 +31,7 @@ short wavbuffer[BUFFERSIZE];
 
 /* This is the function that is called when the program starts. */
 int main(int argc, char *argv[]){
-	if (argc <= 1 || argv[1][0] == 'e' || 0) {//ENCODE    // or 1 to do in code (faster than changing launch settings)
+	if (argc <= 1 || argv[1][0] == 'e' || 1) {//ENCODE    // or 1 to do in code (faster than changing launch settings)
 		printf("Encoding\n");
 		return mainencode();
 	} else {//DECODE
@@ -35,7 +42,7 @@ int main(int argc, char *argv[]){
 int mainencode() {
 	struct wavpcm_input input;
 	FILE *outputfile = fopen(COMPRESSEDFILE, "wb");
-	//FILE *notcompressedoutputfile = fopen("notcompressed.dat", "wb");
+	FILE *notcompressedoutputfile = fopen("notcompressed.dat", "wb");
 	int bufPos, bufIndex, read, quantPos;
 
 	
@@ -66,35 +73,35 @@ int mainencode() {
 		quantize(quantizedBuffer,
 			historyChunk.leftLowEven, historyChunk.position2,
 			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
-			5, &LowLowParams, &LowLowStartValues);
+			5, &LowLowParams, &LowLowStartValuesLeft);
 		quantize(quantizedBuffer + 5,
 			historyChunk.rightLowEven, historyChunk.position2,
 			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
-			5, &LowLowParams, &LowLowStartValues);
+			5, &LowLowParams, &LowLowStartValuesRight);
 		quantize(quantizedBuffer + 10,
 			historyChunk.leftLowOdd, historyChunk.position2,
 			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
-			5, &LowHighParams, &LowHighStartValues);
+			5, &LowHighParams, &LowHighStartValuesLeft);
 		quantize(quantizedBuffer + 15,
 			historyChunk.rightLowOdd, historyChunk.position2,
 			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
-			5, &LowHighParams, &LowHighStartValues);
+			5, &LowHighParams, &LowHighStartValuesRight);
 		quantize(quantizedBuffer + 20,
 			historyChunk.leftHighEven, historyChunk.position2,
 			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
-			5, &HighParams, &HighStartValues);
+			5, &HighParams, &HighStartValuesLeft);
 		quantize(quantizedBuffer + 25,
 			historyChunk.rightHighEven, historyChunk.position2,
 			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
-			5, &HighParams, &HighStartValues);
+			5, &HighParams, &HighStartValuesRight);
 
-		//fwrite(quantizedBuffer, 2, 30, notcompressedoutputfile);
+		fwrite(quantizedBuffer, 2, 30, notcompressedoutputfile);
 		compress30Samples(quantizedBuffer);
 		fwrite(quantizedBuffer, 1, 15, outputfile);
 	}
 
 	fclose(outputfile);
-	//fclose(notcompressedoutputfile);
+	fclose(notcompressedoutputfile);
 	wavpcm_input_close(&input);
 	return 0;
 }
@@ -146,12 +153,12 @@ int maindecode() {
 			exit(1);
 		}*/
 
-		dequantize(quantizedBuffer, quantizedBuffer, 5, &LowLowParams, &LowLowStartValues);
-		dequantize(quantizedBuffer + 5, quantizedBuffer + 5, 5, &LowLowParams, &LowLowStartValues);
-		dequantize(quantizedBuffer + 10, quantizedBuffer + 10, 5, &LowHighParams, &LowHighStartValues);
-		dequantize(quantizedBuffer + 15, quantizedBuffer + 15, 5, &LowHighParams, &LowHighStartValues);
-		dequantize(quantizedBuffer + 20, quantizedBuffer + 20, 5, &HighParams, &HighStartValues);
-		dequantize(quantizedBuffer + 25, quantizedBuffer + 25, 5, &HighParams, &HighStartValues);
+		dequantize(quantizedBuffer, quantizedBuffer, 5, &LowLowParams, &LowLowStartValuesLeft);
+		dequantize(quantizedBuffer + 5, quantizedBuffer + 5, 5, &LowLowParams, &LowLowStartValuesRight);
+		dequantize(quantizedBuffer + 10, quantizedBuffer + 10, 5, &LowHighParams, &LowHighStartValuesLeft);
+		dequantize(quantizedBuffer + 15, quantizedBuffer + 15, 5, &LowHighParams, &LowHighStartValuesRight);
+		dequantize(quantizedBuffer + 20, quantizedBuffer + 20, 5, &HighParams, &HighStartValuesLeft);
+		dequantize(quantizedBuffer + 25, quantizedBuffer + 25, 5, &HighParams, &HighStartValuesRight);
 
 		decode(wavbuffer, 
 			quantizedBuffer, quantizedBuffer + 10, quantizedBuffer + 20, 
