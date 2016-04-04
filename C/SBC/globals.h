@@ -2,8 +2,9 @@
 /* represents buffer array elements: equivalent to BUFFERSIZE/2 temporal sample positions */
 #define BUFFERSIZE 40
 
-#define INPUTWAVFILE  "combined_8000_short.wav"
+#define INPUTWAVFILE  "input.wav"
 #define OUTPUTWAVFILE "output.wav"
+#define COMPRESSEDFILE "compressed.dat"
 
 #define VERBOSE
 
@@ -17,9 +18,6 @@
 #define FILTER2_ODD {99, -52, 70,21,-338,1082,-2830,9099, 32767, -7020,  3752, -2244,  1316,  -709,  341, -186} 
 #define FILTER3_EVEN {-186, 341,-709,1316, -2244,3752, -7020, 32767,  9099, -2830, 1082,-338,  21, 70,-52, 99}
 #define FILTER3_ODD {99, -52, 70,21,-338,1082,-2830,9099, 32767, -7020,  3752, -2244,  1316,  -709,  341, -186} 
-#define MUS {.2, .2, .2, .2}
-#define PHIS {.3, .3, .3, .3}
-#define BUFFER_LENGTHS {5,5,5,5}
 
 extern short filter1Even[LENGTH_FILTER1_HALF];
 extern short filter1Odd[LENGTH_FILTER1_HALF];

@@ -3,75 +3,166 @@
 #include <string.h>
 #include "globals.h"
 #include "wavpcm_io.h"
-#include "encode.h"
+#include "decode.h"
 #include "quantize.h"
 #include "dequantize.h"
+#include "bitmanipulation.h" 
 
-/*
-static short mus[4] = MUS;
-static short phis[4] = PHIS;
-static short buffer_lengths[4] = BUFFER_LENGTHS;
-*/
+struct parameters LowLowParams = { 8192, 19660, 10, 15 };
+short LowLowValues[15];
+struct start_values LowLowStartValues = { 0, 1, 0, 0, 0, LowLowValues };
+struct parameters LowHighParams = { 16384, 1638, 10, 7 };
+short LowHighValues[15];
+struct start_values LowHighStartValues = { 0, 1, 0, 0, 0, LowHighValues };
+struct parameters HighParams = { 29490, 31129, 10, 3 };
+short HighValues[15];
+struct start_values HighStartValues = { 0, 1, 0, 0, 0, HighValues };
 
-struct wavpcm_input input;
-struct wavpcm_output output;
-short buffer[BUFFERSIZE];
-short left_buffer[BUFFERSIZE / 2];
-short quantizedbuffer[5];
-short outputbuffer[5];
-short ToWavBuffer[10];
-struct parameters params = {8192,19660,10,15};
-unsigned short valuesbufferEncode[10] = {0,0,0,0,0,0,0,0,0,0};
-struct start_values valuesEncode = {0,1,0,0,0,valuesbufferEncode};
-unsigned short valuesbufferDecode[10] = {0,0,0,0,0,0,0,0,0,0};
-struct start_values valuesDecode = {0,1,0,0,0,valuesbufferDecode};
-
-
+struct chunk historyChunk;
+short quantizedBuffer[BUFFERSIZE * 3 / 4];
+short wavbuffer[BUFFERSIZE];
 
 /* This is the function that is called when the program starts. */
-int main (int argc, char *argv[])
-{
-  /* Variable declarations. */
-  int bufPos, bufIndex, read, quantPos;
-  int i;
-
-
-  memset(&input, 0, sizeof(struct wavpcm_input)); //Fill sizeof(...) bytes starting from input with
-  input.resource=INPUTWAVFILE;
-  memset(&output, 0, sizeof(struct wavpcm_output));
-  output.resource = OUTPUTWAVFILE;
- /* First open input file and parse header, */
-  wavpcm_input_open (&input);
-  wavpcm_output_copy_settings(&input, &output);
-  wavpcm_output_open(&output);
-  for (bufPos=0; bufPos<input.samplesAvailable; bufPos+=(BUFFERSIZE/2)) {
-  /*bufPos expressed in temporal samples*/
-    /* Try to read BUFFERSIZE samples (16 bits, pairwise identical if input is mono, interleaved if input is stereo)  */
-    /* into buffer, with read the actual amount read (expressed in bytes! =  (2*read)/(channels * bitDepth/8) array elements)*/
-    read = wavpcm_input_read (&input, buffer);
-    if(read != BUFFERSIZE)
-		printf("Not a full buffer read, amount read: %d" , read);
-	for (i = 0; i < 80 / 2; i++)
-		left_buffer[i] = buffer[2 * i];
-
-    /* transform buffer */
-
-    /* Quantize and dequantize buffer */
-	for (quantPos = 0; quantPos<4; quantPos++){
-		quantize(quantizedbuffer, left_buffer, quantPos * 5, BUFFERSIZE / 2, 5, &params, &valuesEncode);
-        dequantize(outputbuffer, quantizedbuffer, 5, &params, &valuesDecode);
-		for (i = 0; i < 5; i++){
-			ToWavBuffer[2 * i] = ToWavBuffer[2 * i + 1] = outputbuffer[i];
-			printf("%d, ", ToWavBuffer[2*i]);
-			printf("%d, ", ToWavBuffer[2*i+1]);
-		}
-		wavpcm_output_write(&output, ToWavBuffer, 10);
+int main(int argc, char *argv[]){
+	if (argc <= 1 || argv[1][0] == 'e' || 0) {//ENCODE    // or 1 to do in code (faster than changing launch settings)
+		printf("Encoding\n");
+		return mainencode();
+	} else {//DECODE
+		printf("Decoding\n");
+		return maindecode();
 	}
-	printf("\n");
-  }
-
-  wavpcm_output_close(&output);
-  wavpcm_input_close(&input);
-  /* Return successful exit code. */
-  return 0;
 }
+int mainencode() {
+	struct wavpcm_input input;
+	FILE *outputfile = fopen(COMPRESSEDFILE, "wb");
+	//FILE *notcompressedoutputfile = fopen("notcompressed.dat", "wb");
+	int bufPos, bufIndex, read, quantPos;
+
+	
+
+	//init
+	memset(&input, 0, sizeof(struct wavpcm_input));
+	input.resource = INPUTWAVFILE;
+	wavpcm_input_open(&input);
+	memset(&historyChunk, 0, sizeof(struct chunk));
+
+	for (bufPos = 0; bufPos < input.samplesAvailable; bufPos += (BUFFERSIZE / 2)) {
+		
+		//read a buffer
+		read = wavpcm_input_read(&input, wavbuffer);
+		if (read != BUFFERSIZE) {
+			if ((input.samplesAvailable - bufPos) * 2 != read){
+				printf("Warning: Not a full buffer read, amount read: %d. samplesAvailable: %d. bufPos: %d",
+					read, input.samplesAvailable, bufPos );
+			}
+		}
+			
+
+		encode(wavbuffer, &historyChunk);
+
+		//quantize the subbands
+		//TODO: kill extra buffer?
+		//left
+		quantize(quantizedBuffer,
+			historyChunk.leftLowEven, historyChunk.position2,
+			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
+			5, &LowLowParams, &LowLowStartValues);
+		quantize(quantizedBuffer + 5,
+			historyChunk.rightLowEven, historyChunk.position2,
+			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
+			5, &LowLowParams, &LowLowStartValues);
+		quantize(quantizedBuffer + 10,
+			historyChunk.leftLowOdd, historyChunk.position2,
+			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
+			5, &LowHighParams, &LowHighStartValues);
+		quantize(quantizedBuffer + 15,
+			historyChunk.rightLowOdd, historyChunk.position2,
+			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
+			5, &LowHighParams, &LowHighStartValues);
+		quantize(quantizedBuffer + 20,
+			historyChunk.leftHighEven, historyChunk.position2,
+			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
+			5, &HighParams, &HighStartValues);
+		quantize(quantizedBuffer + 25,
+			historyChunk.rightHighEven, historyChunk.position2,
+			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
+			5, &HighParams, &HighStartValues);
+
+		//fwrite(quantizedBuffer, 2, 30, notcompressedoutputfile);
+		compress30Samples(quantizedBuffer);
+		fwrite(quantizedBuffer, 1, 15, outputfile);
+	}
+
+	fclose(outputfile);
+	//fclose(notcompressedoutputfile);
+	wavpcm_input_close(&input);
+	return 0;
+}
+
+int maindecode() {
+	struct wavpcm_output output;
+	FILE *inputfile = fopen(COMPRESSEDFILE, "rb");
+	//FILE *notcompressedinputfile = fopen("notcompressed.dat", "rb");
+
+	unsigned char readBuffer[15];
+	unsigned char read = 0;
+	unsigned char stop = 0;
+	//init
+	memset(&output, 0, sizeof(struct wavpcm_output));
+	output.resource = OUTPUTWAVFILE;
+	output.bitDepth = 16;
+	output.channels = 1;
+	output.samplingRate = 8000;
+	wavpcm_output_open(&output);
+
+	memset(&historyChunk, 0, sizeof(struct chunk));
+
+	while (!stop) {
+		read = 0;
+		do {
+			read += fread(readBuffer+read, 1, 15-read, inputfile);
+		} while (!(read == 15 || feof(inputfile)));
+		if (read != 15) {
+			if (feof(inputfile)) {
+				stop = 1;
+				break;
+			}
+			printf("Error: End of file reached to soon: nb of bytes not multiple of 15");
+			exit(1);
+		}
+		
+		decompress30samples(readBuffer, quantizedBuffer);
+		/*
+		read = 0;
+		do {
+			read += fread(quantizedBuffer + read, 2, 30 - read, notcompressedinputfile);
+		} while (!(read == 30 || feof(notcompressedinputfile)));
+		if (read != 30) {
+			if (feof(notcompressedinputfile)) {
+				stop = 1;
+				break;
+			}
+			printf("Error: End of file reached to soon: nb of bytes not multiple of 30");
+			exit(1);
+		}*/
+
+		dequantize(quantizedBuffer, quantizedBuffer, 5, &LowLowParams, &LowLowStartValues);
+		dequantize(quantizedBuffer + 5, quantizedBuffer + 5, 5, &LowLowParams, &LowLowStartValues);
+		dequantize(quantizedBuffer + 10, quantizedBuffer + 10, 5, &LowHighParams, &LowHighStartValues);
+		dequantize(quantizedBuffer + 15, quantizedBuffer + 15, 5, &LowHighParams, &LowHighStartValues);
+		dequantize(quantizedBuffer + 20, quantizedBuffer + 20, 5, &HighParams, &HighStartValues);
+		dequantize(quantizedBuffer + 25, quantizedBuffer + 25, 5, &HighParams, &HighStartValues);
+
+		decode(wavbuffer, 
+			quantizedBuffer, quantizedBuffer + 10, quantizedBuffer + 20, 
+			quantizedBuffer + 5, quantizedBuffer + 15, quantizedBuffer + 25, 
+			&historyChunk);
+
+		wavpcm_output_write(&output, wavbuffer, 40);
+	}
+	wavpcm_output_close(&output);
+	fclose(inputfile);
+	//fclose(notcompressedinputfile);
+	return 0;
+}
+
