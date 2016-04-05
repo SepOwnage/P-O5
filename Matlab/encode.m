@@ -22,6 +22,11 @@ function [out, nb_clips] = encode(input, mu, phi, maximum, buffer_length)
     nb_clips = 0;
     buffer = int16(zeros(buffer_length,1));
     buffersum = int32(0);
+    
+    minimum = -maximum;
+    if(minimum<0)
+        minimum = minimum -1;  %two's complement can go more negative than positive
+    end
     %main loop
     for i = 1:length(input)
         sample = input(i);
@@ -35,7 +40,7 @@ function [out, nb_clips] = encode(input, mu, phi, maximum, buffer_length)
 
         %clip the value to the given maximum
         quantized_difference = min(maximum, quantized_difference);
-        quantized_difference = max(-(maximum+1), quantized_difference);
+        quantized_difference = max(minimum, quantized_difference);
         out(i) = quantized_difference;
        
         dequantized_difference = int32(quantized_difference) * int32(stepsize);
