@@ -42,7 +42,7 @@ int main(int argc, char *argv[]){
 int mainencode() {
 	struct wavpcm_input input;
 	FILE *outputfile = fopen(COMPRESSEDFILE, "wb");
-	FILE *notcompressedoutputfile = fopen("notcompressed.dat", "wb");
+	//FILE *notcompressedoutputfile = fopen("notcompressed.dat", "wb");
 	int bufPos, bufIndex, read, quantPos;
 
 	
