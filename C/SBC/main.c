@@ -31,7 +31,7 @@ short wavbuffer[BUFFERSIZE];
 
 /* This is the function that is called when the program starts. */
 int main(int argc, char *argv[]){
-	if (argc <= 1 || argv[1][0] == 'e' || 1) {//ENCODE    // or 1 to do in code (faster than changing launch settings)
+	if (argc <= 1 || argv[1][0] == 'e' || 0) {//ENCODE    // or 1 to do in code (faster than changing launch settings)
 		printf("Encoding\n");
 		return mainencode();
 	} else {//DECODE
@@ -95,13 +95,13 @@ int mainencode() {
 			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
 			5, &HighParams, &HighStartValuesRight);
 
-		fwrite(quantizedBuffer, 2, 30, notcompressedoutputfile);
+		//fwrite(quantizedBuffer, 2, 30, notcompressedoutputfile);
 		compress30Samples(quantizedBuffer);
 		fwrite(quantizedBuffer, 1, 15, outputfile);
 	}
 
 	fclose(outputfile);
-	fclose(notcompressedoutputfile);
+	//fclose(notcompressedoutputfile);
 	wavpcm_input_close(&input);
 	return 0;
 }
@@ -110,6 +110,7 @@ int maindecode() {
 	struct wavpcm_output output;
 	FILE *inputfile = fopen(COMPRESSEDFILE, "rb");
 	//FILE *notcompressedinputfile = fopen("notcompressed.dat", "rb");
+	//FILE *dequantizedoutput = fopen("dequantized.dat", "wb");
 
 	unsigned char readBuffer[15];
 	unsigned char read = 0;
@@ -160,6 +161,7 @@ int maindecode() {
 		dequantize(quantizedBuffer + 20, quantizedBuffer + 20, 5, &HighParams, &HighStartValuesLeft);
 		dequantize(quantizedBuffer + 25, quantizedBuffer + 25, 5, &HighParams, &HighStartValuesRight);
 
+		//fwrite(quantizedBuffer, 2, 30, dequantizedoutput);
 		decode(wavbuffer, 
 			quantizedBuffer, quantizedBuffer + 10, quantizedBuffer + 20, 
 			quantizedBuffer + 5, quantizedBuffer + 15, quantizedBuffer + 25, 
@@ -170,6 +172,7 @@ int maindecode() {
 	wavpcm_output_close(&output);
 	fclose(inputfile);
 	//fclose(notcompressedinputfile);
+	//fclose(dequantizedoutput);
 	return 0;
 }
 
