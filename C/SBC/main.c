@@ -8,6 +8,7 @@
 #include "dequantize.h"
 #include "bitmanipulation.h" 
 
+
 struct parameters LowLowParams = { 5144, 19660, 10, 15 };
 short LowLowValuesLeft[15];
 struct start_values LowLowStartValuesLeft = { 0, 1, 0, 0, 0, LowLowValuesLeft };
@@ -31,7 +32,7 @@ short wavbuffer[BUFFERSIZE];
 
 /* This is the function that is called when the program starts. */
 int main(int argc, char *argv[]){
-	if (argc <= 1 || argv[1][0] == 'e' || 0) {//ENCODE    // or 1 to do in code (faster than changing launch settings)
+	if (argc <= 1 || argv[1][0] == 'e' || 1) {//ENCODE    // or 1 to do in code (faster than changing launch settings)
 		printf("Encoding\n");
 		return mainencode();
 	} else {//DECODE

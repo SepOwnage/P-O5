@@ -39,14 +39,29 @@ void convolve(short *input, short *reversedFilter,
 	unsigned short i,j; //bookkeepings
 	long long result; //holds the temporary unscaled result
 	unsigned short stop = inputL-filterL; // the amount of samples that can be calculated
+	short sample;
+	short *samplepointer;
+	short filterelem;
+	short tempTestValue;
+	short *filterelempointer;
+	short *stopfilterelempointer = reversedFilter + filterL;
+	short *endOfInputArray = input + inputL;
 
 	for(j=0; j < stop; j++){ 
 		result = 0;
-		unsigned short smallstop = filterL;
-		for(i = 0; i<smallstop; i++){
+		samplepointer = j + inputOffset + input;
+		if (samplepointer >= endOfInputArray)
+			samplepointer -= filterL;
+
+		for(filterelempointer = reversedFilter; filterelempointer!=stopfilterelempointer; filterelempointer++){
 			//read data (use modulo to wrap around to beginning of array if necessary), multiply
 			//with filter coeff and add to temporary result
-			result += (*(input+(i+inputOffset+j+1)%inputL)) * (*(reversedFilter+i));
+			samplepointer++;
+			if (samplepointer == endOfInputArray)
+				samplepointer = input;
+			sample = *samplepointer;
+			filterelem = *filterelempointer;
+			result += sample * filterelem;
 		}
 		//scale the result, clip it to short range if necessary (so it positives don't become
 		//negatives and vice versa when converting to short).
