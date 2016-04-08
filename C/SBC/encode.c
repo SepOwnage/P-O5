@@ -43,24 +43,22 @@ void convolve(short *input, short *reversedFilter,
 	short *samplepointer;
 	short filterelem;
 	short tempTestValue;
-	short *filterelempointer;
-	short *stopfilterelempointer = reversedFilter + filterL;
-	short *endOfInputArray = input + inputL;
 
 	for(j=0; j < stop; j++){ 
 		result = 0;
-		samplepointer = j + inputOffset + input;
-		if (samplepointer >= endOfInputArray)
-			samplepointer -= filterL;
-
-		for(filterelempointer = reversedFilter; filterelempointer!=stopfilterelempointer; filterelempointer++){
+		tempTestValue = j + inputOffset;
+		while (tempTestValue > inputL)
+			tempTestValue -= inputL;
+		unsigned short smallstop = filterL;
+		for(i = 0; i<smallstop; i++){
 			//read data (use modulo to wrap around to beginning of array if necessary), multiply
 			//with filter coeff and add to temporary result
-			samplepointer++;
-			if (samplepointer == endOfInputArray)
-				samplepointer = input;
+			tempTestValue++;
+			while (tempTestValue > inputL)
+				tempTestValue -= inputL;
+			samplepointer = (input + tempTestValue);
 			sample = *samplepointer;
-			filterelem = *filterelempointer;
+			filterelem = (*(reversedFilter + i));
 			result += sample * filterelem;
 		}
 		//scale the result, clip it to short range if necessary (so it positives don't become
