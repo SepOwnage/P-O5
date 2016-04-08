@@ -34,11 +34,12 @@ short wavbuffer[BUFFERSIZE];
 int main(int argc, char *argv[]){
 	if (argc <= 1 || argv[1][0] == 'e' || 1) {//ENCODE    // or 1 to do in code (faster than changing launch settings)
 		printf("Encoding\n");
-		return mainencode();
-	} else {//DECODE
+		mainencode();
+	}if (argc <= 1 || argv[1][0] == 'd' || 1) {//DECODE
 		printf("Decoding\n");
-		return maindecode();
+		maindecode();
 	}
+	return 0;
 }
 int mainencode() {
 	struct wavpcm_input input;
