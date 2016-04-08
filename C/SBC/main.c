@@ -8,10 +8,10 @@
 #include "dequantize.h"
 #include "bitmanipulation.h" 
 
-struct parameters LowLowParams = { 8192, 19660, 10, 15 };
+struct parameters LowLowParams = { 5144, 19660, 10, 15 };
 short LowLowValuesLeft[15];
 struct start_values LowLowStartValuesLeft = { 0, 1, 0, 0, 0, LowLowValuesLeft };
-struct parameters LowHighParams = { 16384, 1638, 10, 7 };
+struct parameters LowHighParams = { 16384, 328, 10, 7 };
 short LowHighValuesLeft[15];
 struct start_values LowHighStartValuesLeft = { 0, 1, 0, 0, 0, LowHighValuesLeft };
 struct parameters HighParams = { 29490, 31129, 10, 3 };

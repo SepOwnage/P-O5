@@ -152,16 +152,16 @@ void encode(short buffer[BUFFERSIZE],struct chunk *historyChunk){
 	//convolve 4 times:  L/R and even/odd
 	convolve(historyChunk->leftEven, filter1Even,
 			 historyChunk->position1, BUFFERSIZE/4+LENGTH_FILTER1_HALF, LENGTH_FILTER1_HALF,
-			 (historyChunk->leftEven), (historyChunk->position1), BUFFERSIZE/4+LENGTH_FILTER1_HALF, 17 );
+			 (historyChunk->leftEven), (historyChunk->position1), BUFFERSIZE/4+LENGTH_FILTER1_HALF, 15 );
 	convolve(historyChunk->leftOdd, filter1Odd,
 			 historyChunk->position1, BUFFERSIZE/4+LENGTH_FILTER1_HALF, LENGTH_FILTER1_HALF,
-			 (historyChunk->leftOdd), (historyChunk->position1), BUFFERSIZE/4+LENGTH_FILTER1_HALF, 17 );
+			 (historyChunk->leftOdd), (historyChunk->position1), BUFFERSIZE/4+LENGTH_FILTER1_HALF, 15 );
 	convolve(historyChunk->rightEven, filter1Even,
 			 historyChunk->position1, BUFFERSIZE/4+LENGTH_FILTER1_HALF, LENGTH_FILTER1_HALF,
-			 (historyChunk->rightEven), (historyChunk->position1), BUFFERSIZE/4+LENGTH_FILTER1_HALF, 17 );
+			 (historyChunk->rightEven), (historyChunk->position1), BUFFERSIZE/4+LENGTH_FILTER1_HALF, 15 );
 	convolve(historyChunk->rightOdd, filter1Odd,
 			 historyChunk->position1, BUFFERSIZE/4+LENGTH_FILTER1_HALF, LENGTH_FILTER1_HALF,
-			 (historyChunk->rightOdd), (historyChunk->position1), BUFFERSIZE/4+LENGTH_FILTER1_HALF, 17 );
+			 (historyChunk->rightOdd), (historyChunk->position1), BUFFERSIZE/4+LENGTH_FILTER1_HALF, 15 );
 	
 	// do the additions and substractions of QMF
 	combine(historyChunk->leftEven,
@@ -191,12 +191,12 @@ void encode(short buffer[BUFFERSIZE],struct chunk *historyChunk){
 	convolve(historyChunk->leftLowOdd, filter2Odd,
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
 				historyChunk->leftLowOdd, historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, 15);
-	convolve(historyChunk->leftHighEven, filter2Even,
+	convolve(historyChunk->leftHighEven, filter3Even,
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->leftHighEven, historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, 16);
-	convolve(historyChunk->leftHighOdd, filter2Odd,
+				historyChunk->leftHighEven, historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, 15);
+	convolve(historyChunk->leftHighOdd, filter3Odd,
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->leftHighOdd, historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, 16);
+				historyChunk->leftHighOdd, historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, 15);
 
 	convolve(historyChunk->rightLowEven, filter2Even,
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
@@ -204,12 +204,12 @@ void encode(short buffer[BUFFERSIZE],struct chunk *historyChunk){
 	convolve(historyChunk->rightLowOdd, filter2Odd,
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
 				historyChunk->rightLowOdd, historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, 15);
-	convolve(historyChunk->rightHighEven, filter2Even,
+	convolve(historyChunk->rightHighEven, filter3Even,
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->rightHighEven, historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, 16);
-	convolve(historyChunk->rightHighOdd, filter2Odd,
+				historyChunk->rightHighEven, historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, 15);
+	convolve(historyChunk->rightHighOdd, filter3Odd,
 				historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->rightHighOdd, historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, 16);
+				historyChunk->rightHighOdd, historyChunk->position2, BUFFERSIZE/8+LENGTH_FILTER2_HALF, 15);
 	//4 times combine
 	//TODO: filter 3??
 	//TODO: skip fourth band? => faster but should be +- neglible compared to convolve
