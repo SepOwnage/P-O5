@@ -8,10 +8,11 @@
 #include "dequantize.h"
 #include "bitmanipulation.h" 
 
-struct parameters LowLowParams = { 8192, 19660, 10, 15 };
+
+struct parameters LowLowParams = { 5144, 19660, 10, 15 };
 short LowLowValuesLeft[15];
 struct start_values LowLowStartValuesLeft = { 0, 1, 0, 0, 0, LowLowValuesLeft };
-struct parameters LowHighParams = { 16384, 1638, 10, 7 };
+struct parameters LowHighParams = { 16384, 328, 10, 7 };
 short LowHighValuesLeft[15];
 struct start_values LowHighStartValuesLeft = { 0, 1, 0, 0, 0, LowHighValuesLeft };
 struct parameters HighParams = { 29490, 31129, 10, 3 };
@@ -31,13 +32,14 @@ short wavbuffer[BUFFERSIZE];
 
 /* This is the function that is called when the program starts. */
 int main(int argc, char *argv[]){
-	if (argc <= 1 || argv[1][0] == 'e' || 0) {//ENCODE    // or 1 to do in code (faster than changing launch settings)
+	if (argc <= 1 || argv[1][0] == 'e' || 1) {//ENCODE    // or 1 to do in code (faster than changing launch settings)
 		printf("Encoding\n");
-		return mainencode();
-	} else {//DECODE
+		mainencode();
+	}if (argc <= 1 || argv[1][0] == 'd' || 1) {//DECODE
 		printf("Decoding\n");
-		return maindecode();
+		maindecode();
 	}
+	return 0;
 }
 int mainencode() {
 	struct wavpcm_input input;

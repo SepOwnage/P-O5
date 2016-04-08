@@ -6,13 +6,14 @@
 filter_lengths = {64,{{32},{32}}};
 %   50
 % 50  50
-Astops = {60,{{50},{50}}};
-%   16
+Astops = {50,{{50},{300}}};
+%   166
 % 16  16
-scalings = {17,{{15},{16}}};
+analysis_scalings = {15,{{15},{15}}};
+synthesis_scalings = {14,{{15},{15}}};
 
 %adaptive quantization paramaters
-mus = int16([.6 .05 0.95 0]*(2^15-1));
-phis = int16([.25 .5 .9 0]*(2^15-1)); 
+mus = int16([.6 .01 0.95 0]*(2^15-1));
+phis = int16([.157 .50 0.9 0]*(2^15-1)); 
 maxima = 2.^([5, 4, 3, 1]-1)-1;
 buffer_lengths = [10 10 10 1];

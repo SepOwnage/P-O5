@@ -2,7 +2,7 @@
 /* represents buffer array elements: equivalent to BUFFERSIZE/2 temporal sample positions */
 #define BUFFERSIZE 40
 
-#define INPUTWAVFILE  "input.wav"
+#define INPUTWAVFILE  "input_repeated.wav"
 #define OUTPUTWAVFILE "output.wav"
 #define COMPRESSEDFILE "compressed.dat"
 
@@ -11,12 +11,16 @@
 #define MAX_FILTERLENGTH_HALF 32
 #define LENGTH_FILTER1_HALF 32
 #define LENGTH_FILTER2_HALF 16
-#define FILTER1_EVEN {-34,58,-94,150,-230,339,-479,658,-881,1163,-1525,2011,-2723,3953,-6937,32767,9984,-3773,2034,-1206,728,-426,230,-104,25,19,-40,44,-39,30,-24,27}
-#define FILTER1_ODD {27,-24,30,-39,44,-40,19,25,-104,230,-426,728,-1206,2034,-3773,9984,32767,-6937,3953,-2723,2011,-1525,1163,-881,658,-479,339,-230,150,-94,58,-34}
-#define FILTER2_EVEN {-186, 341,-709,1316, -2244,3752, -7020, 32767,  9099, -2830, 1082,-338,  21, 70,-52, 99}
-#define FILTER2_ODD {99, -52, 70,21,-338,1082,-2830,9099, 32767, -7020,  3752, -2244,  1316,  -709,  341, -186} 
+#define FILTER1_EVEN {-35, 74, -121, 188, -279, 397, -544, 726, -948, 1224, -1575, 2047, -2742, 3954, -6921, 32767, 10057, -3848, 2111, -1282, 798, -487, 279, -139, 47, 10, -41, 52, -52, 46, -41, 32}
+#define FILTER1_ODD {32, -41, 46, -52, 52, -41, 10, 47, -139, 279, -487, 798, -1282, 2111, -3848, 10057, 32767, -6921, 3954, -2742, 2047, -1575, 1224, -948, 726, -544, 397, -279, 188, -121, 74, -35}
+#define FILTER2_EVEN {-186, 341, -709, 1316, -2244, 3752, -7020, 32767, 9099, -2830, 1082, -338, 21, 70, -52, 99}
+#define FILTER2_ODD {99, -52, 70, 21, -338, 1082, -2830, 9099, 32767, -7020, 3752, -2244, 1316, -709, 341, -186} 
+#define FILTER3_EVEN {1, -3, 10, -16, -118, 1185, -5465, 32767, 5706, -229, -134, 24, 0, 0, 0, 0}
+#define FILTER3_ODD {0, 0, 0, 0, 24, -134, -229, 5706, 32767, -5465, 1185, -118, -16, 10, -3, 1} 
 
 extern short filter1Even[LENGTH_FILTER1_HALF];
 extern short filter1Odd[LENGTH_FILTER1_HALF];
 extern short filter2Even[LENGTH_FILTER2_HALF];
 extern short filter2Odd[LENGTH_FILTER2_HALF];
+extern short filter3Even[LENGTH_FILTER2_HALF];
+extern short filter3Odd[LENGTH_FILTER2_HALF];
