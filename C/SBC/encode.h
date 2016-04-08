@@ -3,24 +3,24 @@
 struct chunk{
 	unsigned short position1;
 	unsigned short position2;
-	signed short leftEven[BUFFERSIZE/4 + LENGTH_FILTER1_HALF];
-	signed short leftOdd[BUFFERSIZE/4 + LENGTH_FILTER1_HALF];
+	signed short leftEven[BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF];
+	signed short leftOdd[BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF];
 	signed short leftCombineTransfer;
-	signed short rightEven[BUFFERSIZE/4 + LENGTH_FILTER1_HALF];
-	signed short rightOdd[BUFFERSIZE/4 + LENGTH_FILTER1_HALF];
+	signed short rightEven[BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF];
+	signed short rightOdd[BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF];
 	signed short rightCombineTransfer;
 
-	signed short leftLowEven[BUFFERSIZE/8 + LENGTH_FILTER2_HALF];
-	signed short leftLowOdd[BUFFERSIZE/8 + LENGTH_FILTER2_HALF];   
+	signed short leftLowEven[BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF];
+	signed short leftLowOdd[BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF];   
 	signed short leftLowCombineTransfer;
-	signed short leftHighEven[BUFFERSIZE/8 + LENGTH_FILTER2_HALF]; 
-	signed short leftHighOdd[BUFFERSIZE/8 + LENGTH_FILTER2_HALF];  
+	signed short leftHighEven[BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF]; 
+	signed short leftHighOdd[BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF];  
 	signed short leftHighCombineTransfer;
-	signed short rightLowEven[BUFFERSIZE/8 + LENGTH_FILTER2_HALF]; //TODO: filter3?
-	signed short rightLowOdd[BUFFERSIZE/8 + LENGTH_FILTER2_HALF];  
+	signed short rightLowEven[BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF]; //TODO: filter3?
+	signed short rightLowOdd[BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF];  
 	signed short rightLowCombineTransfer;
-	signed short rightHighEven[BUFFERSIZE/8 + LENGTH_FILTER2_HALF];
-    signed short rightHighOdd[BUFFERSIZE/8 + LENGTH_FILTER2_HALF]; 
+	signed short rightHighEven[BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF];
+    signed short rightHighOdd[BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF]; 
 	signed short rightHighCombineTransfer;
 };
 

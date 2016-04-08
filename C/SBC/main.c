@@ -47,15 +47,13 @@ int mainencode() {
 	//FILE *notcompressedoutputfile = fopen("notcompressed.dat", "wb");
 	int bufPos, bufIndex, read, quantPos;
 
-	
-
 	//init
 	memset(&input, 0, sizeof(struct wavpcm_input));
 	input.resource = INPUTWAVFILE;
 	wavpcm_input_open(&input);
 	memset(&historyChunk, 0, sizeof(struct chunk));
 
-	for (bufPos = 0; bufPos < input.samplesAvailable; bufPos += (BUFFERSIZE / 2)) {
+	for (bufPos = 0; bufPos < input.samplesAvailable; bufPos += (BUFFERSIZE_DIV2)) {
 		
 		//read a buffer
 		read = wavpcm_input_read(&input, wavbuffer);
@@ -74,27 +72,27 @@ int mainencode() {
 		//left
 		quantize(quantizedBuffer,
 			historyChunk.leftLowEven, historyChunk.position2,
-			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
+			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 			5, &LowLowParams, &LowLowStartValuesLeft);
 		quantize(quantizedBuffer + 5,
 			historyChunk.rightLowEven, historyChunk.position2,
-			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
+			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 			5, &LowLowParams, &LowLowStartValuesRight);
 		quantize(quantizedBuffer + 10,
 			historyChunk.leftLowOdd, historyChunk.position2,
-			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
+			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 			5, &LowHighParams, &LowHighStartValuesLeft);
 		quantize(quantizedBuffer + 15,
 			historyChunk.rightLowOdd, historyChunk.position2,
-			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
+			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 			5, &LowHighParams, &LowHighStartValuesRight);
 		quantize(quantizedBuffer + 20,
 			historyChunk.leftHighEven, historyChunk.position2,
-			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
+			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 			5, &HighParams, &HighStartValuesLeft);
 		quantize(quantizedBuffer + 25,
 			historyChunk.rightHighEven, historyChunk.position2,
-			BUFFERSIZE / 8 + LENGTH_FILTER2_HALF,
+			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 			5, &HighParams, &HighStartValuesRight);
 
 		//fwrite(quantizedBuffer, 2, 30, notcompressedoutputfile);
