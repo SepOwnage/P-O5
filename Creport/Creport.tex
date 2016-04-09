@@ -12,6 +12,8 @@
 \usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
 \newcommandx{\mytodo}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
 \usepackage{enumitem}
+\usepackage{tabu}
+\usepackage{array}
 
 \title{H09M0A P\&D Embedded Systems and Multimedia}
 \author{Seppe Iven - r0370830 \\ Koen Goetschalckx - r0375967}
@@ -24,8 +26,38 @@
 This report is about the C implementation of the MATLAB of blabla
 
 \section{Differences between the MATLAB and C implementation}
-Weggooien van hoogste band
-consistentiefoutjes ivm rounding aangepast in zowel matlab (fix bij deling) als C (deling ipv shift)
+\mytodo{Weggooien van hoogste band}
+\mytodo{Buffer per Buffer}
+\subsection{Rounding and scaling}
+Although the MATLAB implementation was designed to mimic C like integer operations, some false assumptions were made. Table \ref{tbl:roundingassumptions} lists these, as well as their correction and solution. The purpose of the solutions is always to make the C implementation consistent with the MATLAB implementation. The second solution might make the code a little slower, but because it is not in the critical inner loop of \texttt{convolve} (see \ref{sec:processing}) it does not make an important difference.\\
+
+Apart from the changes mentioned in table \ref{tbl:roundingassumptions}, another change was made in MATLAB: instead of scaling the values loaded from the wav-file to let them use the full integer range, they are just multiplied with $2^15$. This is not the same when the values in the wav-file do not occupy their full available range. This change is made because in order to scale the values to the full available range, the maximum is needed. This information is not known in a real-time application, and can thus not be used.
+\begin{table}[htb]
+\centering
+\makebox[\linewidth][c]{
+\tabulinesep=1.2mm
+\begin{tabu}{p{3.0cm}>{\centering\arraybackslash}p{1.7cm}p{3.5cm}>{\centering\arraybackslash}p{1.7cm}p{4cm}}
+False assumption & Examples & Correction & Examples & Solution \\
+\hline
+\hline
+MATLAB rounds integer divisions towards zero (like C) & 
+	10/6 = 1 \quad (-9)/2 = -4 &
+	 MATLAB rounds towards nearest integer (halves away from zero) &
+	  10/6 = 2 \quad(-9)/2 = -5 &
+	  MATLAB division \texttt{a/b} changed to \texttt{int16(fix( double(a)/double(b)))}.\\
+\hline
+C rounds the result of a division by shift towards zero &
+	-9\texttt{>>}1 = -4 \quad 9\texttt{>>}1 = 4 &
+	C does floor on the result&
+	-9\texttt{>>}1 = -5 \quad 9\texttt{>>}1 = 4 &
+	a\texttt{>>}b was replaced by \texttt{a/(1\texttt{<<}b)} in the C code.
+
+\end{tabu}
+}
+\caption{False assumptions about rounding mechanisms, with their corrections and solutions}
+\label{tbl:roundingassumptions}
+\end{table}
+
 \section{Performance enhancements}
 If ipv while
 Enkel encode/decode want die shit duurt lang
@@ -38,7 +70,7 @@ To not waste memory all these functions do work in place, meaning they can write
 \item \texttt{combine}
 \end{itemize}
 Writing the output at the place of the input removes the necessity of reserving memory for both the input and the output. With our implementation, this comes with the cost of more complex indexing, as reading or writing 'after the end' of the array must equal reading or writing at the beginning of the array. This can easily but inefficiently be implemented by doing a modulo operation on the index. A more efficient implementation is used in the \texttt{convolve} function, as the following subsection clarifies.
-\subsection{Processing power} \mytodo{betere titel?}
+\subsection{Processing power}\label{sec:processing} \mytodo{betere titel?}
 After finishing a first complete and fully functioning version of the code, Visual Studio's\footnote{Microsoft Visual Studio Community 2015} CPU Sampling profiled the performance of the code. It pointed out that most time is spent in the \texttt{convolve} function. This corresponds with intuition, since it is not only the function dealing with the largest values before rescaling, but also, and more importantly, the only one with a nested loop. Table \ref{tbl:profilingresults} shows all the relevant profiling results. The numbers in these table indicate the amount of profiling samples the given function was running. These are roughly proportional to the time these functions execute. The details of \texttt{mainencode} are omitted because they are very similar to those of \texttt{maindecode}. Comparison of the unoptimized with the optimized version shows that the total amount of time is almost halved, with only improvements to \texttt{convolve} function. The mentioned \texttt{\_alldiv} function is used by the compiler for dividing long long integers.\\
 
 \begin{table}[htpb]
@@ -87,7 +119,7 @@ Function & \#samples\\
 Figure \ref{fig:convolvefunctions} shows the unoptimized and optimized version of the \texttt{convolve} function in detail. The numbers on the left of the lines indicate the amount of samples during which each line was running. The total amount of samples spent in the inner loop is $4890 + 37999+ 979 = 43868$ for the unoptimized version and $1104+1079+199+196+1806+1009+8548+969 = 14910$ for the optimized version. The results of the optimized version also show that $1806+1009+8548 = 11363$ of the $14910$ profiling samples are spent in the last three lines. These do only essential data fetching and calculations and can thus likely not easily be more optimized. This shows that due to the optimizations, less time is spent on control and more on actual data processing.\\
 \\
 \begin{figure}[htpb]
-\makebox[\linewidth][c]{
+\makebox[\textwidth][c]{
 \begin{subfigure}[c]{.7\textwidth}
 \includegraphics[width=\textwidth]{slow_convolve_cropped}
 \caption{Unoptimized}
@@ -110,7 +142,15 @@ The optimized version is derived from the unoptimized by:
 \end{minipage}
 \section{Problems while implementing the program in C}
 Pointers amai mn hoed
+\subsection{Pointers}\mytodo{Seppe, want mij stoort da ni echt meer, buiten dan owv laatste paragraaf in debuggin}
 Splitting operations on whole signals in buffers, and especially debugging buffer per buffer
+\subsection{Debugging}
+At the start of developing the C code, development was done with basic linux tools like gedit. Debugging therefore was not more advanced than writing values to either the console or an output file and comparing them with MATLAB. These basic methods slowed down development, especially bug fixing. Therefore we switched to using advanced IDEs, like Microsoft Visual Studio. This allows using breakpoints and inspecting variables, call stacks, etc. on the fly, giving a more direct insight to what the code is doing and to where it did not correspond to MATLAB. \\
+
+Even so, debugging was still quite a lot harder than it was with MATLAB. A first cause is the buffer per buffer operation method of the C code, compared to MATLAB calculation full signals at once. Thus, when one wants to find the cause of an error in the output, simply putting a breakpoint would also pause execution at all previous, correct, buffers. This problem was usually solved with conditional breakpoints, with conditions like checking the first value of the buffer to check if it is a buffer of interest. This made the problem manageable, but debugging was still a lot harder than in MATLAB.\\
+
+A second cause is the way arrays are passed as arguments in our C code. This is usually done by giving both a pointer to the start of the array and the length. This however, is not recognized as an array by the used debugging tools, and thus only the first value of the array can be easily inspected by dereferencing the pointer. This problem was usually tackled finding the full array higher in the call stack. However, it remained a small annoyance.
+
 \section{Conclusion}
 This report was about the C implementation of the MATLAB of blabla
 
