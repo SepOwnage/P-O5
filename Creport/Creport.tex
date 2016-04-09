@@ -11,6 +11,7 @@
 \usepackage[pdftex,dvipsnames]{xcolor}  
 \usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
 \newcommandx{\mytodo}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+\usepackage{enumitem}
 
 \title{H09M0A P\&D Embedded Systems and Multimedia}
 \author{Seppe Iven - r0370830 \\ Koen Goetschalckx - r0375967}
@@ -29,17 +30,16 @@ consistentiefoutjes ivm rounding aangepast in zowel matlab (fix bij deling) als 
 If ipv while
 Enkel encode/decode want die shit duurt lang
 \subsection{Memory}
-To not waste memory all these functions can work in place, meaning they can write their output on the same place as they read the input:
-\begin{itemize}
+To not waste memory all these functions do work in place, meaning they can write their output on the same place as they read the input:
+\begin{itemize}[noitemsep]
 \item \texttt{compress30samples}
 \item \texttt{combineWithoutDelay}
 \item \texttt{convolve}
 \item \texttt{combine}
-\item \texttt{quantize}
 \end{itemize}
 Writing the output at the place of the input removes the necessity of reserving memory for both the input and the output. With our implementation, this comes with the cost of more complex indexing, as reading or writing 'after the end' of the array must equal reading or writing at the beginning of the array. This can easily but inefficiently be implemented by doing a modulo operation on the index. A more efficient implementation is used in the \texttt{convolve} function, as the following subsection clarifies.
 \subsection{Processing power} \mytodo{betere titel?}
-After finishing a first complete and fully functioning version of the code, Visual Studio's\footnote{Microsoft Visual Studio Community 2015} CPU Sampling profiled the performance of the code. It pointed out that most time is spent in the \texttt{convolve} function. This corresponds with intuition, since it is not only the function dealing with the highest values before rescaling, but also, and more importantly, the only one with a nested loop. Table \ref{tbl:profilingresults} shows all the relevant profiling results. The numbers in these table indicate the amount of profiling samples the given function was running. These are roughly proportional to the time these functions execute. The details of \texttt{mainencode} are omitted because they are very similar to those of \texttt{maindecode}. Comparison of the unoptimized with the optimized version shows that the total amount of time is almost halved, with only improvements to \texttt{convolve} function. The mentioned \texttt{\_alldiv} function is used by the compiler for dividing long long integers.\\
+After finishing a first complete and fully functioning version of the code, Visual Studio's\footnote{Microsoft Visual Studio Community 2015} CPU Sampling profiled the performance of the code. It pointed out that most time is spent in the \texttt{convolve} function. This corresponds with intuition, since it is not only the function dealing with the largest values before rescaling, but also, and more importantly, the only one with a nested loop. Table \ref{tbl:profilingresults} shows all the relevant profiling results. The numbers in these table indicate the amount of profiling samples the given function was running. These are roughly proportional to the time these functions execute. The details of \texttt{mainencode} are omitted because they are very similar to those of \texttt{maindecode}. Comparison of the unoptimized with the optimized version shows that the total amount of time is almost halved, with only improvements to \texttt{convolve} function. The mentioned \texttt{\_alldiv} function is used by the compiler for dividing long long integers.\\
 
 \begin{table}[htpb]
 \centering
@@ -53,12 +53,12 @@ Function & \#samples\\
 \quad \quad \quad \quad \texttt{decode} & 25089\\
 \quad \quad \quad \quad \quad \quad \texttt{convolve} & 22835\\
 \quad \quad \quad \quad \quad \quad \texttt{\_alldiv} & 1189 \\
-\quad \quad \quad \quad \quad \quad others & rekenuit \\
+\quad \quad \quad \quad \quad \quad others & 1062 \\
 \quad \quad \quad \quad \texttt{wavpcm\_output\_write} & 3825\\
 \quad \quad \quad \quad \texttt{dequantize} & 626\\
-\quad \quad \quad \quad others & rekenuit\\
+\quad \quad \quad \quad others & 874\\
 \quad \quad \texttt{mainencode} & 28362\\
-\quad \quad others & rekenuit
+\quad \quad others & 42
 \end{tabular}
 \caption{Unoptimized}
 \end{subtable}
@@ -71,12 +71,12 @@ Function & \#samples\\
 \quad \quad \quad \quad \texttt{decode} & 10833\\
 \quad \quad \quad \quad \quad \quad \texttt{convolve} & 8672\\
 \quad \quad \quad \quad \quad \quad \texttt{\_alldiv} & 1225 \\
-\quad \quad \quad \quad \quad \quad others & rekenuit \\
+\quad \quad \quad \quad \quad \quad others & 936 \\
 \quad \quad \quad \quad \texttt{wavpcm\_output\_write} & 3616\\
 \quad \quad \quad \quad \texttt{dequantize} & 619\\
-\quad \quad \quad \quad others & rekenuit\\
-\quad \quad \texttt{mainencode} & 16461\\
-\quad \quad others & rekenuit
+\quad \quad \quad \quad others & 737\\
+\quad \quad \texttt{mainencode} & 13461\\
+\quad \quad others & 44
 \end{tabular}
 \caption{Optimized}
 \end{subtable}
@@ -111,7 +111,7 @@ The optimized version is derived from the unoptimized by:
 \section{Problems while implementing the program in C}
 Pointers amai mn hoed
 Splitting operations on whole signals in buffers, and especially debugging buffer per buffer
-\section{conclusion}
+\section{Conclusion}
 This report was about the C implementation of the MATLAB of blabla
 
 \end{document}
