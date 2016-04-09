@@ -26,8 +26,15 @@
 This report is about the C implementation of the MATLAB of blabla
 
 \section{Differences between the MATLAB and C implementation}
-\mytodo{Weggooien van hoogste band}
 \mytodo{Buffer per Buffer}
+
+\subsection{Flexibility}
+The MATLAB code offers more flexibility than the C code. In MATLAB, even the structure of the analysis and synthesis filter banks are derived from given parameters. In C however, this structure is fixed in the code.\\
+
+Also the parameters are harder to change in the C code. In MATLAB, they are nicely combined in \texttt{generate\_some\_params.m} or \texttt{test\_some\_params.m} and given as arguments to the main routine (\texttt{run.m}). In C however, most of them are hard coded. The parameters for \texttt{quantize} and \texttt{dequantize} can be found and relatively easily changed at the the beginning of \texttt{main.c}. The parameters for the highest frequency subband can however not be changed: it is supposed that this band is completely removed. The code thus does not even quantize and dequantize this band. Changing this would require adjustments to \texttt{mainencode}, \texttt{maindecode}, \texttt{compress30samples} and \texttt{decompress30samples}. Any other change is the number of bits assigned to the subbands would require complex changes to only the latter two.\\
+
+All the parameters for the filterbanks are as well hard to change. In MATLAB, the filters are generated based on given parameters while in C, the filters themselves must be entered. This removes the flexibility of easily changing their length or stopband attenuation. Also the amount of scaling to be done after applying the filters, is hardcoded in the C functions \texttt{encode} and \texttt{decode} and can therefore not be changed very quickly.
+
 \subsection{Rounding and scaling}
 Although the MATLAB implementation was designed to mimic C like integer operations, some false assumptions were made. Table \ref{tbl:roundingassumptions} lists these, as well as their correction and solution. The purpose of the solutions is always to make the C implementation consistent with the MATLAB implementation. The second solution might make the code a little slower, but because it is not in the critical inner loop of \texttt{convolve} (see \ref{sec:processing}) it does not make an important difference.\\
 
@@ -57,6 +64,9 @@ C rounds the result of a division by shift towards zero &
 \caption{False assumptions about rounding mechanisms, with their corrections and solutions}
 \label{tbl:roundingassumptions}
 \end{table}
+
+\subsection{Execution order}
+In MATLAB, each intermediate signal is calculated over the complete time before it is used for further calculations. This simplifies the code. It is possible because the MATLAB implementation is just for quality testing, for which the complete input signal can be known at starting time. The C code however, targets a real time-application. The complete input signal is thus not known beforehand. Waiting until the complete signal is received is impossible, because the delay would be unacceptable and the length of the input is not bounded. Therefore, the C code works buffer per buffer. It reads a specified amount of values and saves them in a buffer. On this buffer, all calculations are performed and the output is received immediately without waiting for the rest of the signal. When the output for the current buffer is calculated, a new buffer is read. The delay is thus no more than the time it takes to fill the buffer added to the intrinsic delay of the filterbank. The time needed to calculate the output of an input buffer should be negligible. 
 
 \section{Performance enhancements}
 If ipv while
@@ -141,9 +151,7 @@ The optimized version is derived from the unoptimized by:
 \end{itemize}
 \end{minipage}
 \section{Problems while implementing the program in C}
-Pointers amai mn hoed
 \subsection{Pointers}\mytodo{Seppe, want mij stoort da ni echt meer, buiten dan owv laatste paragraaf in debuggin}
-Splitting operations on whole signals in buffers, and especially debugging buffer per buffer
 \subsection{Debugging}
 At the start of developing the C code, development was done with basic linux tools like gedit. Debugging therefore was not more advanced than writing values to either the console or an output file and comparing them with MATLAB. These basic methods slowed down development, especially bug fixing. Therefore we switched to using advanced IDEs, like Microsoft Visual Studio. This allows using breakpoints and inspecting variables, call stacks, etc. on the fly, giving a more direct insight to what the code is doing and to where it did not correspond to MATLAB. \\
 
