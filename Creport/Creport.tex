@@ -69,8 +69,9 @@ The MATLAB implementation is just for quality testing, for which the complete in
 
 The analysis and synthesis functions don't just require the current buffer, but also older samples and older intermediate values to do the convolutions on. The quantization and dequantization functions require previous samples to calculate the moving average. To do this, both functions use a structure containing previous samples.
 
-\section{Communication with an encryption group}\label{sec:communication}
-The output of the quantization function will be manipulated bit-wise \mytodo{"to compress it into as few shorts a possible"  ==> We do it in bytes (15)} and sent to an encryption group. Every sample of every subband will be quantized to 5, 4, 3 or 0 bits for the lowest to the highest subband, respectively. The quantization function however, outputs every sample as a short. The function that combines the correct bits of multiple samples into shorts, has not been written yet, but this is only seen as a formality. This is because this function is straightforward and depends on the agreement with the encryption group about the buffer size that we communicate with.
+\section{Preparation to communicate with an encryption algorithm}\label{sec:communication}
+The output of the quantization function are still shorts. However, these short contain only a small amount of effective bits, as the actual range of the values is limited. The samples of every subband will be quantized to 5, 4, 3 or 0 effective bits per sample, for lowest to highest frequency subband respectively. The function \texttt{compress30samples} takes 30 samples as shorts, 5 from each except the highest subband of both channels, and performs bitwise operations on them to take only their effective bits and to put them in 15 bytes. These 15 bytes then contain all the necessary information for dequantizing the samples and feeding them to the synthesis filter bank, without unnecessary bits. These bytes can easily be passed to the encryption algorithm. Function \texttt{decompress30samples} implements the inverse of \texttt{compress30samples} and can be used on 15 decrypted bytes to 
+recalculate the original 30 samples.
 
 \section{Performance enhancements}\label{sec:performance}
 If ipv while
