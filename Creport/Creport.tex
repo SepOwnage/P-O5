@@ -26,18 +26,28 @@
 This report is about the C implementation of the MATLAB of blabla
 
 \section{Similarities between the MATLAB and C implementation}
-The C implementation of the P\&D assignment
-
-
-Zelfde functionaliteit / uitkomst -> Soms matlab aanpassen aan wat C doet (bv bij het delen: round/fix)
-Mapping: (Namen veranderen zodat het overeenkomt? Nu is het wel wat verwarrend met 2 encodes)
-Analyse -> Encode
-Encode -> Quantize
-Decode -> Dequantize
-Synthesis -> Decode
+The C implementation of the P\&D assignment produces the exact same output as the MATLAB implementation. To achieve this, it was sometimes necessary to change the MATLAB code. For example, rounding in MATLAB was changed to behave like rounding in C. The mapping of the MATLAB and C functions is shown in table \ref{tbl:mapping}.
+\mytodo{Functienamen aanpassen want dit is nodeloos verwarrend}
+\begin{center}
+\begin{table}
+\begin{tabular}{l|r}
+MATLAB & C \\
+\hline
+Analysis & Encode \\
+Encode & Quantize \\
+Decode & Dequantize \\
+Synthesis & Decode \\
+\end{tabular}
+\caption{MATLAB to C function mapping}
+\label{tbl:mapping}
+\end{table}
+\end{center}
 
 \section{Differences between the MATLAB and C implementation}
-\mytodo{Buffer per Buffer}
+One of the main differences between the MATLAB and C implementation is that the MATLAB implementation has access to the full .wav-file at once, while the C implementation reads the .wav-file buffer by buffer. The subband filtering and synthesis functions require previous samples to do the convolution. The quantization and dequantization functions require previous samples to calculate the moving average. To do this, both functions keep a structure that contain previous samples.
+
+\section{Communication with an encryption group}
+The output of the quantization function will be manipulated bit-wise \mytodo{"to compress it into as few shorts a possible"} and sent to an encryption group. Every sample of every subband will be quantized to 5, 4, 3 or 0 bits for the lowest to the highest subband, respectively. The quantization function however, outputs every sample as a short. The function that combines the correct bits of multiple samples into shorts, has not been written yet, but this is only seen as a formality. This is because this function is straightforward and depends on the agreement with the encryption group about the buffer size that we communicate with.
 
 \subsection{Flexibility}
 The MATLAB code offers more flexibility than the C code. In MATLAB, even the structure of the analysis and synthesis filter banks are derived from given parameters. In C however, this structure is fixed in the code.\\
@@ -91,7 +101,7 @@ To not waste memory all these functions do work in place, meaning they can write
 \item \texttt{combine}
 \end{itemize}
 Writing the output at the place of the input removes the necessity of reserving memory for both the input and the output. With our implementation, this comes with the cost of more complex indexing, as reading or writing 'after the end' of the array must equal reading or writing at the beginning of the array. This can easily but inefficiently be implemented by doing a modulo operation on the index. A more efficient implementation is used in the \texttt{convolve} function, as the following subsection clarifies.
-\subsection{Processing power}\label{sec:processing} \mytodo{betere titel?}
+\subsection{Processing power - Execution time efficiency}\label{sec:processing} \mytodo{betere titel?}
 After finishing a first complete and fully functioning version of the code, Visual Studio's\footnote{Microsoft Visual Studio Community 2015} CPU Sampling profiled the performance of the code. It pointed out that most time is spent in the \texttt{convolve} function. This corresponds with intuition, since it is not only the function dealing with the largest values before rescaling, but also, and more importantly, the only one with a nested loop. Table \ref{tbl:profilingresults} shows all the relevant profiling results. The numbers in these table indicate the amount of profiling samples the given function was running. These are roughly proportional to the time these functions execute. The details of \texttt{mainencode} are omitted because they are very similar to those of \texttt{maindecode}. Comparison of the unoptimized with the optimized version shows that the total amount of time is almost halved, with only improvements to \texttt{convolve} function. The mentioned \texttt{\_alldiv} function is used by the compiler for dividing long long integers.\\
 
 \begin{table}[htpb]
@@ -164,7 +174,7 @@ The optimized version is derived from the unoptimized by:
 \section{Problems while implementing the program in C}
 \subsection{Pointers}\mytodo{Seppe, want mij stoort da ni echt meer, buiten dan owv laatste paragraaf in debuggin}
 \subsection{Debugging}
-At the start of developing the C code, development was done with basic linux tools like gedit. Debugging therefore was not more advanced than writing values to either the console or an output file and comparing them with MATLAB. These basic methods slowed down development, especially bug fixing. Therefore we switched to using advanced IDEs, like Microsoft Visual Studio. This allows using breakpoints and inspecting variables, call stacks, etc. on the fly, giving a more direct insight to what the code is doing and to where it did not correspond to MATLAB. \\
+At the start of developing the C code, development was done with basic linux tools like gedit. Debugging therefore was not more advanced than writing values to either the console or an output file and comparing them with MATLAB. These basic methods slowed down development, especially bug fixing. Therefore we switched to using advanced IDEs, like Microsoft Visual Studio or CodeBlocks. This allows using breakpoints and inspecting variables, call stacks, etc. on the fly, giving a more direct insight to what the code is doing and to where it did not correspond to MATLAB. \\
 
 Even so, debugging was still quite a lot harder than it was with MATLAB. A first cause is the buffer per buffer operation method of the C code, compared to MATLAB calculation full signals at once. Thus, when one wants to find the cause of an error in the output, simply putting a breakpoint would also pause execution at all previous, correct, buffers. This problem was usually solved with conditional breakpoints, with conditions like checking the first value of the buffer to check if it is a buffer of interest. This made the problem manageable, but debugging was still a lot harder than in MATLAB.\\
 
