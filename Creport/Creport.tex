@@ -30,7 +30,7 @@ This report is about the C implementation of a speech encoder for which a MATLAB
 \subsection{Flexibility}
 The MATLAB code offers more flexibility than the C code. In MATLAB, even the structure of the analysis and synthesis filter banks (e.g. the amount of subbands) can be derived from a single parameter. In C however, this structure is fixed in the code.\\
 
-The parameters are also more cumbersome to change in the C code. In MATLAB, they are nicely grouped in \texttt{generate\_some\_params.m} or \texttt{test\_some\_params.m} and given as arguments to the main routine (\texttt{run.m}). In C however, most of them are hard coded. The parameters for \texttt{quantize} and \texttt{dequantize} can be found and relatively easily changed at the the beginning of \texttt{main.c}. The parameters for the highest frequency subband cannot be changed: it is hardcoded that this band is completely removed. This subband is consequently not quantized nor dequantized. Changing this would require adjustments to \texttt{mainencode}, \texttt{maindecode}, \texttt{compress30samples} and \texttt{decompress30samples}. Any other change in the number of bits assigned to the subbands would require complex changes to only the latter two.\\
+The parameters are also more cumbersome to change in the C code. In MATLAB, they are nicely grouped in \texttt{generate\_some\_params.m} or \texttt{test\_some\_ params.m} and given as arguments to the main routine (\texttt{run.m}). In C however, most of them are hard coded. The parameters for \texttt{quantize} and \texttt{dequantize} can be found and relatively easily changed at the the beginning of \texttt{main.c}. The parameters for the highest frequency subband cannot be changed: it is hardcoded that this band is completely removed. This subband is consequently not quantized nor dequantized. Changing this would require adjustments to \texttt{mainencode}, \texttt{maindecode}, \texttt{compress30samples} and \texttt{decompress30samples}. Any other change in the number of bits assigned to the subbands would require complex changes to only the latter two.\\
 
 All the parameters of the filterbanks are also difficult to change. In MATLAB, the filters are generated based on given parameters while in C, the filters themselves must be entered. This removes the flexibility of easily changing their length or stopband attenuation. Also the amount of scaling to be done after applying the filters, is hardcoded in the C functions \texttt{encode} and \texttt{decode} and can therefore not be changed very quickly.
 
@@ -74,8 +74,6 @@ The output of the quantization function are still shorts. However, these short c
 recalculate the original 30 samples.
 
 \section{Performance enhancements}\label{sec:performance}
-If ipv while
-Enkel encode/decode want die shit duurt lang
 \subsection{Memory}
 To not waste memory all these functions do work in place, meaning they can write their output on the same place as they read the input:
 \begin{itemize}[noitemsep]
