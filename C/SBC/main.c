@@ -3,11 +3,10 @@
 #include <string.h>
 #include "globals.h"
 #include "wavpcm_io.h"
-#include "decode.h"
+#include "synthesis.h"
 #include "quantize.h"
 #include "dequantize.h"
 #include "bitmanipulation.h" 
-
 
 struct parameters LowLowParams = { 5144, 19660, 10, 15 };
 short LowLowValuesLeft[15];
@@ -65,7 +64,7 @@ int mainencode() {
 		}
 			
 
-		encode(wavbuffer, &historyChunk);
+		analysis(wavbuffer, &historyChunk);
 
 		//quantize the subbands
 		//TODO: kill extra buffer?
@@ -162,7 +161,7 @@ int maindecode() {
 		dequantize(quantizedBuffer + 25, quantizedBuffer + 25, 5, &HighParams, &HighStartValuesRight);
 
 		//fwrite(quantizedBuffer, 2, 30, dequantizedoutput);
-		decode(wavbuffer, 
+		synthesis(wavbuffer, 
 			quantizedBuffer, quantizedBuffer + 10, quantizedBuffer + 20, 
 			quantizedBuffer + 5, quantizedBuffer + 15, quantizedBuffer + 25, 
 			&historyChunk);

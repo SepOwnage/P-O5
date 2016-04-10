@@ -5,7 +5,7 @@
 #define BUFFERSIZE_DIV8 5
 #define BUFFERSIZE_DIV2 20
 
-#define INPUTWAVFILE  "input_repeated.wav"
+#define INPUTWAVFILE  "input.wav"
 #define OUTPUTWAVFILE "output.wav"
 #define COMPRESSEDFILE "compressed.dat"
 

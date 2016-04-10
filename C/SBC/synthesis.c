@@ -1,4 +1,4 @@
-#include "decode.h"
+#include "synthesis.h"
 
 
 void copyToHistoryChunk(short *left_LL, short *left_LH, short *left_HL,
@@ -103,14 +103,14 @@ void combineWithoutDelay(short *low_freq, short *high_freq, short *out_upper, sh
 	}
 }
 
-void decode(short output[BUFFERSIZE],
+void synthesis(short output[BUFFERSIZE],
 		short *left_LL, short *left_LH, short *left_HL,
 		short *right_LL, short *right_LH, short *right_HL,
 		struct chunk *historyChunk) {
 
 	//FOLLOWS ENCODE IN REVERSE ORDER
 	
-	//TODO: move outside of decode?  cleaner on amount of args
+	//TODO: move outside of synthesis?  cleaner on amount of args
 	copyToHistoryChunk(left_LL, left_LH, left_HL, right_LL, right_LH, right_HL, historyChunk);
 
 	//TODO: filter 3??

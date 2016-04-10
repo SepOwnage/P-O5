@@ -1,4 +1,4 @@
-function out = decode(input, mu, phi, buffer_length)
+function out = dequantize(input, mu, phi, buffer_length)
 % DECODE uses the quantized differential signal input to recreate the 
 %   original signal.  It is the inverse of ENCODE (lossy).
 %   input: quantized differential signal created by ENCODE.

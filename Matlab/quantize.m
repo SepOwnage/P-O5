@@ -1,4 +1,4 @@
-function [out, nb_clips] = encode(input, mu, phi, maximum, buffer_length)
+function [out, nb_clips] = quantize(input, mu, phi, maximum, buffer_length)
 % ENCODE takes a signal and applies adaptive stepsize differential encoding
 % on it to compress it lossy. 
 %   input: input signal as integers ( int16 )

@@ -1,4 +1,4 @@
-#include "encode.h"
+#include "analysis.h"
 #include <stdio.h>
 void addBufferToHistory(short buffer[BUFFERSIZE], struct chunk *historyChunk){
 	/*
@@ -158,7 +158,7 @@ void copyToLowerLayer(struct chunk *historyChunk){
 	}
 }
 
-void encode(short buffer[BUFFERSIZE],struct chunk *historyChunk){
+void analysis(short buffer[BUFFERSIZE],struct chunk *historyChunk){
 	//encodes the new input samples, stored in buffer. Right now, only conversion to subbands is done.
 
 	//copy new buffer to chunk of history, overwriting oldest data that no longer matters

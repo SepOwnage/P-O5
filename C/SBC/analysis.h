@@ -24,7 +24,7 @@ struct chunk{
 	signed short rightHighCombineTransfer;
 };
 
-void encode(short buffer[BUFFERSIZE],struct chunk * historyChunk);
+void analysis(short buffer[BUFFERSIZE],struct chunk * historyChunk);
 void addBufferToHistory(short buffer[BUFFERSIZE], struct chunk *historyChunk);
 void convolve(short *input, short *reversedFilter,
 		unsigned short inputOffset, unsigned short inputL,

@@ -30,11 +30,11 @@ function [reconstructed_links_with_codec, reconstructed_rechts_with_codec,...
     quantized_data = cell(size(subbands_links));
     differentials_clipped = zeros(1,size(subbands_links,2));
     for sb = 1:length(subbands_links)
-       [quantized, nb_clips] = encode(subbands_links{sb},...
+       [quantized, nb_clips] = quantize(subbands_links{sb},...
            mus(sb), phis(sb), maxima(sb), buffer_lengths(sb));
        differentials_clipped(sb) = nb_clips;
        quantized_data{sb} = quantized;
-       dequantized = decode(quantized,mus(sb),phis(sb),buffer_lengths(sb));
+       dequantized = dequantize(quantized,mus(sb),phis(sb),buffer_lengths(sb));
        subbands_links_codeced{sb} = (dequantized);
     end
     %right channel
@@ -42,11 +42,11 @@ function [reconstructed_links_with_codec, reconstructed_rechts_with_codec,...
     quantized_data = cell(size(subbands_rechts));
     differentials_clipped = zeros(1,size(subbands_rechts,2));
     for sb = 1:length(subbands_rechts)
-       [quantized, nb_clips] = encode(subbands_rechts{sb},...
+       [quantized, nb_clips] = quantize(subbands_rechts{sb},...
            mus(sb), phis(sb), maxima(sb), buffer_lengths(sb));
        differentials_clipped(sb) = nb_clips;
        quantized_data{sb} = quantized;
-       dequantized = decode(quantized,mus(sb),phis(sb),buffer_lengths(sb));
+       dequantized = dequantize(quantized,mus(sb),phis(sb),buffer_lengths(sb));
        subbands_rechts_codeced{sb} = (dequantized);
     end
     %% synthesis
