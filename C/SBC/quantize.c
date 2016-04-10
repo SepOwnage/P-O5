@@ -6,6 +6,7 @@ void quantize(short *quantized_differences, short *start_of_samples_array,
 	short start_position_in_samples_array, short length_of_samples_array,
 	short nb_samples_to_do, struct parameters *params, struct start_values *values) {
 	/*
+	Quantizes the inputs with an adaptive, differential quantization scheme.
 	Quantized_difference: start location of output
 	start_of_samples_array: pointer to start of the array holding the samples
 	start_position_in_samples_array: where in the array holding the samples the current samples are

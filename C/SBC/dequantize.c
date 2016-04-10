@@ -6,6 +6,7 @@
 void dequantize(short *dequantized_samples, short *samples,
                 short nb_samples_to_do, struct parameters *params, struct start_values *values){
     /*
+	Is the inverse of quantize. Dequantizes the inputs with an adaptive, differential dequantization scheme.
 	Dequantized_difference: start location of output
 	Samples: pointer to the array containing the samples to be dequantized
 	nb_samples_to_do: the amount of samples to process
