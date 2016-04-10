@@ -23,27 +23,9 @@
 \end{center}
 
 \section{Introduction}
-This report is about the C implementation of the MATLAB of blabla
+This report is about the C implementation of a speech encoder for which a MATLAB implementation was already written. Both implementation produce the exact same output. To achieve this, it was some small changes were made to the MATLAB code as well. For example, rounding in MATLAB was changed to behave even more like rounding in C. Section \ref{sec:rounding} elaborates this. Section \ref{sec:differences} also describes the remaining differences between the two implementations. Section \ref{sec:communication} reports what has been done in preparation to communicate with an encryption algorithm. This algorithm will be provided by another group in the near future. The subsequent section \ref{sec:performance} addresses some measures to increase the performance of the C implementation. The last section is about some experienced difficulties while writing the C code.
 
-\section{Similarities between the MATLAB and C implementation}
-The C implementation of the P\&D assignment produces the exact same output as the MATLAB implementation. To achieve this, it was sometimes necessary to change the MATLAB code. For example, rounding in MATLAB was changed to behave like rounding in C. The mapping of the MATLAB and C functions is shown in table \ref{tbl:mapping}.
-\mytodo{Functienamen aanpassen want dit is nodeloos verwarrend}
-\begin{center}
-\begin{table}
-\begin{tabular}{l|r}
-MATLAB & C \\
-\hline
-Analysis & Encode \\
-Encode & Quantize \\
-Decode & Dequantize \\
-Synthesis & Decode \\
-\end{tabular}
-\caption{MATLAB to C function mapping}
-\label{tbl:mapping}
-\end{table}
-\end{center}
-
-\section{Differences between the MATLAB and C implementation}
+\section{Differences between the MATLAB and C implementation}\label{sec:differences}
 
 \subsection{Flexibility}
 The MATLAB code offers more flexibility than the C code. In MATLAB, even the structure of the analysis and synthesis filter banks are derived from given parameters. In C however, this structure is fixed in the code.\\
@@ -52,7 +34,7 @@ Also the parameters are harder to change in the C code. In MATLAB, they are nice
 
 All the parameters of the filterbanks are also difficult to change. In MATLAB, the filters are generated based on given parameters while in C, the filters themselves must be entered. This removes the flexibility of easily changing their length or stopband attenuation. Also the amount of scaling to be done after applying the filters, is hardcoded in the C functions \texttt{encode} and \texttt{decode} and can therefore not be changed very quickly.
 
-\subsection{Rounding and scaling}
+\subsection{Rounding and scaling}\label{sec:rounding}
 Although the MATLAB implementation was designed to mimic C like integer operations, some false assumptions were made. Table \ref{tbl:roundingassumptions} lists these, as well as their correction and solution. The purpose of the solutions is always to make the C implementation consistent with the MATLAB implementation. The second solution might make the code a little slower, but because it is not in the critical inner loop of \texttt{convolve} (see \ref{sec:processing}) it does not make an important difference.\\
 
 Apart from the changes mentioned in table \ref{tbl:roundingassumptions}, another change was made in MATLAB: The values that are loaded from the .wav-file are multiplied by $2^{15}$ instead of scaled to use the full integer range. This is not the same when the values in the .wav-file do not occupy their full available range (from -1 to -1). This change is made because in order to scale the values to the full available range, the maximum value must be known. This information is not known in a real-time application, and can thus not be used.
@@ -87,10 +69,10 @@ The MATLAB implementation is just for quality testing, for which the complete in
 
 The analysis and synthesis functions don't just require the current buffer, but also older samples and older intermediate values to do the convolutions on. The quantization and dequantization functions require previous samples to calculate the moving average. To do this, both functions use a structure containing previous samples.
 
-\section{Communication with an encryption group}
+\section{Communication with an encryption group}\label{sec:communication}
 The output of the quantization function will be manipulated bit-wise \mytodo{"to compress it into as few shorts a possible"  ==> We do it in bytes (15)} and sent to an encryption group. Every sample of every subband will be quantized to 5, 4, 3 or 0 bits for the lowest to the highest subband, respectively. The quantization function however, outputs every sample as a short. The function that combines the correct bits of multiple samples into shorts, has not been written yet, but this is only seen as a formality. This is because this function is straightforward and depends on the agreement with the encryption group about the buffer size that we communicate with.
 
-\section{Performance enhancements}
+\section{Performance enhancements}\label{sec:performance}
 If ipv while
 Enkel encode/decode want die shit duurt lang
 \subsection{Memory}
