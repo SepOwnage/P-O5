@@ -67,7 +67,6 @@ void decompress30samples(unsigned char *compressedSamples, short *output) {
 		//TODO: better way to copy sign bit? + check because probably platform dependent!
 		lowest1 = ((short) ((first & 0b11111000)<<8))>>11;
 		lowest2 = ((short)((((second & 0b1111) << 1) | ((third & 0b10000000) >> 7)) << 11)) >> 11;
-		((short)((((first & 0b111) << 1) | ((second & 0b10000000) >> 7)) << 12)) >> 12;
 		low1 = ((short)((((first & 0b111) << 1) | ((second & 0b10000000) >> 7)) << 12)) >> 12;
 		
 		low2 = ((short)((third & 0b01111000) << 9)) >> 12;
