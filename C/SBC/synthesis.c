@@ -121,8 +121,7 @@ void synthesis(short output[BUFFERSIZE],
 		historyChunk->leftLowOdd,
 		BUFFERSIZE_DIV8,
 		historyChunk->position2,
-		BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
-		&(historyChunk->leftLowCombineTransfer));
+		BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF);
 
 	combineWithoutDelay(historyChunk->leftHighEven,
 		historyChunk->leftHighOdd,
@@ -130,8 +129,7 @@ void synthesis(short output[BUFFERSIZE],
 		historyChunk->leftHighOdd,
 		BUFFERSIZE_DIV8,
 		historyChunk->position2,
-		BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
-		&(historyChunk->leftHighCombineTransfer));
+		BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF);
 
 	combineWithoutDelay(historyChunk->rightLowEven,
 		historyChunk->rightLowOdd,
@@ -139,8 +137,7 @@ void synthesis(short output[BUFFERSIZE],
 		historyChunk->rightLowOdd,
 		BUFFERSIZE_DIV8,
 		historyChunk->position2,
-		BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
-		&(historyChunk->rightLowCombineTransfer));
+		BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF);
 
 	combineWithoutDelay(historyChunk->rightHighEven,
 		historyChunk->rightHighOdd,
@@ -148,8 +145,7 @@ void synthesis(short output[BUFFERSIZE],
 		historyChunk->rightHighOdd,
 		BUFFERSIZE_DIV8,
 		historyChunk->position2,
-		BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
-		&(historyChunk->rightHighCombineTransfer));
+		BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF);
 
 	//Before the convolve: move historyChunk->position2
 	historyChunk->position2 = (historyChunk->position2 + BUFFERSIZE_DIV8) % (BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF);
@@ -188,16 +184,14 @@ void synthesis(short output[BUFFERSIZE],
 		historyChunk->leftOdd,
 		BUFFERSIZE_DIV4,
 		historyChunk->position1,
-		BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF,
-		&(historyChunk->leftCombineTransfer));
+		BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF);
 	combineWithoutDelay(historyChunk->rightEven,
 		historyChunk->rightOdd,
 		historyChunk->rightEven,
 		historyChunk->rightOdd,
 		BUFFERSIZE_DIV4,
 		historyChunk->position1,
-		BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF,
-		&(historyChunk->rightCombineTransfer));
+		BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF);
 
 	(historyChunk->position1) = (historyChunk->position1 + BUFFERSIZE_DIV4) % (BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF);
 

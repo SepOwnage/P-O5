@@ -17,20 +17,20 @@
 #define NB_OF_SMALL_BUFFERS_IN_LARGE 80
 
 struct parameters LowLowParams = { 5144, 19660, 10, 15 };
-short LowLowValuesLeft[15];
+unsigned short LowLowValuesLeft[15];
 struct start_values LowLowStartValuesLeft = { 0, 1, 0, 0, 0, LowLowValuesLeft };
 struct parameters LowHighParams = { 16384, 328, 10, 7 };
-short LowHighValuesLeft[15];
+unsigned short LowHighValuesLeft[15];
 struct start_values LowHighStartValuesLeft = { 0, 1, 0, 0, 0, LowHighValuesLeft };
 struct parameters HighParams = { 29490, 31129, 10, 3 };
-short HighValuesLeft[15];
+unsigned short HighValuesLeft[15];
 struct start_values HighStartValuesLeft = { 0, 1, 0, 0, 0, HighValuesLeft };
 
-short LowLowValuesRight[15];
+unsigned short LowLowValuesRight[15];
 struct start_values LowLowStartValuesRight = { 0, 1, 0, 0, 0, LowLowValuesRight };
-short LowHighValuesRight[15];
+unsigned short LowHighValuesRight[15];
 struct start_values LowHighStartValuesRight = { 0, 1, 0, 0, 0, LowHighValuesRight };
-short HighValuesRight[15];
+unsigned short HighValuesRight[15];
 struct start_values HighStartValuesRight = { 0, 1, 0, 0, 0, HighValuesRight };
 
 struct chunk historyChunkAnalysis, historyChunkSynthesis;
@@ -42,7 +42,8 @@ short wavbuffer[BUFFERSIZE];
 
 /* This is the function that is called when the program starts. */
 int main(int argc, char *argv[]){
-	struct wavpcm_input input, output;
+	struct wavpcm_input input;
+	struct wavpcm_output output;
 	int bufPos, bufIndex, read, quantPos;
 	unsigned char readBuffer[15];
 	unsigned int decrypt_size;
