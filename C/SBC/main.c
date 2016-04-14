@@ -7,6 +7,12 @@
 #include "quantize.h"
 #include "dequantize.h"
 #include "bitmanipulation.h" 
+#include <time.h>
+#include "crypto/global.h"
+#include "crypto/util.h"
+#include "crypto/STS_protocol.h"
+#include "crypto/aes.h"
+#include "crypto/CCM.h"
 
 #define NB_OF_SMALL_BUFFERS_IN_LARGE 80
 
@@ -28,7 +34,7 @@ short HighValuesRight[15];
 struct start_values HighStartValuesRight = { 0, 1, 0, 0, 0, HighValuesRight };
 
 struct chunk historyChunkAnalysis, historyChunkSynthesis;
-unsigned char largeOutputBuffer[15 * NB_OF_SMALL_BUFFERS_IN_LARGE + 45];  //TODO reken die 30 juist uit
+unsigned char largeCryptoBuffer[15 * NB_OF_SMALL_BUFFERS_IN_LARGE + 45];  //TODO reken die 30 juist uit
 short placeInLargeBuffer=0;
 short wavbuffer[BUFFERSIZE];
 
@@ -39,6 +45,10 @@ int main(int argc, char *argv[]){
 	struct wavpcm_input input, output;
 	int bufPos, bufIndex, read, quantPos;
 	unsigned char readBuffer[15];
+	unsigned int decrypt_size;
+	message_ctx ciphermessage;
+	RSA_ctx RSA_ctx_master, RSA_ctx_slave;
+	ENC_ctx ENC_ctx_master, ENC_ctx_slave;
 
 	memset(&input, 0, sizeof(struct wavpcm_input));
 	input.resource = INPUTWAVFILE;
@@ -52,8 +62,19 @@ int main(int argc, char *argv[]){
 	memset(&historyChunkAnalysis, 0, sizeof(struct chunk));
 	memset(&historyChunkSynthesis, 0, sizeof(struct chunk));
 	
+	//Create RSA ctx master & slave
+	calculate_parameters_RSA(&RSA_ctx_master);
+	calculate_parameters_RSA(&RSA_ctx_slave);
+
+	//Create ENC ctx master & slave
+	ENC_ctx_master.counter = 0;
+	ENC_ctx_slave.counter = 0;
+
+	//Start protocol
+	STSprotocol(&ENC_ctx_master, &ENC_ctx_slave, &RSA_ctx_master, &RSA_ctx_slave);
+
 	for (bufPos = 0; bufPos < input.samplesAvailable; bufPos += (BUFFERSIZE_DIV2)) {
-		while (placeInLargeBuffer < 15* NB_OF_SMALL_BUFFERS_IN_LARGE) {
+		while (placeInLargeBuffer < 15 * NB_OF_SMALL_BUFFERS_IN_LARGE) {
 			//read a buffer
 			read = wavpcm_input_read(&input, wavbuffer);
 			if (read != BUFFERSIZE) {
@@ -67,62 +88,63 @@ int main(int argc, char *argv[]){
 			analysis(wavbuffer, &historyChunkAnalysis);
 			//TODO: in (inlined) subfunction
 
-			quantize(largeOutputBuffer + placeInLargeBuffer,
+			quantize(largeCryptoBuffer + placeInLargeBuffer,
 				historyChunkAnalysis.leftLowEven, historyChunkAnalysis.position2,
 				BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 				5, &LowLowParams, &LowLowStartValuesLeft);
-			quantize(largeOutputBuffer + placeInLargeBuffer + 5,
+			quantize(largeCryptoBuffer + placeInLargeBuffer + 5,
 				historyChunkAnalysis.rightLowEven, historyChunkAnalysis.position2,
 				BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 				5, &LowLowParams, &LowLowStartValuesRight);
-			quantize(largeOutputBuffer + placeInLargeBuffer + 10,
+			quantize(largeCryptoBuffer + placeInLargeBuffer + 10,
 				historyChunkAnalysis.leftLowOdd, historyChunkAnalysis.position2,
 				BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 				5, &LowHighParams, &LowHighStartValuesLeft);
-			quantize(largeOutputBuffer + placeInLargeBuffer + 15,
+			quantize(largeCryptoBuffer + placeInLargeBuffer + 15,
 				historyChunkAnalysis.rightLowOdd, historyChunkAnalysis.position2,
 				BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 				5, &LowHighParams, &LowHighStartValuesRight);
-			quantize(largeOutputBuffer + placeInLargeBuffer + 20,
+			quantize(largeCryptoBuffer + placeInLargeBuffer + 20,
 				historyChunkAnalysis.leftHighEven, historyChunkAnalysis.position2,
 				BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 				5, &HighParams, &HighStartValuesLeft);
-			quantize(largeOutputBuffer + placeInLargeBuffer + 25,
+			quantize(largeCryptoBuffer + placeInLargeBuffer + 25,
 				historyChunkAnalysis.rightHighEven, historyChunkAnalysis.position2,
 				BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 				5, &HighParams, &HighStartValuesRight);
 
-			compress30Samples(largeOutputBuffer + placeInLargeBuffer);
+			compress30Samples(largeCryptoBuffer + placeInLargeBuffer);
 
 			placeInLargeBuffer += 15;
 		}
 
 		//encrypt
-		
+		sendData(&ENC_ctx_master, largeCryptoBuffer, sizeof(largeCryptoBuffer), &ciphermessage);
 		//channel
 
 		//decrypt
+		readData(&ENC_ctx_slave, &ciphermessage, largeCryptoBuffer, &decrypt_size);
 
 		//undo speech part
 		placeInLargeBuffer = 0;
-		while (placeInLargeBuffer < 15* NB_OF_SMALL_BUFFERS_IN_LARGE) {
+		while (placeInLargeBuffer < 15 * NB_OF_SMALL_BUFFERS_IN_LARGE) {
 
-			decompress30samples(readBuffer, largeOutputBuffer + placeInLargeBuffer);
-			
+			decompress30samples(readBuffer, largeCryptoBuffer + placeInLargeBuffer);
+
 			//TODO put in one (inline?) function
-			dequantize(largeOutputBuffer + placeInLargeBuffer, largeOutputBuffer + placeInLargeBuffer, 5, &LowLowParams, &LowLowStartValuesLeft);
-			dequantize(largeOutputBuffer + placeInLargeBuffer + 5, largeOutputBuffer + placeInLargeBuffer + 5, 5, &LowLowParams, &LowLowStartValuesRight);
-			dequantize(largeOutputBuffer + placeInLargeBuffer + 10, largeOutputBuffer + placeInLargeBuffer + 10, 5, &LowHighParams, &LowHighStartValuesLeft);
-			dequantize(largeOutputBuffer + placeInLargeBuffer + 15, largeOutputBuffer + placeInLargeBuffer + 15, 5, &LowHighParams, &LowHighStartValuesRight);
-			dequantize(largeOutputBuffer + placeInLargeBuffer + 20, largeOutputBuffer + placeInLargeBuffer + 20, 5, &HighParams, &HighStartValuesLeft);
-			dequantize(largeOutputBuffer + placeInLargeBuffer + 25, largeOutputBuffer + placeInLargeBuffer + 25, 5, &HighParams, &HighStartValuesRight);
+			dequantize(largeCryptoBuffer + placeInLargeBuffer, largeCryptoBuffer + placeInLargeBuffer, 5, &LowLowParams, &LowLowStartValuesLeft);
+			dequantize(largeCryptoBuffer + placeInLargeBuffer + 5, largeCryptoBuffer + placeInLargeBuffer + 5, 5, &LowLowParams, &LowLowStartValuesRight);
+			dequantize(largeCryptoBuffer + placeInLargeBuffer + 10, largeCryptoBuffer + placeInLargeBuffer + 10, 5, &LowHighParams, &LowHighStartValuesLeft);
+			dequantize(largeCryptoBuffer + placeInLargeBuffer + 15, largeCryptoBuffer + placeInLargeBuffer + 15, 5, &LowHighParams, &LowHighStartValuesRight);
+			dequantize(largeCryptoBuffer + placeInLargeBuffer + 20, largeCryptoBuffer + placeInLargeBuffer + 20, 5, &HighParams, &HighStartValuesLeft);
+			dequantize(largeCryptoBuffer + placeInLargeBuffer + 25, largeCryptoBuffer + placeInLargeBuffer + 25, 5, &HighParams, &HighStartValuesRight);
 
 			synthesis(wavbuffer,
-				largeOutputBuffer + placeInLargeBuffer, largeOutputBuffer + placeInLargeBuffer + 10, largeOutputBuffer + placeInLargeBuffer + 20,
-				largeOutputBuffer + placeInLargeBuffer + 5, largeOutputBuffer + placeInLargeBuffer + 15, largeOutputBuffer + placeInLargeBuffer + 25,
+				largeCryptoBuffer + placeInLargeBuffer, largeCryptoBuffer + placeInLargeBuffer + 10, largeCryptoBuffer + placeInLargeBuffer + 20,
+				largeCryptoBuffer + placeInLargeBuffer + 5, largeCryptoBuffer + placeInLargeBuffer + 15, largeCryptoBuffer + placeInLargeBuffer + 25,
 				&historyChunkSynthesis);
 
 			wavpcm_output_write(&output, wavbuffer, 40);
 		}
-
+	}
 }
