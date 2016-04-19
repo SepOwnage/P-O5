@@ -75,7 +75,8 @@ int main(int argc, char *argv[]){
 	//Start protocol
 	STSprotocol(&ENC_ctx_master, &ENC_ctx_slave, &RSA_ctx_master, &RSA_ctx_slave);
 
-	for (bufPos = 0; bufPos < input.samplesAvailable; bufPos += (BUFFERSIZE_DIV2)) {
+	for (bufPos = 0; bufPos < input.samplesAvailable; ) {
+		placeInLargeBuffer = 0;
 		while (placeInLargeBuffer < 15 * NB_OF_SMALL_BUFFERS_IN_LARGE) {
 			//read a buffer
 			read = wavpcm_input_read(&input, wavbuffer);
@@ -86,6 +87,7 @@ int main(int argc, char *argv[]){
 				}
 				//TODO: fill with zeros? ignore?
 			}
+			bufPos += read/2;
 
 			analysis(wavbuffer, &historyChunkAnalysis);
 			//TODO: in (inlined) subfunction
