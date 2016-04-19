@@ -1,0 +1,5 @@
+Optimizations:
+
+Info												|Full main clocks	|with option -O3 at compile (optimize)
+--------------------------------------------------------------------------------------------------------------
+First readings										|835 276			|315742
