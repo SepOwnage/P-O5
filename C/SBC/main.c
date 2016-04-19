@@ -138,11 +138,11 @@ int main(int argc, char *argv[]){
 		}
 
 		//encrypt
-		//sendData(&ENC_ctx_master, largeCryptoBuffer, sizeof(largeCryptoBuffer), &ciphermessage);
+		sendData(&ENC_ctx_master, largeCryptoBuffer, sizeof(largeCryptoBuffer), &ciphermessage);
 		//channel
 
 		//decrypt
-		//readData(&ENC_ctx_slave, &ciphermessage, largeCryptoBuffer, &decrypt_size);
+		readData(&ENC_ctx_slave, &ciphermessage, largeCryptoBuffer, &decrypt_size);
 
 		//undo speech part
 		placeInLargeBuffer = 0;
