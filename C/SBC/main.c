@@ -146,6 +146,7 @@ int main(int argc, char *argv[]){
 				&historyChunkSynthesis);
 
 			wavpcm_output_write(&output, wavbuffer, 40);
+			placeInLargeBuffer += 15;
 		}
 	}
 }
