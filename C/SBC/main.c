@@ -13,6 +13,7 @@
 #include "crypto/STS_protocol.h"
 #include "crypto/aes.h"
 #include "crypto/CCM.h"
+#include "crypto/cryptoMain.h"
 
 #define NB_OF_SMALL_BUFFERS_IN_LARGE 80
 
@@ -89,32 +90,32 @@ int main(int argc, char *argv[]){
 			analysis(wavbuffer, &historyChunkAnalysis);
 			//TODO: in (inlined) subfunction
 
-			quantize(largeCryptoBuffer + placeInLargeBuffer,
+			quantize((short *) (largeCryptoBuffer + placeInLargeBuffer),
 				historyChunkAnalysis.leftLowEven, historyChunkAnalysis.position2,
 				BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 				5, &LowLowParams, &LowLowStartValuesLeft);
-			quantize(largeCryptoBuffer + placeInLargeBuffer + 5,
+			quantize((short *)(largeCryptoBuffer + placeInLargeBuffer + 5),
 				historyChunkAnalysis.rightLowEven, historyChunkAnalysis.position2,
 				BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 				5, &LowLowParams, &LowLowStartValuesRight);
-			quantize(largeCryptoBuffer + placeInLargeBuffer + 10,
+			quantize((short *)(largeCryptoBuffer + placeInLargeBuffer + 10),
 				historyChunkAnalysis.leftLowOdd, historyChunkAnalysis.position2,
 				BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 				5, &LowHighParams, &LowHighStartValuesLeft);
-			quantize(largeCryptoBuffer + placeInLargeBuffer + 15,
+			quantize((short *)(largeCryptoBuffer + placeInLargeBuffer + 15),
 				historyChunkAnalysis.rightLowOdd, historyChunkAnalysis.position2,
 				BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 				5, &LowHighParams, &LowHighStartValuesRight);
-			quantize(largeCryptoBuffer + placeInLargeBuffer + 20,
+			quantize((short *)(largeCryptoBuffer + placeInLargeBuffer + 20),
 				historyChunkAnalysis.leftHighEven, historyChunkAnalysis.position2,
 				BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 				5, &HighParams, &HighStartValuesLeft);
-			quantize(largeCryptoBuffer + placeInLargeBuffer + 25,
+			quantize((short *)(largeCryptoBuffer + placeInLargeBuffer + 25),
 				historyChunkAnalysis.rightHighEven, historyChunkAnalysis.position2,
 				BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 				5, &HighParams, &HighStartValuesRight);
 
-			compress30Samples(largeCryptoBuffer + placeInLargeBuffer);
+			compress30Samples((short *) (largeCryptoBuffer + placeInLargeBuffer));
 
 			placeInLargeBuffer += 15;
 		}
@@ -130,19 +131,18 @@ int main(int argc, char *argv[]){
 		placeInLargeBuffer = 0;
 		while (placeInLargeBuffer < 15 * NB_OF_SMALL_BUFFERS_IN_LARGE) {
 
-			decompress30samples(readBuffer, largeCryptoBuffer + placeInLargeBuffer);
+			decompress30samples((largeCryptoBuffer + placeInLargeBuffer), wavbuffer);
 
 			//TODO put in one (inline?) function
-			dequantize(largeCryptoBuffer + placeInLargeBuffer, largeCryptoBuffer + placeInLargeBuffer, 5, &LowLowParams, &LowLowStartValuesLeft);
-			dequantize(largeCryptoBuffer + placeInLargeBuffer + 5, largeCryptoBuffer + placeInLargeBuffer + 5, 5, &LowLowParams, &LowLowStartValuesRight);
-			dequantize(largeCryptoBuffer + placeInLargeBuffer + 10, largeCryptoBuffer + placeInLargeBuffer + 10, 5, &LowHighParams, &LowHighStartValuesLeft);
-			dequantize(largeCryptoBuffer + placeInLargeBuffer + 15, largeCryptoBuffer + placeInLargeBuffer + 15, 5, &LowHighParams, &LowHighStartValuesRight);
-			dequantize(largeCryptoBuffer + placeInLargeBuffer + 20, largeCryptoBuffer + placeInLargeBuffer + 20, 5, &HighParams, &HighStartValuesLeft);
-			dequantize(largeCryptoBuffer + placeInLargeBuffer + 25, largeCryptoBuffer + placeInLargeBuffer + 25, 5, &HighParams, &HighStartValuesRight);
+			dequantize(wavbuffer, wavbuffer, 5, &LowLowParams, &LowLowStartValuesLeft);
+			dequantize(wavbuffer + 5 , wavbuffer + 5, 5, &LowLowParams, &LowLowStartValuesRight);
+			dequantize(wavbuffer + 10, wavbuffer + 10, 5, &LowHighParams, &LowHighStartValuesLeft);
+			dequantize(wavbuffer + 15, wavbuffer + 15, 5, &LowHighParams, &LowHighStartValuesRight);
+			dequantize(wavbuffer + 20, wavbuffer + 20, 5, &HighParams, &HighStartValuesLeft);
+			dequantize(wavbuffer + 25, wavbuffer + 25, 5, &HighParams, &HighStartValuesRight);
 
 			synthesis(wavbuffer,
-				largeCryptoBuffer + placeInLargeBuffer, largeCryptoBuffer + placeInLargeBuffer + 10, largeCryptoBuffer + placeInLargeBuffer + 20,
-				largeCryptoBuffer + placeInLargeBuffer + 5, largeCryptoBuffer + placeInLargeBuffer + 15, largeCryptoBuffer + placeInLargeBuffer + 25,
+				wavbuffer, wavbuffer + 10, wavbuffer + 20, wavbuffer + 5, wavbuffer + 15, wavbuffer + 25,
 				&historyChunkSynthesis);
 
 			wavpcm_output_write(&output, wavbuffer, 40);
