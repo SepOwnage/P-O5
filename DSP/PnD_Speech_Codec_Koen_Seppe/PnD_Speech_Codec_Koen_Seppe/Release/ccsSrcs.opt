@@ -1,0 +1,1 @@
+"../analysis.c" "../bitManipulation.c" "../dequantize.c" "../globals.c" "../main.c" "../quantize.c" "../synthesis.c" "../wavpcm_io.c" 

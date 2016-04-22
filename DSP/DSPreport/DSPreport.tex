@@ -1,0 +1,81 @@
+\documentclass[a4paper]{article}
+\usepackage{amssymb}
+\usepackage{graphicx}
+%\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{amsmath, amsthm, amssymb} 
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{subfig}
+\usepackage{xargs}
+\usepackage[pdftex,dvipsnames]{xcolor}  
+\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+\newcommandx{\mytodo}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+\usepackage{enumitem}
+\usepackage{tabu}
+\usepackage{array}
+
+\title{H09M0A P\&D Embedded Systems and Multimedia \\ DSP}
+\author{Seppe Iven - r0370830 \\ Koen Goetschalckx - r0375967}
+\begin{document} 
+\maketitle
+\begin{center}Andras Boho, Yanxiang Huang
+\end{center}
+
+\section{Introduction}
+
+\section{Pre-Optimization in C}
+Already sped up 100\% in C by improving the innermost loop.
+
+\section{Optimization for DSP}
+
+\section{Application description (If it has been already described earlier in the report, then you may refer to it and need not repeat it again)}
+Detailed description of the application along with a figure/diagram \\
+Explain different functions in the application: Purpose, functionality, complexity, etc
+
+\section{Porting and integration}
+About porting of project from linux to CCS simulator \\
+About porting of the project from CCS simulator to the board \\
+About integration with speech/crypto \\
+Issues faced and what was done to resolve it
+
+\section{Optimizations}
+Table (as in template) \\
+Explain all optimizations tried: example of the optimization, discuss the impact of the optimization and reasoning behind the impact you saw \\
+The table is only a concise overview. You must explain in details
+
+\begin{table}
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline 
+• & Major Optimization & Functions Effected & Cycles Before & Cycles After & Change (in \%) \\ 
+\hline 
+Base Code & • & • & • & • & • \\ 
+\hline 
+Session 1 & • & • & • & • & • \\ 
+\hline 
+• & • & • & • & • & • \\ 
+\hline 
+Session 2 & • & • & • & • & • \\ 
+\hline 
+• & • & • & • & • & • \\ 
+\hline 
+• & • & • & • & • & • \\ 
+\hline 
+\end{tabular} 
+\end{table}
+
+
+
+
+\section{Lessons learnt}
+About your learning experience from the course.\\
+How decisions taken earlier in the design flow impacted the performance of your code on DSP as
+well as the scope of optimizations\\
+ Your suggestions for improving the content and/or teaching of the course (DSP part specifically) for
+coming years
+
+\section{Conclusions}
+
+\section{Appendix}
+List of your functions and in which files (.c, .h) are they declared \& defined, such that it can help the assistants going through the code (if needed)
+\end{document}

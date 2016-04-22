@@ -1,0 +1,6 @@
+Session 1 (19/4):
+Fix bugs due to implementation of the crypto part
+
+Session 2 (22/4):
+Install & configure CCS 5
+Make code more modular (put shit into functions)

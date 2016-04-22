@@ -1,0 +1,785 @@
+******************************************************************************
+               TMS320C6x Linker PC v7.3.1                      
+******************************************************************************
+>> Linked Fri Apr 22 14:11:33 2016
+
+OUTPUT FILE NAME:   <PnD_Speech_Codec_Koen_Seppe.out>
+ENTRY POINT SYMBOL: "_c_int00"  address: 0000e040
+
+
+MEMORY CONFIGURATION
+
+         name            origin    length      used     unused   attr    fill
+----------------------  --------  ---------  --------  --------  ----  --------
+  RAM                   00000001   fffffffe  000152f1  fffead0d  RWIX
+
+
+SECTION ALLOCATION MAP
+
+ output                                  attributes/
+section   page    origin      length       input sections
+--------  ----  ----------  ----------   ----------------
+.pinit     0    00000004    00000000     UNINITIALIZED
+
+.switch    0    00000004    00000010     
+                  00000004    00000010     ISAAC.obj (.switch:_isaac)
+
+.data      0    00000008    00000000     UNINITIALIZED
+
+.text      0    00000020    0000e920     
+                  00000020    000010e0     aes.obj (.text)
+                  00001100    00000f00     modular_arithmetic.obj (.text)
+                  00002000    00000e80     sha3.obj (.text)
+                  00002e80    00000a80     wavpcm_io.obj (.text)
+                  00003900    00000a20     ISAAC.obj (.text)
+                  00004320    000008e0     analysis.obj (.text)
+                  00004c00    00000800     STS_protocol.obj (.text)
+                  00005400    00000800     synthesis.obj (.text)
+                  00005c00    000005a0     rts6740.lib : divd.obj (.text:__divd)
+                  000061a0    00000580                 : _printfi.obj (.text:__getarg_diouxp)
+                  00006720    00000580     main.obj (.text)
+                  00006ca0    00000580     util.obj (.text)
+                  00007220    00000480     rts6740.lib : _printfi.obj (.text:__setfield)
+                  000076a0    00000480                 : fwrite.obj (.text:_fwrite)
+                  00007b20    00000440                 : _printfi.obj (.text:__printfi)
+                  00007f60    000003c0     CCM.obj (.text)
+                  00008320    00000300     rts6740.lib : fputs.obj (.text:_fputs)
+                  00008620    000002c0                 : _printfi.obj (.text:__pproc_fge)
+                  000088e0    000002c0                 : _printfi.obj (.text:__pproc_fwp)
+                  00008ba0    000002a0                 : _printfi.obj (.text:_ecvt)
+                  00008e40    000002a0                 : _printfi.obj (.text:_fcvt)
+                  000090e0    000002a0                 : fread.obj (.text:_fread)
+                  00009380    00000280                 : memory.obj (.text:_free)
+                  00009600    00000260                 : imath64.obj (.text:__divull)
+                  00009860    00000260                 : _printfi.obj (.text:__pconv_e)
+                  00009ac0    00000260     cryptoMain.obj (.text)
+                  00009d20    00000240     rts6740.lib : _printfi.obj (.text:__pproc_diouxp)
+                  00009f60    00000220                 : _printfi.obj (.text:__pproc_str)
+                  0000a180    00000220     rand.obj (.text)
+                  0000a3a0    00000200     rts6740.lib : _printfi.obj (.text:__pconv_g)
+                  0000a5a0    000001e0     quantize.obj (.text)
+                  0000a780    000001c0     rts6740.lib : _printfi.obj (.text:__mcpy)
+                  0000a940    000001c0                 : fopen.obj (.text:__openfile)
+                  0000ab00    000001a0                 : imath40.obj (.text:__divul)
+                  0000aca0    000001a0     counter_block.obj (.text)
+                  0000ae40    00000180     rts6740.lib : trgdrv.obj (.text:_HOSTrename)
+                  0000afc0    00000180                 : memory.obj (.text:_malloc)
+                  0000b140    00000180                 : lowlev.obj (.text:_open)
+                  0000b2c0    00000180                 : setvbuf.obj (.text:_setvbuf)
+                  0000b440    00000180     dequantize.obj (.text)
+                  0000b5c0    00000160     bitManipulation.obj (.text)
+                  0000b720    00000160     format.obj (.text)
+                  0000b880    00000140     rts6740.lib : _bufread.obj (.text:__buff_read)
+                  0000b9c0    00000140                 : _printfi.obj (.text:__pproc_fflags)
+                  0000bb00    00000140                 : fputc.obj (.text:_fputc)
+                  0000bc40    00000140                 : lowlev.obj (.text:_getdevice)
+                  0000bd80    00000120                 : imath64.obj (.text:__divlli)
+                  0000bea0    00000120                 : fopen.obj (.text:__search_fp)
+                  0000bfc0    00000120                 : fclose.obj (.text:_fclose)
+                  0000c0e0    00000100                 : trgdrv.obj (.text:_HOSTlseek)
+                  0000c1e0    00000100                 : autoinit.obj (.text:__auto_init)
+                  0000c2e0    00000100                 : _printfi.obj (.text:__ltostr)
+                  0000c3e0    00000100                 : _io_perm.obj (.text:__wrt_ok)
+                  0000c4e0    00000100                 : fflush.obj (.text:_fflush)
+                  0000c5e0    000000e0                 : trgdrv.obj (.text:_HOSTopen)
+                  0000c6c0    000000e0                 : divi.obj (.text:__divi)
+                  0000c7a0    000000e0                 : atoi.obj (.text:_atoi)
+                  0000c880    000000e0                 : lowlev.obj (.text:_close)
+                  0000c960    000000e0                 : exit.obj (.text:_exit)
+                  0000ca40    000000e0                 : memset.obj (.text:_memset)
+                  0000cb20    000000c0                 : trgdrv.obj (.text:_HOSTread)
+                  0000cbe0    000000c0                 : trgdrv.obj (.text:_HOSTunlink)
+                  0000cca0    000000c0                 : trgdrv.obj (.text:_HOSTwrite)
+                  0000cd60    000000c0                 : fopen.obj (.text:__cleanup)
+                  0000ce20    000000c0                 : _printfi.obj (.text:__div)
+                  0000cee0    000000c0                 : divu.obj (.text:__divu)
+                  0000cfa0    000000c0                 : fflush.obj (.text:__doflush)
+                  0000d060    000000c0                 : _io_perm.obj (.text:__rd_ok)
+                  0000d120    000000c0                 : remi.obj (.text:__remi)
+                  0000d1e0    000000c0                 : fseek.obj (.text:_fseek)
+                  0000d2a0    000000c0                 : ftell.obj (.text:_ftell)
+                  0000d360    000000c0                 : lowlev.obj (.text:_lseek)
+                  0000d420    000000c0                 : ltoa.obj (.text:_ltoa)
+                  0000d4e0    000000c0                 : lowlev.obj (.text:_read)
+                  0000d5a0    000000c0                 : lowlev.obj (.text:_write)
+                  0000d660    000000c0     mac.obj (.text)
+                  0000d720    000000a0     rts6740.lib : trgdrv.obj (.text:_HOSTclose)
+                  0000d7c0    000000a0                 : trgdrv.obj (.text:_HOSTtime)
+                  0000d860    000000a0                 : imath40.obj (.text:__divli)
+                  0000d900    000000a0                 : _printfi.obj (.text:__ecpy)
+                  0000d9a0    000000a0                 : _printfi.obj (.text:__fcpy)
+                  0000da40    000000a0                 : fixdli.obj (.text:__fixdli)
+                  0000dae0    000000a0                 : _printfi.obj (.text:__pconv_f)
+                  0000db80    000000a0                 : cpy_tbl.obj (.text:_copy_in)
+                  0000dc20    000000a0                 : lowlev.obj (.text:_finddevice)
+                  0000dcc0    000000a0                 : memcpy64.obj (.text:_memcpy)
+                  0000dd60    000000a0                 : memory.obj (.text:_minsert)
+                  0000de00    000000a0                 : memory.obj (.text:_mremove)
+                  0000dea0    000000a0                 : lowlev.obj (.text:_tabinit)
+                  0000df40    00000080                 : fltlid.obj (.text:__fltlid)
+                  0000dfc0    00000080                 : llshift.obj (.text:__llshl)
+                  0000e040    00000080                 : boot.obj (.text:_c_int00)
+                  0000e0c0    00000080                 : fprintf.obj (.text:_fprintf)
+                  0000e140    00000080                 : printf.obj (.text:_printf)
+                  0000e1c0    00000080                 : rand.obj (.text:_rand)
+                  0000e240    00000080                 : trgmsg.obj (.text:_readmsg)
+                  0000e2c0    00000080                 : lowlev.obj (.text:_unlink)
+                  0000e340    00000080     hash.obj (.text)
+                  0000e3c0    00000060     rts6740.lib : assert.obj (.text:__abort_msg)
+                  0000e420    00000060                 : imath64.obj (.text:__subcull)
+                  0000e480    00000060                 : fopen.obj (.text:_fopen)
+                  0000e4e0    00000060                 : memccpy.obj (.text:_memccpy)
+                  0000e540    00000060                 : rand.obj (.text:_srand)
+                  0000e5a0    00000060                 : trgmsg.obj (.text:_writemsg)
+                  0000e600    00000040                 : isinf.obj (.text:___isinf)
+                  0000e640    00000040                 : _printfi.obj (.text:___isnan)
+                  0000e680    00000040                 : args_main.obj (.text:__args_main)
+                  0000e6c0    00000040                 : frcmpyd_div.obj (.text:__frcmpyd_div)
+                  0000e700    00000040                 : llshift.obj (.text:__llshru)
+                  0000e740    00000040                 : imath40.obj (.text:__remli)
+                  0000e780    00000040                 : strasg.obj (.text:__strasgi_64plus)
+                  0000e7c0    00000040                 : abs.obj (.text:_llabs)
+                  0000e800    00000040                 : time.obj (.text:_time)
+                  0000e840    00000020                 : negll.obj (.text:__negll)
+                  0000e860    00000020                 : _lock.obj (.text:__nop)
+                  0000e880    00000020                 : fprintf.obj (.text:__outc)
+                  0000e8a0    00000020                 : printf.obj (.text:__outc)
+                  0000e8c0    00000020                 : fprintf.obj (.text:__outs)
+                  0000e8e0    00000020                 : printf.obj (.text:__outs)
+                  0000e900    00000020                 : exit.obj (.text:_abort)
+                  0000e920    00000020                 : remove.obj (.text:_remove)
+
+.const     0    0000e940    00003047     
+                  0000e940    00000400     aes.obj (.const:_Td0)
+                  0000ed40    00000400     aes.obj (.const:_Td1)
+                  0000f140    00000400     aes.obj (.const:_Td2)
+                  0000f540    00000400     aes.obj (.const:_Td3)
+                  0000f940    00000400     aes.obj (.const:_Td4)
+                  0000fd40    00000400     aes.obj (.const:_Te0)
+                  00010140    00000400     aes.obj (.const:_Te1)
+                  00010540    00000400     aes.obj (.const:_Te2)
+                  00010940    00000400     aes.obj (.const:_Te3)
+                  00010d40    00000400     aes.obj (.const:_Te4)
+                  00011140    000003ca     wavpcm_io.obj (.const)
+                  0001150a    00000178     util.obj (.const)
+                  00011682    00000003     rts6740.lib : assert.obj (.const)
+                  00011685    00000002                 : fputs.obj (.const)
+                  00011687    00000001     --HOLE-- [fill = 0]
+                  00011688    00000101                 : ctype.obj (.const:__ctypes_)
+                  00011789    00000007     --HOLE-- [fill = 0]
+                  00011790    000000c0     sha3.obj (.const:_rc$1)
+                  00011850    00000068     main.obj (.const)
+                  000118b8    00000047     sha3.obj (.const)
+                  000118ff    00000001     --HOLE-- [fill = 0]
+                  00011900    00000028     aes.obj (.const:_rcon)
+                  00011928    00000023     rts6740.lib : _printfi.obj (.const)
+                  0001194b    00000005     --HOLE-- [fill = 0]
+                  00011950    00000019     cryptoMain.obj (.const:_$P$T0$1)
+                  00011969    00000007     --HOLE-- [fill = 0]
+                  00011970    00000017     cryptoMain.obj (.const:_$P$T1$2)
+
+.far       0    00011988    000026b8     UNINITIALIZED
+                  00011988    00001000     ISAAC.obj (.far)
+                  00012988    00000b50     main.obj (.far)
+                  000134d8    000003cc     global.obj (.far)
+                  000138a4    00000004     rts6740.lib : errno.obj (.far)
+                  000138a8    00000324                 : defs.obj (.far)
+                  00013bcc    00000004                 : fopen.obj (.far)
+                  00013bd0    00000158     hash.obj (.far)
+                  00013d28    0000011c     rts6740.lib : lowlev.obj (.far)
+                  00013e44    00000004     --HOLE--
+                  00013e48    00000100     globals.obj (.far)
+                  00013f48    000000d0     rts6740.lib : trgdrv.obj (.far)
+                  00014018    0000000c                 : exit.obj (.far)
+                  00014024    00000008                 : _lock.obj (.far)
+                  0001402c    00000008                 : memory.obj (.far)
+                  00014034    00000004     --HOLE--
+                  00014038    00000008                 : rand.obj (.far)
+
+.cinit     0    00014040    00000924     
+                  00014040    0000040c     global.obj (.cinit)
+                  0001444c    00000004     --HOLE-- [fill = 0]
+                  00014450    0000021a     main.obj (.cinit)
+                  0001466a    00000006     --HOLE-- [fill = 0]
+                  00014670    00000130     globals.obj (.cinit)
+                  000147a0    0000005c     rts6740.lib : defs.obj (.cinit)
+                  000147fc    00000004     --HOLE-- [fill = 0]
+                  00014800    0000005c                 : lowlev.obj (.cinit)
+                  0001485c    00000004     --HOLE-- [fill = 0]
+                  00014860    00000030     ISAAC.obj (.cinit)
+                  00014890    0000002c     rts6740.lib : exit.obj (.cinit)
+                  000148bc    00000004     --HOLE-- [fill = 0]
+                  000148c0    0000002c                 : memory.obj (.cinit)
+                  000148ec    00000004     --HOLE-- [fill = 0]
+                  000148f0    0000001c                 : _lock.obj (.cinit)
+                  0001490c    00000004     --HOLE-- [fill = 0]
+                  00014910    00000010                 : rand.obj (.cinit)
+                  00014920    0000000c     hash.obj (.cinit)
+                  0001492c    00000004     --HOLE-- [fill = 0]
+                  00014930    0000000c     rand.obj (.cinit)
+                  0001493c    00000004     --HOLE-- [fill = 0]
+                  00014940    0000000c     rts6740.lib : errno.obj (.cinit)
+                  0001494c    00000004     --HOLE-- [fill = 0]
+                  00014950    0000000c                 : fopen.obj (.cinit)
+                  0001495c    00000004     --HOLE-- [fill = 0]
+                  00014960    00000004     (.pad.cinit) [fill = 0]
+
+.stack     0    00014968    00000400     UNINITIALIZED
+                  00014968    00000008     rts6740.lib : boot.obj (.stack)
+                  00014970    000003f8     --HOLE--
+
+.sysmem    0    00014d68    00000400     UNINITIALIZED
+                  00014d68    00000008     rts6740.lib : memory.obj (.sysmem)
+                  00014d70    000003f8     --HOLE--
+
+.cio       0    00015168    00000120     UNINITIALIZED
+                  00015168    00000120     rts6740.lib : trgmsg.obj (.cio)
+
+.bss       0    00015288    0000007e     UNINITIALIZED
+                  00015288    00000050     cryptoMain.obj (.bss)
+                  000152d8    00000020     ISAAC.obj (.bss)
+                  000152f8    00000008     rand.obj (.bss)
+                  00015300    00000004     hash.obj (.bss)
+                  00015304    00000002     main.obj (.bss)
+
+
+GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name 
+
+address    name
+--------   ----
+00015288   $bss
+00015288   .bss
+00000008   .data
+00000020   .text
+0000e900   C$$EXIT
+0000e5f8   C$$IO$$
+00008040   _CCM_decrypt
+00007f60   _CCM_encrypt
+00013808   _GENERATOR
+0000d720   _HOSTclose
+0000c0e0   _HOSTlseek
+0000c5e0   _HOSTopen
+0000cb20   _HOSTread
+0000ae40   _HOSTrename
+0000d7c0   _HOSTtime
+0000cbe0   _HOSTunlink
+0000cca0   _HOSTwrite
+00012a98   _HighParams
+00012b00   _HighStartValuesLeftDequantize
+00012ae0   _HighStartValuesLeftQuantize
+00012c80   _HighStartValuesRightDequantize
+00012c60   _HighStartValuesRightQuantize
+00012ac0   _HighValuesLeftDequantize
+00012aa0   _HighValuesLeftQuantize
+00012c40   _HighValuesRightDequantize
+00012c20   _HighValuesRightQuantize
+00012a10   _LowHighParams
+00012a78   _LowHighStartValuesLeftDequantize
+00012a58   _LowHighStartValuesLeftQuantize
+00012c00   _LowHighStartValuesRightDequantize
+00012be0   _LowHighStartValuesRightQuantize
+00012a38   _LowHighValuesLeftDequantize
+00012a18   _LowHighValuesLeftQuantize
+00012bc0   _LowHighValuesRightDequantize
+00012ba0   _LowHighValuesRightQuantize
+00012988   _LowLowParams
+000129f0   _LowLowStartValuesLeftDequantize
+000129b0   _LowLowStartValuesLeftQuantize
+00012b80   _LowLowStartValuesRightDequantize
+00012b60   _LowLowStartValuesRightQuantize
+000129d0   _LowLowValuesLeftDequantize
+00012990   _LowLowValuesLeftQuantize
+00012b40   _LowLowValuesRightDequantize
+00012b20   _LowLowValuesRightQuantize
+000134d8   _MODULUS_MASTER
+00013620   _MODULUS_SLAVE
+00013768   _PRIME
+00013580   _PRIVATE_EXPONENT_MASTER
+000136c8   _PRIVATE_EXPONENT_SLAVE
+00013578   _PUBLIC_EXPONENT_MASTER
+000136c0   _PUBLIC_EXPONENT_SLAVE
+000053a4   _STS_message1_master
+000052d0   _STS_message1_slave
+000051d4   _STS_message2_master
+0000506c   _STS_message2_slave
+00004de4   _STS_message3_master
+00004cc4   _STS_message3_slave
+00009b00   _STSprotocol
+00007190   _XOR
+00015168   __CIOBUF_
+00014d68   __STACK_END
+00000400   __STACK_SIZE
+00000400   __SYSMEM_SIZE
+00000001   __TI_args_main
+00014020   ___TI_enable_exit_profile_output
+ffffffff   ___TI_pprof_out_hndl
+ffffffff   ___TI_prof_data_size
+ffffffff   ___TI_prof_data_start
+ffffffff   ___binit__
+00015288   ___bss__
+ffffffff   ___c_args__
+00014040   ___cinit__
+00000008   ___data__
+00000008   ___edata__
+00015306   ___end__
+0000e940   ___etext__
+0000e600   ___isinf
+ffffffff   ___pinit__
+00000020   ___text__
+0000e3c0   __abort_msg
+0000e680   __args_main
+0000c1e0   __auto_init
+0000b880   __buff_read
+0000c6c0   __c6xabi_divi
+0000cee0   __c6xabi_divu
+0000d120   __c6xabi_remi
+0000e780   __c6xabi_strasgi_64plus
+0000cd60   __cleanup
+00014018   __cleanup_ptr
+00011688   __ctypes_
+00005c00   __divd
+0000c6c0   __divi
+0000d860   __divli
+0000bd80   __divlli
+0000cee0   __divu
+0000ab00   __divul
+00009600   __divull
+0000cfa0   __doflush
+0001401c   __dtors_ptr
+0000da40   __fixdli
+0000df40   __fltlid
+0000e6c0   __frcmpyd_div
+00013bc8   __ft_end
+000138a8   __ftable
+0000dfc0   __llshl
+0000e700   __llshru
+00014024   __lock
+0000e840   __negll
+0000e860   __nop
+00007b20   __printfi
+0000d060   __rd_ok
+0000d120   __remi
+0000e740   __remli
+00002bc8   __sha3_pad
+00002a80   __sha3_update
+00014968   __stack
+0000e780   __strasgi_64plus
+0000e420   __subcull
+00014d68   __sys_memory
+00013a88   __tmpnams
+00014028   __unlock
+0000c3e0   __wrt_ok
+0000e900   _abort
+00004848   _addBufferToHistory
+00000c4c   _aes_decrypt
+000007b0   _aes_encrypt
+0000050c   _aes_set_decrypt_key
+00000020   _aes_set_encrypt_key
+000048e0   _analysis
+0000c7a0   _atoi
+00015288   _b0
+0001528c   _b1
+00015290   _b2
+00015294   _b3
+00015298   _b4
+0001529c   _b5
+000152a0   _b6
+000152a4   _b7
+000152a8   _b8
+000152ac   _b9
+0000e040   _c_int00
+00001f84   _calculate_n_inv
+00004c00   _calculate_parameters_RSA
+00001c44   _calculate_r2modn
+00001bb0   _calculate_rmodn
+0000c880   _close
+0000476c   _combine
+00005584   _combineWithoutDelay
+0000b664   _compress30Samples
+00007160   _convert_message_to_raw_message
+00007118   _convert_raw_message_to_message
+0000458c   _convolve
+00005490   _copyToHistoryChunk
+00004320   _copyToLowerLayer
+0000560c   _copyToUpperLayer
+0000db80   _copy_in
+000152f8   _count
+0000ad74   _create_counter_block
+0000aca0   _create_cyphered_counter_block
+00013bd0   _ctx
+0000b5c0   _decompress30samples
+0000b440   _dequantize
+000152b0   _e0
+000152b4   _e1
+000152b8   _e2
+000152bc   _e3
+000152c0   _e4
+000152c4   _e5
+000152c8   _e6
+000152cc   _e7
+000152d0   _e8
+000152d4   _e9
+000138a4   _errno
+0000c960   _exit
+0000bfc0   _fclose
+0000c4e0   _fflush
+00013e48   _filter1Even
+00013e88   _filter1Odd
+00013ec8   _filter2Even
+00013ee8   _filter2Odd
+00013f08   _filter3Even
+00013f28   _filter3Odd
+0000e480   _fopen
+0000b720   _formatData
+0000e0c0   _fprintf
+0000bb00   _fputc
+00008320   _fputs
+000090e0   _fread
+00009380   _free
+0000d1e0   _fseek
+0000d2a0   _ftell
+000076a0   _fwrite
+0000d660   _generateMAC
+0000e340   _hash
+00012ca0   _historyChunkAnalysis
+00012f50   _historyChunkSynthesis
+00015300   _initHash
+000152fc   _initRand
+00001504   _is_bigger
+00001990   _is_save_message
+00003900   _isaac
+0000a180   _isaac_init
+0000a214   _isaac_rand
+00013200   _largeCryptoBuffer
+0000e7c0   _llabs
+0000d360   _lseek
+0000d420   _ltoa
+00006720   _main
+00009c1c   _mainOfCrypto
+0000afc0   _malloc
+0000e4e0   _memccpy
+0000dcc0   _memcpy
+0000ca40   _memset
+00001940   _mod_reduction
+000016b4   _montgomery_exponentiation
+00001584   _montgomery_multiplication
+000013a0   _mp_addition_special1
+000012a0   _mp_addition_special2
+00001200   _mp_multiplication
+00001160   _mp_subtraction
+0000b140   _open
+00015304   _placeInLargeBuffer
+00006d08   _print_hex_memory
+00006dc4   _print_message
+0000e140   _printf
+0000bb00   _putc
+0000a5a0   _quantize
+0000e1c0   _rand
+000152d8   _randcnt
+00003ab0   _randinit
+00011988   _randrsl
+0000d4e0   _read
+00009aec   _readData
+0000e240   _readmsg
+0000e920   _remove
+00006ca0   _reverse_memcpy
+00009ac0   _sendData
+0000b2c0   _setvbuf
+00002e40   _sha3_256_digest
+00002bb8   _sha3_256_init
+00002b80   _sha3_256_update
+00001100   _shift
+0000e540   _srand
+00005880   _synthesis
+0000e800   _time
+0000e2c0   _unlink
+00013488   _wavbuffer
+000038f0   _wavpcm_input_close
+0000352c   _wavpcm_input_open
+00003324   _wavpcm_input_read
+00003300   _wavpcm_input_seek
+000031d4   _wavpcm_output_close
+00003100   _wavpcm_output_copy_settings
+00003080   _wavpcm_output_open
+00002e80   _wavpcm_output_write
+0000d5a0   _write
+00005400   _writeHistoryInBuffer
+0000e5a0   _writemsg
+ffffffff   binit
+00014040   cinit
+00000008   edata
+00015306   end
+0000e940   etext
+ffffffff   pinit
+
+
+GLOBAL SYMBOLS: SORTED BY Symbol Address 
+
+address    name
+--------   ----
+00000001   __TI_args_main
+00000008   .data
+00000008   ___data__
+00000008   ___edata__
+00000008   edata
+00000020   .text
+00000020   ___text__
+00000020   _aes_set_encrypt_key
+00000400   __STACK_SIZE
+00000400   __SYSMEM_SIZE
+0000050c   _aes_set_decrypt_key
+000007b0   _aes_encrypt
+00000c4c   _aes_decrypt
+00001100   _shift
+00001160   _mp_subtraction
+00001200   _mp_multiplication
+000012a0   _mp_addition_special2
+000013a0   _mp_addition_special1
+00001504   _is_bigger
+00001584   _montgomery_multiplication
+000016b4   _montgomery_exponentiation
+00001940   _mod_reduction
+00001990   _is_save_message
+00001bb0   _calculate_rmodn
+00001c44   _calculate_r2modn
+00001f84   _calculate_n_inv
+00002a80   __sha3_update
+00002b80   _sha3_256_update
+00002bb8   _sha3_256_init
+00002bc8   __sha3_pad
+00002e40   _sha3_256_digest
+00002e80   _wavpcm_output_write
+00003080   _wavpcm_output_open
+00003100   _wavpcm_output_copy_settings
+000031d4   _wavpcm_output_close
+00003300   _wavpcm_input_seek
+00003324   _wavpcm_input_read
+0000352c   _wavpcm_input_open
+000038f0   _wavpcm_input_close
+00003900   _isaac
+00003ab0   _randinit
+00004320   _copyToLowerLayer
+0000458c   _convolve
+0000476c   _combine
+00004848   _addBufferToHistory
+000048e0   _analysis
+00004c00   _calculate_parameters_RSA
+00004cc4   _STS_message3_slave
+00004de4   _STS_message3_master
+0000506c   _STS_message2_slave
+000051d4   _STS_message2_master
+000052d0   _STS_message1_slave
+000053a4   _STS_message1_master
+00005400   _writeHistoryInBuffer
+00005490   _copyToHistoryChunk
+00005584   _combineWithoutDelay
+0000560c   _copyToUpperLayer
+00005880   _synthesis
+00005c00   __divd
+00006720   _main
+00006ca0   _reverse_memcpy
+00006d08   _print_hex_memory
+00006dc4   _print_message
+00007118   _convert_raw_message_to_message
+00007160   _convert_message_to_raw_message
+00007190   _XOR
+000076a0   _fwrite
+00007b20   __printfi
+00007f60   _CCM_encrypt
+00008040   _CCM_decrypt
+00008320   _fputs
+000090e0   _fread
+00009380   _free
+00009600   __divull
+00009ac0   _sendData
+00009aec   _readData
+00009b00   _STSprotocol
+00009c1c   _mainOfCrypto
+0000a180   _isaac_init
+0000a214   _isaac_rand
+0000a5a0   _quantize
+0000ab00   __divul
+0000aca0   _create_cyphered_counter_block
+0000ad74   _create_counter_block
+0000ae40   _HOSTrename
+0000afc0   _malloc
+0000b140   _open
+0000b2c0   _setvbuf
+0000b440   _dequantize
+0000b5c0   _decompress30samples
+0000b664   _compress30Samples
+0000b720   _formatData
+0000b880   __buff_read
+0000bb00   _fputc
+0000bb00   _putc
+0000bd80   __divlli
+0000bfc0   _fclose
+0000c0e0   _HOSTlseek
+0000c1e0   __auto_init
+0000c3e0   __wrt_ok
+0000c4e0   _fflush
+0000c5e0   _HOSTopen
+0000c6c0   __c6xabi_divi
+0000c6c0   __divi
+0000c7a0   _atoi
+0000c880   _close
+0000c960   _exit
+0000ca40   _memset
+0000cb20   _HOSTread
+0000cbe0   _HOSTunlink
+0000cca0   _HOSTwrite
+0000cd60   __cleanup
+0000cee0   __c6xabi_divu
+0000cee0   __divu
+0000cfa0   __doflush
+0000d060   __rd_ok
+0000d120   __c6xabi_remi
+0000d120   __remi
+0000d1e0   _fseek
+0000d2a0   _ftell
+0000d360   _lseek
+0000d420   _ltoa
+0000d4e0   _read
+0000d5a0   _write
+0000d660   _generateMAC
+0000d720   _HOSTclose
+0000d7c0   _HOSTtime
+0000d860   __divli
+0000da40   __fixdli
+0000db80   _copy_in
+0000dcc0   _memcpy
+0000df40   __fltlid
+0000dfc0   __llshl
+0000e040   _c_int00
+0000e0c0   _fprintf
+0000e140   _printf
+0000e1c0   _rand
+0000e240   _readmsg
+0000e2c0   _unlink
+0000e340   _hash
+0000e3c0   __abort_msg
+0000e420   __subcull
+0000e480   _fopen
+0000e4e0   _memccpy
+0000e540   _srand
+0000e5a0   _writemsg
+0000e5f8   C$$IO$$
+0000e600   ___isinf
+0000e680   __args_main
+0000e6c0   __frcmpyd_div
+0000e700   __llshru
+0000e740   __remli
+0000e780   __c6xabi_strasgi_64plus
+0000e780   __strasgi_64plus
+0000e7c0   _llabs
+0000e800   _time
+0000e840   __negll
+0000e860   __nop
+0000e900   C$$EXIT
+0000e900   _abort
+0000e920   _remove
+0000e940   ___etext__
+0000e940   etext
+00011688   __ctypes_
+00011988   _randrsl
+00012988   _LowLowParams
+00012990   _LowLowValuesLeftQuantize
+000129b0   _LowLowStartValuesLeftQuantize
+000129d0   _LowLowValuesLeftDequantize
+000129f0   _LowLowStartValuesLeftDequantize
+00012a10   _LowHighParams
+00012a18   _LowHighValuesLeftQuantize
+00012a38   _LowHighValuesLeftDequantize
+00012a58   _LowHighStartValuesLeftQuantize
+00012a78   _LowHighStartValuesLeftDequantize
+00012a98   _HighParams
+00012aa0   _HighValuesLeftQuantize
+00012ac0   _HighValuesLeftDequantize
+00012ae0   _HighStartValuesLeftQuantize
+00012b00   _HighStartValuesLeftDequantize
+00012b20   _LowLowValuesRightQuantize
+00012b40   _LowLowValuesRightDequantize
+00012b60   _LowLowStartValuesRightQuantize
+00012b80   _LowLowStartValuesRightDequantize
+00012ba0   _LowHighValuesRightQuantize
+00012bc0   _LowHighValuesRightDequantize
+00012be0   _LowHighStartValuesRightQuantize
+00012c00   _LowHighStartValuesRightDequantize
+00012c20   _HighValuesRightQuantize
+00012c40   _HighValuesRightDequantize
+00012c60   _HighStartValuesRightQuantize
+00012c80   _HighStartValuesRightDequantize
+00012ca0   _historyChunkAnalysis
+00012f50   _historyChunkSynthesis
+00013200   _largeCryptoBuffer
+00013488   _wavbuffer
+000134d8   _MODULUS_MASTER
+00013578   _PUBLIC_EXPONENT_MASTER
+00013580   _PRIVATE_EXPONENT_MASTER
+00013620   _MODULUS_SLAVE
+000136c0   _PUBLIC_EXPONENT_SLAVE
+000136c8   _PRIVATE_EXPONENT_SLAVE
+00013768   _PRIME
+00013808   _GENERATOR
+000138a4   _errno
+000138a8   __ftable
+00013a88   __tmpnams
+00013bc8   __ft_end
+00013bd0   _ctx
+00013e48   _filter1Even
+00013e88   _filter1Odd
+00013ec8   _filter2Even
+00013ee8   _filter2Odd
+00013f08   _filter3Even
+00013f28   _filter3Odd
+00014018   __cleanup_ptr
+0001401c   __dtors_ptr
+00014020   ___TI_enable_exit_profile_output
+00014024   __lock
+00014028   __unlock
+00014040   ___cinit__
+00014040   cinit
+00014968   __stack
+00014d68   __STACK_END
+00014d68   __sys_memory
+00015168   __CIOBUF_
+00015288   $bss
+00015288   .bss
+00015288   ___bss__
+00015288   _b0
+0001528c   _b1
+00015290   _b2
+00015294   _b3
+00015298   _b4
+0001529c   _b5
+000152a0   _b6
+000152a4   _b7
+000152a8   _b8
+000152ac   _b9
+000152b0   _e0
+000152b4   _e1
+000152b8   _e2
+000152bc   _e3
+000152c0   _e4
+000152c4   _e5
+000152c8   _e6
+000152cc   _e7
+000152d0   _e8
+000152d4   _e9
+000152d8   _randcnt
+000152f8   _count
+000152fc   _initRand
+00015300   _initHash
+00015304   _placeInLargeBuffer
+00015306   ___end__
+00015306   end
+ffffffff   ___TI_pprof_out_hndl
+ffffffff   ___TI_prof_data_size
+ffffffff   ___TI_prof_data_start
+ffffffff   ___binit__
+ffffffff   ___c_args__
+ffffffff   ___pinit__
+ffffffff   binit
+ffffffff   pinit
+
+[264 symbols]
