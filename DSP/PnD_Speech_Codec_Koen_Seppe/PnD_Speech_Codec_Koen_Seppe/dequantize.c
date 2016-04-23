@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 void dequantize(short *dequantized_samples, short *samples,
-                unsigned char nb_samples_to_do, const struct parameters *params, struct start_values *values){
+                unsigned char nb_samples_to_do, struct parameters *params, struct start_values *values){
     /*
 	Is the inverse of quantize. Dequantizes the inputs with an adaptive, differential dequantization scheme.
 	Dequantized_difference: start location of output
