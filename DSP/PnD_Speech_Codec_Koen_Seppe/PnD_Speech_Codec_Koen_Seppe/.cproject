@@ -21,13 +21,13 @@
 								<listOptionValue builtIn="false" value="DEVICE_CONFIGURATION_ID=com.ti.ccstudio.deviceModel.C6000.GenericC674xDevice"/>
 								<listOptionValue builtIn="false" value="DEVICE_ENDIANNESS=little"/>
 								<listOptionValue builtIn="false" value="OUTPUT_FORMAT=COFF"/>
-								<listOptionValue builtIn="false" value="CCS_MBS_VERSION=5.5.0"/>
+								<listOptionValue builtIn="false" value="CCS_MBS_VERSION=5.1.0.01"/>
 								<listOptionValue builtIn="false" value="RUNTIME_SUPPORT_LIBRARY=libc.a"/>
 								<listOptionValue builtIn="false" value="OUTPUT_TYPE=executable"/>
 							</option>
 							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1363774530" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION" value="7.3.1" valueType="string"/>
 							<targetPlatform id="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.targetPlatformDebug.482377631" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.targetPlatformDebug"/>
-							<builder buildPath="${BuildDirectory}" id="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.builderDebug.1826217904" name="GNU Make.Debug" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.builderDebug"/>
+							<builder buildPath="${workspace_loc:/PnD_Speech_Codec_Koen_Seppe/Debug}" id="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.builderDebug.1826217904" name="GNU Make.Debug" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.builderDebug"/>
 							<tool id="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.compilerDebug.1193882775" name="C6000 Compiler" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.compilerDebug">
 								<option id="com.ti.ccstudio.buildDefinitions.C6000_7.3.compilerID.SILICON_VERSION.1684964703" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.compilerID.SILICON_VERSION" value="6740" valueType="string"/>
 								<option id="com.ti.ccstudio.buildDefinitions.C6000_7.3.compilerID.DEBUGGING_MODEL.1609010882" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.compilerID.DEBUGGING_MODEL" value="com.ti.ccstudio.buildDefinitions.C6000_7.3.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
@@ -54,10 +54,6 @@
 									<listOptionValue builtIn="false" value="&quot;${CG_TOOL_ROOT}/lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CG_TOOL_ROOT}/include&quot;"/>
 								</option>
-								<option id="com.ti.ccstudio.buildDefinitions.C6000_7.3.linkerID.XML_LINK_INFO.253217619" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.linkerID.XML_LINK_INFO" value="&quot;${ProjName}_linkInfo.xml&quot;" valueType="string"/>
-								<inputType id="com.ti.ccstudio.buildDefinitions.C6000_7.3.exeLinker.inputType__CMD_SRCS.67816200" name="Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.exeLinker.inputType__CMD_SRCS"/>
-								<inputType id="com.ti.ccstudio.buildDefinitions.C6000_7.3.exeLinker.inputType__CMD2_SRCS.1941668035" name="Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.exeLinker.inputType__CMD2_SRCS"/>
-								<inputType id="com.ti.ccstudio.buildDefinitions.C6000_7.3.exeLinker.inputType__GEN_CMDS.2009199374" name="Generated Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.exeLinker.inputType__GEN_CMDS"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
@@ -83,13 +79,13 @@
 								<listOptionValue builtIn="false" value="DEVICE_CONFIGURATION_ID=com.ti.ccstudio.deviceModel.C6000.GenericC674xDevice"/>
 								<listOptionValue builtIn="false" value="DEVICE_ENDIANNESS=little"/>
 								<listOptionValue builtIn="false" value="OUTPUT_FORMAT=COFF"/>
-								<listOptionValue builtIn="false" value="CCS_MBS_VERSION=5.5.0"/>
+								<listOptionValue builtIn="false" value="CCS_MBS_VERSION=5.1.0.01"/>
 								<listOptionValue builtIn="false" value="RUNTIME_SUPPORT_LIBRARY=libc.a"/>
 								<listOptionValue builtIn="false" value="OUTPUT_TYPE=executable"/>
 							</option>
 							<option id="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION.1469787085" superClass="com.ti.ccstudio.buildDefinitions.core.OPT_CODEGEN_VERSION" value="7.3.1" valueType="string"/>
 							<targetPlatform id="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.targetPlatformRelease.225986405" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.targetPlatformRelease"/>
-							<builder buildPath="${BuildDirectory}" id="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.builderRelease.1488924083" name="GNU Make.Release" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.builderRelease"/>
+							<builder buildPath="${workspace_loc:/PnD_Speech_Codec_Koen_Seppe/Release}" id="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.builderRelease.1488924083" name="GNU Make.Release" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.builderRelease"/>
 							<tool id="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.compilerRelease.1666113430" name="C6000 Compiler" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.exe.compilerRelease">
 								<option id="com.ti.ccstudio.buildDefinitions.C6000_7.3.compilerID.SILICON_VERSION.372434240" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.compilerID.SILICON_VERSION" value="6740" valueType="string"/>
 								<option id="com.ti.ccstudio.buildDefinitions.C6000_7.3.compilerID.DIAG_WARNING.1450594965" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.compilerID.DIAG_WARNING" valueType="stringList">
@@ -115,10 +111,6 @@
 									<listOptionValue builtIn="false" value="&quot;${CG_TOOL_ROOT}/lib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CG_TOOL_ROOT}/include&quot;"/>
 								</option>
-								<option id="com.ti.ccstudio.buildDefinitions.C6000_7.3.linkerID.XML_LINK_INFO.767122710" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.linkerID.XML_LINK_INFO" value="&quot;${ProjName}_linkInfo.xml&quot;" valueType="string"/>
-								<inputType id="com.ti.ccstudio.buildDefinitions.C6000_7.3.exeLinker.inputType__CMD_SRCS.1205601135" name="Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.exeLinker.inputType__CMD_SRCS"/>
-								<inputType id="com.ti.ccstudio.buildDefinitions.C6000_7.3.exeLinker.inputType__CMD2_SRCS.1120565901" name="Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.exeLinker.inputType__CMD2_SRCS"/>
-								<inputType id="com.ti.ccstudio.buildDefinitions.C6000_7.3.exeLinker.inputType__GEN_CMDS.1195845365" name="Generated Linker Command Files" superClass="com.ti.ccstudio.buildDefinitions.C6000_7.3.exeLinker.inputType__GEN_CMDS"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
@@ -140,6 +132,4 @@
 		</project-mappings>
 	</storageModule>
 	<storageModule moduleId="refreshScope"/>
-	<storageModule moduleId="scannerConfiguration"/>
-	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 </cproject>

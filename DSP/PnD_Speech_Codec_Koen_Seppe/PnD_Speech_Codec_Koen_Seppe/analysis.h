@@ -31,23 +31,6 @@ void convolve(short *input, short *reversedFilter,
 		unsigned short filterL, 
 		short *output, unsigned short outputOffset, 
 		unsigned short outputLength, unsigned short amountToShift);
-void convolveFilter2Even(short *input,
-		unsigned short inputOffset, unsigned short inputL,
-		short *output, unsigned short outputOffset,
-		unsigned short outputLength, unsigned short amountToShift);
-void convolveFilter2Odd(short *input,
-		unsigned short inputOffset, unsigned short inputL,
-		short *output, unsigned short outputOffset,
-		unsigned short outputLength, unsigned short amountToShift);
-void convolveFilter3Even(short *input,
-		unsigned short inputOffset, unsigned short inputL,
-		short *output, unsigned short outputOffset,
-		unsigned short outputLength, unsigned short amountToShift);
-void convolveFilter3Odd(short *input,
-		unsigned short inputOffset, unsigned short inputL,
-		short *output, unsigned short outputOffset,
-		unsigned short outputLength, unsigned short amountToShift);
-
 void combine(short *upper, short *lower, short *out_low, short *out_high,
 	unsigned short length, unsigned short start, unsigned short arrayLength,
 	signed short *combineTransfer);
