@@ -1,10 +1,10 @@
 #include "globals.h"
 
 struct parameters{//Holds phi, mu, bufferlength and maximum.  This is characterised by the subband
-	unsigned short phi; //TODO check all these types
-	unsigned short mu;
-	unsigned char buffer_length;
-	unsigned short maximum;
+	const unsigned short phi; //TODO check all these types
+	const unsigned short mu;
+	const unsigned char buffer_length;
+	const unsigned short maximum;
 };
 
 struct start_values{ //Holds history between calls. This is characterised by previous samples
@@ -18,4 +18,4 @@ struct start_values{ //Holds history between calls. This is characterised by pre
 
 void quantize(short *quantized_differences, short *start_of_samples_array,
 	unsigned char start_position_in_samples_array, unsigned char length_of_samples_array,
-	unsigned char nb_samples_to_do, struct parameters *params, struct start_values *values);
+	unsigned char nb_samples_to_do, const struct parameters *params, struct start_values *values);

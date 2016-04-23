@@ -17,12 +17,12 @@
 
 #define NB_OF_SMALL_BUFFERS_IN_LARGE 40
 
-struct parameters LowLowParams = { 5144, 19660, 10, 15 };
+const struct parameters LowLowParams = { 5144, 19660, 10, 15 };
 unsigned short LowLowValuesLeftQuantize[15];
 struct start_values LowLowStartValuesLeftQuantize = { 0, 1, 0, 0, 0, LowLowValuesLeftQuantize };
 unsigned short LowLowValuesLeftDequantize[15];
 struct start_values LowLowStartValuesLeftDequantize = { 0, 1, 0, 0, 0, LowLowValuesLeftDequantize };
-struct parameters LowHighParams = { 16384, 328, 10, 7 };
+const struct parameters LowHighParams = { 16384, 328, 10, 7 };
 unsigned short LowHighValuesLeftQuantize[15];
 unsigned short LowHighValuesLeftDequantize[15];
 struct start_values LowHighStartValuesLeftQuantize = { 0, 1, 0, 0, 0, LowHighValuesLeftQuantize };
