@@ -36,7 +36,7 @@ void convolve(short *input, short *reversedFilter,
 
 	Note that this function can work in place if output is input
 	*/	
-	unsigned short j; //bookkeepings
+	unsigned char j; //bookkeepings
 	long long result; //holds the temporary unscaled result
 	unsigned short stop = inputL-filterL; // the amount of samples that can be calculated
 	short sample;
