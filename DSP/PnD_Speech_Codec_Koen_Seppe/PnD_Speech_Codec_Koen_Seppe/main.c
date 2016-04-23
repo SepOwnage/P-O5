@@ -18,35 +18,36 @@
 #define NB_OF_SMALL_BUFFERS_IN_LARGE 40
 
 struct parameters LowLowParams = { 5144, 19660, 10, 15 };
-near unsigned short LowLowValuesLeftQuantize[15];
-near struct start_values LowLowStartValuesLeftQuantize = { 0, 1, 0, 0, 0, LowLowValuesLeftQuantize };
-near unsigned short LowLowValuesLeftDequantize[15];
-near struct start_values LowLowStartValuesLeftDequantize = { 0, 1, 0, 0, 0, LowLowValuesLeftDequantize };
+unsigned short LowLowValuesLeftQuantize[15];
+struct start_values LowLowStartValuesLeftQuantize = { 0, 1, 0, 0, 0, LowLowValuesLeftQuantize };
+unsigned short LowLowValuesLeftDequantize[15];
+struct start_values LowLowStartValuesLeftDequantize = { 0, 1, 0, 0, 0, LowLowValuesLeftDequantize };
 struct parameters LowHighParams = { 16384, 328, 10, 7 };
-near unsigned short LowHighValuesLeftQuantize[15];
-near unsigned short LowHighValuesLeftDequantize[15];
-near struct start_values LowHighStartValuesLeftQuantize = { 0, 1, 0, 0, 0, LowHighValuesLeftQuantize };
-near struct start_values LowHighStartValuesLeftDequantize = { 0, 1, 0, 0, 0, LowHighValuesLeftDequantize };
+unsigned short LowHighValuesLeftQuantize[15];
+unsigned short LowHighValuesLeftDequantize[15];
+struct start_values LowHighStartValuesLeftQuantize = { 0, 1, 0, 0, 0, LowHighValuesLeftQuantize };
+struct start_values LowHighStartValuesLeftDequantize = { 0, 1, 0, 0, 0, LowHighValuesLeftDequantize };
+
 struct parameters HighParams = { 29490, 31129, 10, 3 };
-near unsigned short HighValuesLeftQuantize[15];
-near unsigned short HighValuesLeftDequantize[15];
-near struct start_values HighStartValuesLeftQuantize = { 0, 1, 0, 0, 0, HighValuesLeftQuantize };
-near struct start_values HighStartValuesLeftDequantize = { 0, 1, 0, 0, 0, HighValuesLeftDequantize };
+unsigned short HighValuesLeftQuantize[15];
+unsigned short HighValuesLeftDequantize[15];
+struct start_values HighStartValuesLeftQuantize = { 0, 1, 0, 0, 0, HighValuesLeftQuantize };
+struct start_values HighStartValuesLeftDequantize = { 0, 1, 0, 0, 0, HighValuesLeftDequantize };
 
-near unsigned short LowLowValuesRightQuantize[15];
-near unsigned short LowLowValuesRightDequantize[15];
-near struct start_values LowLowStartValuesRightQuantize = { 0, 1, 0, 0, 0, LowLowValuesRightQuantize };
-near struct start_values LowLowStartValuesRightDequantize = { 0, 1, 0, 0, 0, LowLowValuesRightDequantize };
-near unsigned short LowHighValuesRightQuantize[15];
-near unsigned short LowHighValuesRightDequantize[15];
-near struct start_values LowHighStartValuesRightQuantize = { 0, 1, 0, 0, 0, LowHighValuesRightQuantize };
-near struct start_values LowHighStartValuesRightDequantize = { 0, 1, 0, 0, 0, LowHighValuesRightDequantize };
-near unsigned short HighValuesRightQuantize[15];
-near unsigned short HighValuesRightDequantize[15];
-near struct start_values HighStartValuesRightQuantize = { 0, 1, 0, 0, 0, HighValuesRightQuantize };
-near struct start_values HighStartValuesRightDequantize = { 0, 1, 0, 0, 0, HighValuesRightDequantize };
+unsigned short LowLowValuesRightQuantize[15];
+unsigned short LowLowValuesRightDequantize[15];
+struct start_values LowLowStartValuesRightQuantize = { 0, 1, 0, 0, 0, LowLowValuesRightQuantize };
+struct start_values LowLowStartValuesRightDequantize = { 0, 1, 0, 0, 0, LowLowValuesRightDequantize };
+unsigned short LowHighValuesRightQuantize[15];
+unsigned short LowHighValuesRightDequantize[15];
+struct start_values LowHighStartValuesRightQuantize = { 0, 1, 0, 0, 0, LowHighValuesRightQuantize };
+struct start_values LowHighStartValuesRightDequantize = { 0, 1, 0, 0, 0, LowHighValuesRightDequantize };
+unsigned short HighValuesRightQuantize[15];
+unsigned short HighValuesRightDequantize[15];
+struct start_values HighStartValuesRightQuantize = { 0, 1, 0, 0, 0, HighValuesRightQuantize };
+struct start_values HighStartValuesRightDequantize = { 0, 1, 0, 0, 0, HighValuesRightDequantize };
 
-near struct chunk historyChunkAnalysis, historyChunkSynthesis;
+struct chunk historyChunkAnalysis, historyChunkSynthesis;
 unsigned char largeCryptoBuffer[15 * NB_OF_SMALL_BUFFERS_IN_LARGE + 45];  //TODO reken die 30 juist uit
 short placeInLargeBuffer=0;
 short wavbuffer[BUFFERSIZE];
