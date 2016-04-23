@@ -17,5 +17,5 @@ struct start_values{ //Holds history between calls. This is characterised by pre
 };
 
 void quantize(short *quantized_differences, short *start_of_samples_array,
-	short start_position_in_samples_array, short length_of_samples_array,
-	short nb_samples_to_do, struct parameters *params, struct start_values *values);
+	unsigned char start_position_in_samples_array, unsigned char length_of_samples_array,
+	unsigned char nb_samples_to_do, struct parameters *params, struct start_values *values);

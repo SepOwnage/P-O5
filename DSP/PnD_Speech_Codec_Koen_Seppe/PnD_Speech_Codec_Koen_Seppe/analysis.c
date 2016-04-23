@@ -18,10 +18,10 @@ void addBufferToHistory(short buffer[BUFFERSIZE], struct chunk *historyChunk){
 }
 
 void convolve(short *input, short *reversedFilter,
-		unsigned short inputOffset, unsigned short inputL,
-		unsigned short filterL, 
-		short *output, unsigned short outputOffset, 
-		unsigned short outputLength, unsigned short amountToShift){
+		unsigned char inputOffset, unsigned char inputL,
+		unsigned char filterL,
+		short *output, unsigned char outputOffset,
+		unsigned char outputLength, unsigned char amountToShift){
 	/*Convolves two signals:
 	input: start position of the array holding the input signal
 	reversedFilter: start position of the array holding the filter in reversed order!
@@ -75,7 +75,7 @@ void convolve(short *input, short *reversedFilter,
 }
 
 void combine(short *upper, short *lower, short *out_low, short *out_high,
-			 unsigned short length, unsigned short start, unsigned short arrayLength,
+			 unsigned char length, unsigned char start, unsigned char arrayLength,
 			 signed short *combineTransfer){
 	/*
 	combines upper and lower signals in QMF scheme to low and high frequency signals.

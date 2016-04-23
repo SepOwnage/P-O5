@@ -3,6 +3,9 @@
 ################################################################################
 
 # Add inputs and outputs from these tool invocations to the build variables 
+CMD_SRCS += \
+../C6748.cmd 
+
 C_SRCS += \
 ../analysis.c \
 ../bitManipulation.c \

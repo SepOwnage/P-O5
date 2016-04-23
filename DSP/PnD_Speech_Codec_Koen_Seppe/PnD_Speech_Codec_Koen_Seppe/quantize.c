@@ -3,8 +3,8 @@
 #include <stdio.h>
 
 void quantize(short *quantized_differences, short *start_of_samples_array,
-	short start_position_in_samples_array, short length_of_samples_array,
-	short nb_samples_to_do, struct parameters *params, struct start_values *values) {
+	unsigned char start_position_in_samples_array, unsigned char length_of_samples_array,
+	unsigned char nb_samples_to_do, struct parameters *params, struct start_values *values) {
 	/*
 	Quantizes the inputs with an adaptive, differential quantization scheme.
 	Quantized_difference: start location of output
