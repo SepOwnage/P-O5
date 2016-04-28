@@ -36,42 +36,48 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 
 	Note that this function can work in place if output is input
 	*/	
-	unsigned char j; //bookkeepings
+	unsigned char i,j; //bookkeepings
 	long long result_left, result_right; //holds the temporary unscaled result
 	unsigned short stop = inputL-filterL; // the amount of samples that can be calculated
-	short sample_left, sample_right;
+	//short sample_left, sample_right;
 	short *samplepointer_left, *samplepointer_right;
-	short filterelem;
+	//short filterelem;
 	short *endOfInputArray = input_left + inputL;
-	short *filterelempointer;
-	short *stopfilterelempointer = reversedFilter + filterL;
+	//short *filterelempointer;
+	//short *stopfilterelempointer = reversedFilter + filterL;
 
+	short temp_left[BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF];
+	short *temp_left_pointer = temp_left;
+	short temp_right[BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF];
+	short *temp_right_pointer = temp_right;
+
+	samplepointer_left = input_left + inputOffset;
+	samplepointer_right = input_right + inputOffset;
+	for(i=0; i < inputL; i++){
+		*temp_left_pointer = *samplepointer_left;
+		*temp_right_pointer = *samplepointer_right;
+		samplepointer_left++;
+		samplepointer_right++;
+		if(samplepointer_left>endOfInputArray){
+			samplepointer_left = input_left;
+			samplepointer_right = input_right;
+		}
+		temp_left_pointer++;
+		temp_right_pointer++;
+	}
+	temp_left_pointer -= inputL;
+	temp_right_pointer -= inputL;
 
 #pragma MUST_ITERATE(5,10,5)
 	for(j=0; j < stop; j++){ 
 		result_left = 0;
 		result_right = 0;
-		samplepointer_left = input_left + j + inputOffset;
-		samplepointer_right = input_right + j + inputOffset;
-		if (samplepointer_left >= endOfInputArray){
-			samplepointer_left -= inputL;
-			samplepointer_right -= inputL;
-		}
+		samplepointer_left = temp_left_pointer + j;
+		samplepointer_right = temp_right_pointer + j;
 #pragma MUST_ITERATE(16,32,16)
-		for(filterelempointer = reversedFilter; filterelempointer<stopfilterelempointer; filterelempointer++){
-			//read data (use modulo to wrap around to beginning of array if necessary), multiply
-			//with filter coeff and add to temporary result
-			samplepointer_left++;
-			samplepointer_right++;
-			if (samplepointer_left == endOfInputArray){
-				samplepointer_left = input_left;
-				samplepointer_right = input_right;
-			}
-			sample_left = *samplepointer_left;
-			sample_right = *samplepointer_right;
-			filterelem = *(filterelempointer);
-			result_left += sample_left * filterelem;
-			result_right += sample_right * filterelem;
+		for(i=0;i<filterL;i++){
+			result_left += samplepointer_left[i] * reversedFilter[i];
+			result_right += samplepointer_right[i] * reversedFilter[i];
 		}
 		//scale the result, clip it to short range if necessary (so it positives don't become
 		//negatives and vice versa when converting to short).
