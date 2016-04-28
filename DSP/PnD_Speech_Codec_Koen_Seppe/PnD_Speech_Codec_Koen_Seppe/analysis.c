@@ -62,6 +62,7 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 			//read data (use modulo to wrap around to beginning of array if necessary), multiply
 			//with filter coeff and add to temporary result
 			samplepointer_left++;
+			samplepointer_right++;
 			if (samplepointer_left == endOfInputArray){
 				samplepointer_left = input_left;
 				samplepointer_right = input_right;
