@@ -17,10 +17,10 @@ void addBufferToHistory(short buffer[BUFFERSIZE], struct chunk *historyChunk){
 	}
 }
 
-void convolve(short *input, short *reversedFilter,
+void convolve(short *input_left, short *input_right, short *reversedFilter,
 		unsigned char inputOffset, unsigned char inputL,
 		unsigned char filterL,
-		short *output, unsigned char outputOffset,
+		short *output_left, short *output_right, unsigned char outputOffset,
 		unsigned char outputLength, unsigned char amountToShift){
 	/*Convolves two signals:
 	input: start position of the array holding the input signal
@@ -37,40 +37,58 @@ void convolve(short *input, short *reversedFilter,
 	Note that this function can work in place if output is input
 	*/	
 	unsigned char j; //bookkeepings
-	long long result; //holds the temporary unscaled result
+	long long result_left, result_right; //holds the temporary unscaled result
 	unsigned short stop = inputL-filterL; // the amount of samples that can be calculated
-	short sample;
-	short *samplepointer;
+	short sample_left, sample_right;
+	short *samplepointer_left, *samplepointer_right;
 	short filterelem;
-	short *endOfInputArray = input + inputL;
+	short *endOfInputArray = input_left + inputL;
 	short *filterelempointer;
 	short *stopfilterelempointer = reversedFilter + filterL;
 
-	for(j=0; j < stop; j++){ 
-		result = 0;
-		samplepointer = input + j + inputOffset;
-		if (samplepointer >= endOfInputArray)
-			samplepointer -= inputL;
 
+#pragma MUST_ITERATE(5,10,5)
+	for(j=0; j < stop; j++){ 
+		result_left = 0;
+		result_right = 0;
+		samplepointer_left = input_left + j + inputOffset;
+		samplepointer_right = input_right + j + inputOffset;
+		if (samplepointer_left >= endOfInputArray){
+			samplepointer_left -= inputL;
+			samplepointer_right -= inputL;
+		}
+#pragma MUST_ITERATE(16,32,16)
 		for(filterelempointer = reversedFilter; filterelempointer<stopfilterelempointer; filterelempointer++){
 			//read data (use modulo to wrap around to beginning of array if necessary), multiply
 			//with filter coeff and add to temporary result
-			samplepointer++;
-			if (samplepointer == endOfInputArray)
-				samplepointer = input;
-			sample = *samplepointer;
+			samplepointer_left++;
+			if (samplepointer_left == endOfInputArray){
+				samplepointer_left = input_left;
+				samplepointer_right = input_right;
+			}
+			sample_left = *samplepointer_left;
+			sample_right = *samplepointer_right;
 			filterelem = *(filterelempointer);
-			result += sample * filterelem;
+			result_left += sample_left * filterelem;
+			result_right += sample_right * filterelem;
 		}
 		//scale the result, clip it to short range if necessary (so it positives don't become
 		//negatives and vice versa when converting to short).
-		result = result/(1<<amountToShift);
-		if (result > 32767)
-			result = 32767;
-		else if (result < -32768)
-			result = -32767;
+		result_left = result_left/(1<<amountToShift);
+		result_right = result_right/(1<<amountToShift);
+		if (result_left > 32767)
+			result_left = 32767;
+		else if (result_left < -32768)
+			result_left = -32767;
+
+		if (result_right > 32767)
+			result_right = 32767;
+		else if (result_right < -32768)
+			result_right = -32767;
+
 		//write away output
-		*(output + (j+outputOffset)%outputLength) = (short)(result);
+		*(output_left + (j+outputOffset)%outputLength) = (short)(result_left);
+		*(output_right + (j+outputOffset)%outputLength) = (short)(result_right);
 	} 
 }
 
@@ -164,18 +182,13 @@ void analysis(short buffer[BUFFERSIZE],struct chunk *historyChunk){
 	addBufferToHistory(buffer, historyChunk);
 	
 	//convolve 4 times:  L/R and even/odd
-	convolve(historyChunk->leftEven, filter1Even,
+	convolve(historyChunk->leftEven,historyChunk->rightEven, filter1Even,
 			 historyChunk->position1, BUFFERSIZE_DIV4+LENGTH_FILTER1_HALF, LENGTH_FILTER1_HALF,
-			 (historyChunk->leftEven), (historyChunk->position1), BUFFERSIZE_DIV4+LENGTH_FILTER1_HALF, 15 );
-	convolve(historyChunk->leftOdd, filter1Odd,
+			 (historyChunk->leftEven),(historyChunk->rightEven), (historyChunk->position1), BUFFERSIZE_DIV4+LENGTH_FILTER1_HALF, 15 );
+	convolve(historyChunk->leftOdd,historyChunk->rightOdd, filter1Odd,
 			 historyChunk->position1, BUFFERSIZE_DIV4+LENGTH_FILTER1_HALF, LENGTH_FILTER1_HALF,
-			 (historyChunk->leftOdd), (historyChunk->position1), BUFFERSIZE_DIV4+LENGTH_FILTER1_HALF, 15 );
-	convolve(historyChunk->rightEven, filter1Even,
-			 historyChunk->position1, BUFFERSIZE_DIV4+LENGTH_FILTER1_HALF, LENGTH_FILTER1_HALF,
-			 (historyChunk->rightEven), (historyChunk->position1), BUFFERSIZE_DIV4+LENGTH_FILTER1_HALF, 15 );
-	convolve(historyChunk->rightOdd, filter1Odd,
-			 historyChunk->position1, BUFFERSIZE_DIV4+LENGTH_FILTER1_HALF, LENGTH_FILTER1_HALF,
-			 (historyChunk->rightOdd), (historyChunk->position1), BUFFERSIZE_DIV4+LENGTH_FILTER1_HALF, 15 );
+			 (historyChunk->leftOdd),(historyChunk->rightOdd), (historyChunk->position1), BUFFERSIZE_DIV4+LENGTH_FILTER1_HALF, 15 );
+
 	
 	// do the additions and substractions of QMF
 	combine(historyChunk->leftEven,
@@ -199,31 +212,18 @@ void analysis(short buffer[BUFFERSIZE],struct chunk *historyChunk){
 	copyToLowerLayer(historyChunk);
 	
 	//8 times convolve
-	convolve(historyChunk->leftLowEven, filter2Even,
+	convolve(historyChunk->leftLowEven,historyChunk->rightLowEven, filter2Even,
 				historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->leftLowEven, historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, 15);
-	convolve(historyChunk->leftLowOdd, filter2Odd,
+				historyChunk->leftLowEven,historyChunk->rightLowEven, historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, 15);
+	convolve(historyChunk->leftLowOdd,historyChunk->rightLowOdd, filter2Odd,
 				historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->leftLowOdd, historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, 15);
-	convolve(historyChunk->leftHighEven, filter3Even,
+				historyChunk->leftLowOdd,historyChunk->rightLowOdd, historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, 15);
+	convolve(historyChunk->leftHighEven,historyChunk->rightHighEven, filter3Even,
 				historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->leftHighEven, historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, 15);
-	convolve(historyChunk->leftHighOdd, filter3Odd,
+				historyChunk->leftHighEven,historyChunk->rightHighEven, historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, 15);
+	convolve(historyChunk->leftHighOdd, historyChunk->rightHighOdd, filter3Odd,
 				historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->leftHighOdd, historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, 15);
-
-	convolve(historyChunk->rightLowEven, filter2Even,
-				historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->rightLowEven, historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, 15);
-	convolve(historyChunk->rightLowOdd, filter2Odd,
-				historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->rightLowOdd, historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, 15);
-	convolve(historyChunk->rightHighEven, filter3Even,
-				historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->rightHighEven, historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, 15);
-	convolve(historyChunk->rightHighOdd, filter3Odd,
-				historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-				historyChunk->rightHighOdd, historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, 15);
+				historyChunk->leftHighOdd,historyChunk->rightHighOdd, historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, 15);
 	//4 times combine
 	//TODO: filter 3??
 	//TODO: skip fourth band? => faster but should be +- neglible compared to convolve

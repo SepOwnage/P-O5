@@ -150,31 +150,18 @@ void synthesis(short output[BUFFERSIZE],
 	//Before the convolve: move historyChunk->position2
 	historyChunk->position2 = (historyChunk->position2 + BUFFERSIZE_DIV8) % (BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF);
 
-	convolve(historyChunk->leftLowEven, filter2Odd,
+	convolve(historyChunk->leftLowEven, historyChunk->rightLowEven, filter2Odd,
 		historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-		historyChunk->leftLowEven, historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, 15);
-	convolve(historyChunk->leftLowOdd, filter2Even,
+		historyChunk->leftLowEven,historyChunk->rightLowEven, historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, 15);
+	convolve(historyChunk->leftLowOdd, historyChunk->rightLowOdd,filter2Even,
 		historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-		historyChunk->leftLowOdd, historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, 15);
-	convolve(historyChunk->leftHighEven, filter3Odd,
+		historyChunk->leftLowOdd,historyChunk->rightLowOdd, historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, 15);
+	convolve(historyChunk->leftHighEven,historyChunk->rightHighEven, filter3Odd,
 		historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-		historyChunk->leftHighEven, historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, 15);
-	convolve(historyChunk->leftHighOdd, filter3Even,
+		historyChunk->leftHighEven,historyChunk->rightHighEven, historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, 15);
+	convolve(historyChunk->leftHighOdd,historyChunk->rightHighOdd, filter3Even,
 		historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-		historyChunk->leftHighOdd, historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, 15);
-
-	convolve(historyChunk->rightLowEven, filter3Odd,
-		historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-		historyChunk->rightLowEven, historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, 15);
-	convolve(historyChunk->rightLowOdd, filter3Even,
-		historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-		historyChunk->rightLowOdd, historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, 15);
-	convolve(historyChunk->rightHighEven, filter3Odd,
-		historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-		historyChunk->rightHighEven, historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, 15);
-	convolve(historyChunk->rightHighOdd, filter3Even,
-		historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
-		historyChunk->rightHighOdd, historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, 15);
+		historyChunk->leftHighOdd,historyChunk->rightHighOdd, historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, 15);
 	
 	copyToUpperLayer(historyChunk);
 
@@ -195,18 +182,12 @@ void synthesis(short output[BUFFERSIZE],
 
 	(historyChunk->position1) = (historyChunk->position1 + BUFFERSIZE_DIV4) % (BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF);
 
-	convolve(historyChunk->leftEven, filter1Odd,
+	convolve(historyChunk->leftEven,historyChunk->rightEven, filter1Odd,
 		historyChunk->position1, BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, LENGTH_FILTER1_HALF,
-		(historyChunk->leftEven), (historyChunk->position1), BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, 14);
-	convolve(historyChunk->leftOdd, filter1Even,
+		(historyChunk->leftEven),historyChunk->rightEven, (historyChunk->position1), BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, 14);
+	convolve(historyChunk->leftOdd, historyChunk->rightOdd, filter1Even,
 		historyChunk->position1, BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, LENGTH_FILTER1_HALF,
-		(historyChunk->leftOdd), (historyChunk->position1), BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, 14);
-	convolve(historyChunk->rightEven, filter1Odd,
-		historyChunk->position1, BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, LENGTH_FILTER1_HALF,
-		(historyChunk->rightEven), (historyChunk->position1), BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, 14);
-	convolve(historyChunk->rightOdd, filter1Even,
-		historyChunk->position1, BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, LENGTH_FILTER1_HALF,
-		(historyChunk->rightOdd), (historyChunk->position1), BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, 14);
+		(historyChunk->leftOdd),historyChunk->rightOdd,  (historyChunk->position1), BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, 14);
 
 	writeHistoryInBuffer(historyChunk, output);
 }

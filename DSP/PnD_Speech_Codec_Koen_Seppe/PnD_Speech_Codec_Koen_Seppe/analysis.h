@@ -26,10 +26,10 @@ struct chunk{
 
 void analysis(short buffer[BUFFERSIZE],struct chunk * historyChunk);
 void addBufferToHistory(short buffer[BUFFERSIZE], struct chunk *historyChunk);
-void convolve(short *input, short *reversedFilter,
+void convolve(short *input_left, short *input_right, short *reversedFilter,
 		unsigned char inputOffset, unsigned char inputL,
 		unsigned char filterL,
-		short *output, unsigned char outputOffset,
+		short *output_left, short *output_right, unsigned char outputOffset,
 		unsigned char outputLength, unsigned char amountToShift);
 void combine(short *upper, short *lower, short *out_low, short *out_high,
 	unsigned char length, unsigned char start, unsigned char arrayLength,
