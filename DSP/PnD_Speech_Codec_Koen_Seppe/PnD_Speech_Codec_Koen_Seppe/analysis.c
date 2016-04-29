@@ -17,6 +17,9 @@ void addBufferToHistory(short buffer[BUFFERSIZE], struct chunk *historyChunk){
 	}
 }
 
+short temp_left[BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF];
+short temp_right[BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF];
+
 void convolve(short *input_left, short *input_right, short *reversedFilter,
 		unsigned char inputOffset, unsigned char inputL,
 		unsigned char filterL,
@@ -46,9 +49,7 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 	//short *filterelempointer;
 	//short *stopfilterelempointer = reversedFilter + filterL;
 
-	short temp_left[BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF];
 	short *temp_left_pointer = temp_left;
-	short temp_right[BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF];
 	short *temp_right_pointer = temp_right;
 
 	samplepointer_left = input_left + inputOffset;
@@ -58,15 +59,15 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 		*temp_right_pointer = *samplepointer_right;
 		samplepointer_left++;
 		samplepointer_right++;
-		if(samplepointer_left>endOfInputArray){
+		if(samplepointer_left >= endOfInputArray){
 			samplepointer_left = input_left;
 			samplepointer_right = input_right;
 		}
 		temp_left_pointer++;
 		temp_right_pointer++;
 	}
-	temp_left_pointer -= inputL;
-	temp_right_pointer -= inputL;
+	temp_left_pointer = temp_left;
+	temp_right_pointer = temp_right;
 
 #pragma MUST_ITERATE(5,10,5)
 	for(j=0; j < stop; j++){ 
