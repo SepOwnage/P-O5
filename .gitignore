@@ -45,3 +45,5 @@
 *.dvi
 
 *.asm
+dsp\PnD_Speech_Codec_Koen_Seppe\PnD_Speech_Codec_Koen_Seppe\Debug
+dsp\PnD_Speech_Codec_Koen_Seppe\PnD_Speech_Codec_Koen_Seppe\Release
