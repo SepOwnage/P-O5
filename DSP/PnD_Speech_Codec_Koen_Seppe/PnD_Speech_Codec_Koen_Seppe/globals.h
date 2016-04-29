@@ -9,7 +9,7 @@ typedef short size16_t;
 #define BUFFERSIZE_DIV8 5
 #define BUFFERSIZE_DIV2 20
 
-#define INPUTWAVFILE  "f116.wav"
+#define INPUTWAVFILE  "f116_shortened.wav"
 #define OUTPUTWAVFILE "output.wav"
 #define COMPRESSEDFILE "compressed.dat"
 

@@ -40,17 +40,17 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 	Note that this function can work in place if output is input
 	*/
 	unsigned char i,j; //bookkeepings
-	long long result_left, result_right; //holds the temporary unscaled result
+	int result_left, result_right; //holds the temporary unscaled result
 	unsigned short stop = inputL-filterL; // the amount of samples that can be calculated
 	//short sample_left, sample_right;
-	short *samplepointer_left, *samplepointer_right;
+	short * restrict samplepointer_left, * restrict samplepointer_right;
 	//short filterelem;
 	short *endOfInputArray = input_left + inputL;
 	//short *filterelempointer;
 	//short *stopfilterelempointer = reversedFilter + filterL;
 
-	short *temp_left_pointer = temp_left;
-	short *temp_right_pointer = temp_right;
+	short * restrict temp_left_pointer = temp_left;
+	short * restrict temp_right_pointer = temp_right;
 
 	samplepointer_left = input_left + inputOffset;
 	samplepointer_right = input_right + inputOffset;
