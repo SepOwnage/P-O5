@@ -1,11 +1,15 @@
 
+typedef int size32_t;
+typedef long size40_t;
+typedef short size16_t;
+
 /* represents buffer array elements: equivalent to BUFFERSIZE/2 temporal sample positions */
 #define BUFFERSIZE 40
 #define BUFFERSIZE_DIV4 10
 #define BUFFERSIZE_DIV8 5
 #define BUFFERSIZE_DIV2 20
 
-#define INPUTWAVFILE  "f116_shortened.wav"
+#define INPUTWAVFILE  "f116.wav"
 #define OUTPUTWAVFILE "output.wav"
 #define COMPRESSEDFILE "compressed.dat"
 
