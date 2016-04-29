@@ -54,8 +54,13 @@ A0 = filter(1:2:end);
 A1 = filter(2:2:end);
 
 %apply the filter: convolute
-A0_out = max(-2^39, min(conv(double(A0),double(A0_input_downscaled)),2^39-1));
-A1_out = max(-2^39, min(conv(double(A1),double(A1_input_downscaled)),2^39-1));
+A0_out = conv(double(A0),double(A0_input_downscaled));
+A0_out = mod(A0_out, 2^32);
+A0_out(A0_out>=2^31) = int32(A0_out(A0_out>=2^31)  - 2^32);
+A1_out = conv(double(A1),double(A1_input_downscaled));
+A1_out = mod(A1_out, 2^32);
+A1_out(A1_out>=2^31) = int32(A1_out(A1_out>=2^31)  - 2^32);
+
 %scale the result
 A0_out_downscaled = int16(fix(A0_out/2^scaling));  
 A1_out_downscaled = int16(fix(A1_out/2^scaling));

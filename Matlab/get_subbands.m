@@ -37,8 +37,12 @@ filter = filter';
 A0 = filter(1:2:end);
 A1 = filter(2:2:end);
 %do the convolution and clip to range of DSP
-A0_out = int64(max(-2^39, min(conv(double(A0),double(input_e0)),2^39-1)));
-A1_out = int64(max(-2^39, min(conv(double(A1),double(input_e1)),2^39-1)));
+A0_out = conv(double(A0),double(input_e0));
+A0_out = mod(A0_out, 2^32);
+A0_out(A0_out>=2^31) = int32(A0_out(A0_out>=2^31)  - 2^32);
+A1_out = conv(double(A1),double(input_e1));
+A1_out = mod(A1_out, 2^32);
+A1_out(A1_out>=2^31) = int32(A1_out(A1_out>=2^31)  - 2^32);
 %TODO: keep track of amount of clips?  (same with synthesis)
 
 %extract the scaling factor and apply it
