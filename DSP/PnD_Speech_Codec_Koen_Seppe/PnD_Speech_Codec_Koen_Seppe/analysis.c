@@ -38,7 +38,7 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 	amountToShift: output is downscaled by 2^amountToShift
 
 	Note that this function can work in place if output is input
-	*/	
+	*/
 	unsigned char i,j; //bookkeepings
 	long long result_left, result_right; //holds the temporary unscaled result
 	unsigned short stop = inputL-filterL; // the amount of samples that can be calculated
@@ -70,15 +70,16 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 	temp_right_pointer = temp_right;
 
 #pragma MUST_ITERATE(5,10,5)
-	for(j=0; j < stop; j++){ 
+	for(j=0; j < stop; j++){
 		result_left = 0;
 		result_right = 0;
 		samplepointer_left = temp_left_pointer + j;
 		samplepointer_right = temp_right_pointer + j;
+
 #pragma MUST_ITERATE(16,32,16)
 		for(i=0;i<filterL;i++){
-			result_left += samplepointer_left[i] * reversedFilter[i];
-			result_right += samplepointer_right[i] * reversedFilter[i];
+			result_left += samplepointer_left[i+1] * reversedFilter[i];
+			result_right += samplepointer_right[i+1] * reversedFilter[i];
 		}
 		//scale the result, clip it to short range if necessary (so it positives don't become
 		//negatives and vice versa when converting to short).
@@ -97,7 +98,7 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 		//write away output
 		*(output_left + (j+outputOffset)%outputLength) = (short)(result_left);
 		*(output_right + (j+outputOffset)%outputLength) = (short)(result_right);
-	} 
+	}
 }
 
 void combine(short *upper, short *lower, short *out_low, short *out_high,
