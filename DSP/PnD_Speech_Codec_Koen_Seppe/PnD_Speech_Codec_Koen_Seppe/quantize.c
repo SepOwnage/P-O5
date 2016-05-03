@@ -21,21 +21,29 @@ void quantize(short *quantized_differences, short *start_of_samples_array,
 	short mu = params->mu;
 	unsigned char buffer_length = params->buffer_length;
 	short maximum = params->maximum;
-	int difference;
-	int quantized_difference;
-	int dequantized_difference;
+	short difference;
+	short quantized_difference;
+	short dequantized_difference;
 	short dequantized_sample;
-	int stepsize = values->stepsize;
+	short stepsize = values->stepsize;
 	short prediction = values->prediction;
 	unsigned int buffersum = values->buffersum; //Sum of the values in the buffer, used to calculate the stepsize
 	short prev_dequantized_sample = values->prev_dequantized_sample;
 	unsigned short *buffer = values->buffer;
 	unsigned short buffer_position_counter = values->buffer_position_counter;
+	unsigned short *bufferSamplePointer = buffer + buffer_position_counter;
+	unsigned short *endOfBuffer = buffer + buffer_length;
 	unsigned char i = 0; //loop counter
 	short sample;
+	short *samplepointer = start_of_samples_array + start_position_in_samples_array;
+	short *endOfSamplesArray = start_of_samples_array + length_of_samples_array;
 
+#pragma MUST_ITER(5,5,10)
 	for (; i < nb_samples_to_do; i++) {
-		sample = *(start_of_samples_array + (start_position_in_samples_array + i) % length_of_samples_array);
+		sample = *samplepointer;
+		samplepointer++;
+		if(samplepointer == endOfSamplesArray)
+			samplepointer = start_of_samples_array;
 
 		//Calculate the difference between the sample and the prediction. Quantize this and write to output
 		difference = sample - prediction;
@@ -46,7 +54,7 @@ void quantize(short *quantized_differences, short *start_of_samples_array,
 		else if (quantized_difference < -(maximum + 1)) {
 			quantized_difference = -(maximum + 1);
 		}
-		*(quantized_differences + i) = (short)quantized_difference;
+		*(quantized_differences++) = (short)quantized_difference;
 
 		//Dequantize and use this parameter instead of 'difference', since the dequantizer only has access to this parameter and not to 'difference'
 		dequantized_difference = quantized_difference * stepsize;
@@ -62,21 +70,24 @@ void quantize(short *quantized_differences, short *start_of_samples_array,
 		}
 
 		//update the buffersum (=> var => stepsize ) and the buffer itself
-		buffersum = buffersum - *(buffer + buffer_position_counter) + dequantized_difference; //Update buffersum
-		*(buffer + buffer_position_counter) = dequantized_difference; //Update buffer
+		buffersum = buffersum - *(bufferSamplePointer) + dequantized_difference; //Update buffersum
+		*(bufferSamplePointer) = dequantized_difference; //Update buffer
 		stepsize = (short)((((long long)buffersum) * phi / buffer_length) >> 15);
 		if (!stepsize) { //stepsize cannot be 0
 			stepsize = 1;
 		}
 
 		//increment the buffer_position_counter
-		buffer_position_counter = (buffer_position_counter + 1) % buffer_length;
+		bufferSamplePointer++;
+		if(bufferSamplePointer >= endOfBuffer){
+			bufferSamplePointer = buffer;
+		}
 	}
 
 	//Save values to struct
 	values->prediction = prediction;
 	values->stepsize = stepsize;
 	values->prev_dequantized_sample = prev_dequantized_sample;
-	values->buffer_position_counter = buffer_position_counter;
+	values->buffer_position_counter = (buffer_position_counter + nb_samples_to_do) % buffer_length;
 	values->buffersum = buffersum;
 }

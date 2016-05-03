@@ -54,7 +54,7 @@ function [out, nb_clips] = quantize(input, mu, phi, maximum, buffer_length)
         %division)
         %update the stepsize
         to_trunc = double(buffersum)*double(phi)/double(buffer_length*2^15);
-        stepsize = max(int16(fix(to_trunc)),1);  %TODO: better solution? Problem: zero input=>zero var=>zero stepsize
+        stepsize = max(int16(floor(to_trunc)),1);  %TODO: better solution? Problem: zero input=>zero var=>zero stepsize
         %get the dequantized sample, and predict the next one
         dequantized_sample = int16(dequantized_difference) + prediction;
         prediction = dequantized_sample -...
