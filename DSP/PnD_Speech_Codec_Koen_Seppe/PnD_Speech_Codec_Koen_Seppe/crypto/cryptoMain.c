@@ -18,11 +18,11 @@
 
 //variables used for timing purposes
 clock_t b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, e0, e1, e2, e3, e4, e5, e6, e7, e8, e9;
-
+/*
 //declare big arrays as globals the leave them of the stack
 RSA_ctx RSA_ctx_master, RSA_ctx_slave;
 ENC_ctx ENC_ctx_master, ENC_ctx_slave;
-
+*/
 message_ctx message1, message2;
 
 STS_ctx STS_ctx_master, STS_ctx_slave;
@@ -137,7 +137,7 @@ void readData(ENC_ctx *ENC_ctx_receiver,const message_ctx *ciphermessage, unsign
 }
 
 
-
+/*
 int cryptoMain()
 {   unsigned char message[] = "1->Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
     unsigned char decrypt[sizeof(message)];
@@ -212,4 +212,4 @@ int cryptoMain()
     }
 
     return 0;
-}
+}*/
