@@ -8,8 +8,8 @@
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.C674x CPU Cycle Accurate Simulator, Little Endian_0/TMS320C64X+_0" value="PnD_Speech_Codec_Koen_Seppe"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.Texas Instruments XDS100v2 USB Emulator_0/C674X_0" value="PnD_Speech_Codec_Koen_Seppe"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_TARGET_CONFIG" value="${target_config_active_default:PnD_Speech_Codec_Koen_Seppe}"/>
-<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.C674x CPU Cycle Accurate Simulator, Little Endian_0/TMS320C64X+_0" value="E:/Koen\Documenten\2015-2016\pno\dsp\PnD_Speech_Codec_Koen_Seppe\PnD_Speech_Codec_Koen_Seppe\Release\PnD_Speech_Codec_Koen_Seppe.out"/>
-<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.Texas Instruments XDS100v2 USB Emulator_0/C674X_0" value="E:/Koen\Documenten\2015-2016\pno\dsp\PnD_Speech_Codec_Koen_Seppe\PnD_Speech_Codec_Koen_Seppe\Release\PnD_Speech_Codec_Koen_Seppe.out"/>
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.C674x CPU Cycle Accurate Simulator, Little Endian_0/TMS320C64X+_0" value="C:/Users\Seppe\workspace_CCS\PnD_Speech_Codec_Koen_Seppe\Debug\PnD_Speech_Codec_Koen_Seppe.out"/>
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.Texas Instruments XDS100v2 USB Emulator_0/C674X_0" value="C:/Users\Seppe\workspace_CCS\PnD_Speech_Codec_Koen_Seppe\Debug\PnD_Speech_Codec_Koen_Seppe.out"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/PnD_Speech_Codec_Koen_Seppe"/>
 </listAttribute>
