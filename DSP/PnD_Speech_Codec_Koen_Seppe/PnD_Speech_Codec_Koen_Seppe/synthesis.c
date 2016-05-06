@@ -184,10 +184,10 @@ void synthesis(short output[BUFFERSIZE],
 
 	convolve(historyChunk->leftEven,historyChunk->rightEven, filter1Odd,
 		historyChunk->position1, BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, LENGTH_FILTER1_HALF,
-		(historyChunk->leftEven),historyChunk->rightEven, (historyChunk->position1), BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, 14);
+		(historyChunk->leftEven),historyChunk->rightEven, (historyChunk->position1), BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, 13);
 	convolve(historyChunk->leftOdd, historyChunk->rightOdd, filter1Even,
 		historyChunk->position1, BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, LENGTH_FILTER1_HALF,
-		(historyChunk->leftOdd),historyChunk->rightOdd,  (historyChunk->position1), BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, 14);
+		(historyChunk->leftOdd),historyChunk->rightOdd,  (historyChunk->position1), BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, 13);
 
 	writeHistoryInBuffer(historyChunk, output);
 }
