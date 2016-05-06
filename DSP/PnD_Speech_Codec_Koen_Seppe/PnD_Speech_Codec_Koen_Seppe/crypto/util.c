@@ -11,7 +11,7 @@
 
 
 
- /*
+  /*
   * reverse version of the memcpy function of the
   * string lib.
   *
@@ -29,7 +29,19 @@
             }
      return dst;
 
- };
+ }
+
+ void *memset_short(void *dst, int c, size_t n)
+{
+    if (n) {
+        short *d = dst;
+
+        do {
+            *d++ = c;
+        } while (--n);
+    }
+    return dst;
+ }
 
 /*
  * Print all length chars from a given memory position
@@ -47,20 +59,61 @@ printf("\n");
     if ((i+1)%BLOCK_LENGTH==0)
       printf("\n");
   }
-};
+}
+
+void print_hex_memory_short(const void *mem, int length) {
+printf("\n");
+  int i;
+  unsigned short *p = (unsigned short *)mem;
+  for (i=0;i<length;i++) {
+    printf(" 0x%04x", p[i]);
+    if ((i+1)%(BLOCK_LENGTH/2)==0)
+      printf("\n");
+  }
+}
 
 /*
  * Computes XOR of in1 and in2 for char of length XORlen (char)
  */
-void XOR(unsigned char *out, const unsigned char *in1, const unsigned char *in2, unsigned long long XORlen){
-    unsigned long long i;
+void XOR(void *out, const void *in1, const void *in2, const unsigned int XORlen){
+    unsigned int i = 0;
+    //unsigned long long j = 0;
 
-    for(i=0; i< XORlen; i++){
-            out[i] = in1[i] ^ in2[i];
+    /*unsigned int * outint = out;
+    const unsigned int * in1int = in1;
+    const unsigned int * in2int = in2;*/
+
+    unsigned char * restrict outchar = out;
+	const unsigned char * restrict in1char = in1;
+	const unsigned char * restrict in2char = in2;
+
+
+	/*while(i+3<XORlen){
+		outint[j] = in1int[j] ^ in2int[j];
+		j += 1;
+		i += 4;
+	}*/
+
+    while(i<XORlen){
+		outchar[i] = in1char[i] ^ in2char[i];
+		i++;
+	}
+}
+
+//little endian style
+void transform_char_to_short(unsigned short *out, const unsigned char *in1, int length){
+    unsigned int i;
+
+    for (i=0; i<(length-1)/2; i++){
+        out[i] = (unsigned short) (in1[2*i]+(in1[2*i+1])*256);
     }
-};
-
-
+    if (2*i+1 == length-1){
+            out[i] = in1[2*i]+(in1[2*i+1])*256;
+    }
+    else{
+        out[i] = in1[2*i];
+    }
+}
 //structure of the messages send through the channel
 //tag can be:
 //0x00: First message of STS_protocol (master)
@@ -120,7 +173,7 @@ void print_message(const message_ctx *message){
         print_hex_memory(message->data,message->length);
         printf("\n");
     }
-};
+}
 
 
 void convert_message_to_raw_message(unsigned char *out, const message_ctx *in){
@@ -129,7 +182,7 @@ void convert_message_to_raw_message(unsigned char *out, const message_ctx *in){
     reverse_memcpy(out+1,&(in->seq_number), 4);
     out[5] = in->length;
     memcpy(out+6,in->data,in->length);
-};
+}
 
 void convert_raw_message_to_message(message_ctx *out, const unsigned char *in){
 
@@ -137,6 +190,4 @@ void convert_raw_message_to_message(message_ctx *out, const unsigned char *in){
     out->seq_number = (unsigned int) in[4] + in[3]*256 + in[2]*256*256 + in[1]*256*256*256;
     out->length = in[5];
     memcpy(out->data,in+6,out->length);
-};
-
-
+}

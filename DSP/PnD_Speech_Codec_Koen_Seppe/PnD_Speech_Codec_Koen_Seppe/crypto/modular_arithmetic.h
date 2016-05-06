@@ -10,21 +10,21 @@
 #ifndef __MODULAR_ARITHMETIC_H
 #define __MODULAR_ARITHMETIC_H
 
-void montgomery_multiplication(unsigned char *res, const unsigned char *x, const unsigned char *y,
-                               const unsigned char *m, const unsigned char *m_ , const unsigned int size);
+void montgomery_multiplication(void *resin, const void *xin, const void *yin,
+                               const void *min, const void *m_in , const unsigned int size);
 
-void montgomery_exponentiation(unsigned char *res, const unsigned char *x, const unsigned char *e,
-                               const unsigned int e_size, const unsigned char *m, const unsigned int m_size, const unsigned char *m_,
-                               const unsigned char *R_mod_m, const unsigned char *R2_mod_m);
+void montgomery_exponentiation(void *resin, const void *xin, const void *ein,
+                               const unsigned int e_size, const void *min, const unsigned int m_size, const void *m_in,
+                               const void *R_mod_min, const void *R2_mod_min);
 
-void calculate_rmodn(unsigned char* rmodn,const unsigned char *m, const unsigned int m_size);
+void calculate_rmodn(void* rmodnin,const void *min, const int m_size);
 
-void calculate_r2modn(unsigned char* r2modn,const unsigned char *m, const unsigned int m_size);
+void calculate_r2modn(void* r2modnin,const void *min, const unsigned int m_size);
 
-void calculate_n_inv(int a, unsigned char *n_);
+void calculate_n_inv(int a, void *n_in);
 
-void mod_reduction(unsigned char* out, unsigned char* in, const unsigned char *m, const unsigned int m_size);
+void mod_reduction(void* outin,void* inin, const void *min, const unsigned int m_size);
 
-char is_save_message(const unsigned char *in1, const unsigned char *in2, const unsigned int size);
+char is_save_message(const void *in1in, const void *in2in, const unsigned int size);
 
 #endif

@@ -10,8 +10,8 @@
 #ifndef __COUNTER_BLOCK_H
 #define __COUNTER_BLOCK_H
 
-void create_counter_block(unsigned char *out, const unsigned char *Nonce, const unsigned int m);
+void create_counter_block(void *outin, const void *Noncein, const unsigned int m);
 
-void create_cyphered_counter_block(unsigned char *out, const aes_key key, const unsigned char *Nonce, const unsigned int m);
+void create_cyphered_counter_block(void *outin, const aes_key key, const void *Noncein, const unsigned int m);
 
 #endif

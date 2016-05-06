@@ -22,8 +22,10 @@ struct sha3_256_ctx ctx;
  * in 				the input data used to generate the hash from
  * inputLength 		the length of the input data
  */
-void hash(unsigned char *out, const unsigned int outputLength, const unsigned char *in, const unsigned int inputLength)
-{
+void hash(void *outin, const unsigned int outputLength, const void *inin, const unsigned int inputLength)
+{   unsigned char *out= outin;
+    const unsigned char *in = inin;
+
     if(initHash != 1){
     	sha3_256_init(&ctx);
     	initHash = 1;

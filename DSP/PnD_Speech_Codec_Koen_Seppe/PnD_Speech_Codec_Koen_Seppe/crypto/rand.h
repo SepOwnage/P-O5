@@ -10,6 +10,6 @@
 #define __RAND_H
 
  void isaac_init(void);
- void isaac_rand(unsigned char *out, const int size);
+ void isaac_rand(void *outin, const int size);
 
 #endif

@@ -19,8 +19,11 @@
  * Nonce        the nonce used to generate the counter blocks
  * m            the amount of counter blocks to generate
  */
-void create_counter_block(unsigned char *out, const unsigned char *Nonce, const unsigned int m)
+void create_counter_block(void *outin, const void *Noncein, const unsigned int m)
 {
+	unsigned char *out = outin;
+	const unsigned char *Nonce = Noncein;
+
     unsigned char flag;
     unsigned int counter;
 
@@ -45,8 +48,11 @@ void create_counter_block(unsigned char *out, const unsigned char *Nonce, const 
  * m            the amount of counter blocks to generate
  */
 
-void create_cyphered_counter_block(unsigned char *out, const aes_key key, const unsigned char *Nonce, const unsigned int m)
+void create_cyphered_counter_block(void *outin, const aes_key key, const void *Noncein, const unsigned int m)
 {
+	unsigned char *out = outin;
+	const unsigned char *Nonce = Noncein;
+
     unsigned char flag;
     unsigned int counter;
     unsigned char counter_block[BLOCK_LENGTH];

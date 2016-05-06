@@ -38,10 +38,10 @@ void isaac_init(void)
  * given size
  *
  * out		output array of with size >= given size
- * size 	the size of the random number to generate in bytes
+ * size 	the size of the random number to generate in bits
  */
-void isaac_rand(unsigned char *out, const int size)
-{
+void isaac_rand(void *outin, const int size)
+{   unsigned char *out=outin;
     int i;
 
     if(initRand !=1){

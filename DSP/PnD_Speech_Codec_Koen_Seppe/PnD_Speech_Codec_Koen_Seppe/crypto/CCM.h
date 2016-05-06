@@ -10,8 +10,8 @@
 #ifndef __CCM_H
 #define __CCM_H
 
-void CCM_encrypt(message_ctx *ciphermessage, ENC_ctx *ENC_sender_ctx, const unsigned char *Payload, const unsigned int Plen);
+void CCM_encrypt(message_ctx *ciphermessage, ENC_ctx *ENC_sender_ctx, const void *Payloadin, const unsigned int Plen);
 
-void CCM_decrypt(unsigned char *payload, unsigned int *payload_size, ENC_ctx *ENC_receiver_ctx, const message_ctx *ciphermessage);
+void CCM_decrypt(void *payloadin, unsigned int *payload_size,  ENC_ctx *ENC_receiver_ctx, const message_ctx *ciphermessage);
 
 #endif

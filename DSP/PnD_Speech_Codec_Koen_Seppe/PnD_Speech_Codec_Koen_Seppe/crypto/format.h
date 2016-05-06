@@ -10,6 +10,6 @@
 #ifndef __FORMAT_H
 #define __FORMAT_BLOCK_H
 
-void formatData(unsigned char *out, const unsigned char *nonce ,const unsigned char *in, unsigned int length);
+void formatData(void *outin, const void *noncein ,const void *inin, unsigned int length);
 
 #endif

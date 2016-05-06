@@ -8,6 +8,6 @@
 #ifndef __HASH_H
 #define __HASH_H
 
- void hash(unsigned char *out, const unsigned int Outputlength, const unsigned char *in, const unsigned int inputLength);
+void hash(void *outin, const unsigned int outputLength, const void *inin, const unsigned int inputLength);
 
 #endif

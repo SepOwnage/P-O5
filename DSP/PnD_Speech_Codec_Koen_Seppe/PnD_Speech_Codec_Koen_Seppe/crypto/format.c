@@ -24,8 +24,12 @@
  * in 			the input data used to generate the formatted blocks
  * length 		the length of the input data
  */
- void formatData(unsigned char *out, const unsigned char *nonce ,const unsigned char *in, unsigned int length)
+ void formatData(void *outin, const void *noncein ,const void *inin, unsigned int length)
  {
+	unsigned char *out = outin;
+	const unsigned char *nonce = noncein;
+	const unsigned char *in = inin;
+
  	unsigned char t = MAC_LENGTH;
  	unsigned char q = 15-NONCE_LENGTH;
  	unsigned char flags = 64 + (((t-2)/2) << 3) + (q-1);
