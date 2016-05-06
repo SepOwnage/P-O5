@@ -10,7 +10,7 @@
 
 //char are all in Little-endian!!!
 
-#if (SEL == 0)
+//#if (SEL == 0)
 
 /// FINAL PARAMETERS STS_PROTOCOL
 
@@ -92,7 +92,7 @@ unsigned short GENERATOR[GENERATOR_SIZE] =
 0x6bc8,0x3e3c,0x21f5,0x362d,0x20b8,0xc3b9,0x4be8,0xde23,
 0x67c7,0xc193,0x59aa,0xf68d,0x571c,0x82c1};
 
-
+/*
 #elif (SEL == 1)
 
 
@@ -261,4 +261,4 @@ unsigned char PRIME[PRIME_SIZE] =
     "\x6a\x57\x9f\x5b\xb8\x06\x70\xbd\xfe\xfa\xb7\xd0";
 
 
-#endif
+#endif*/
