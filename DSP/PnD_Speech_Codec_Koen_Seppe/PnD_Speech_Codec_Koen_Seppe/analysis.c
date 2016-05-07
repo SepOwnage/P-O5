@@ -45,7 +45,7 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 	//short sample_left, sample_right;
 	short * restrict samplepointer_left, * restrict samplepointer_right;
 	//short filterelem;
-	short *endOfInputArray = input_left + inputL;
+	short * restrict endOfInputArray = input_left + inputL;
 	//short *filterelempointer;
 	//short *stopfilterelempointer = reversedFilter + filterL;
 

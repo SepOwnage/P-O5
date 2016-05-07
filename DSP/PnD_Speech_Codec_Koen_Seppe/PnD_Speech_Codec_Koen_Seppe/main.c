@@ -113,15 +113,15 @@ int main(int argc, char *argv[]){
 	memset(&historyChunkSynthesis, 0, sizeof(struct chunk));
 	
 	//Create RSA ctx master & slave
-	calculate_parameters_RSA(&RSA_ctx_master);
-	calculate_parameters_RSA(&RSA_ctx_slave);
+	//calculate_parameters_RSA(&RSA_ctx_master);
+	//calculate_parameters_RSA(&RSA_ctx_slave);
 
 	//Create ENC ctx master & slave
-	ENC_ctx_master.counter = 0;
-	ENC_ctx_slave.counter = 0;
+	//ENC_ctx_master.counter = 0;
+	//ENC_ctx_slave.counter = 0;
 
 	//Start protocol
-	STSprotocol(&ENC_ctx_master, &ENC_ctx_slave, &RSA_ctx_master, &RSA_ctx_slave);
+	//STSprotocol(&ENC_ctx_master, &ENC_ctx_slave, &RSA_ctx_master, &RSA_ctx_slave);
 
 	for (bufPos = 0; bufPos < input.samplesAvailable; ) {
 		placeInLargeBuffer = 0;
@@ -146,11 +146,11 @@ int main(int argc, char *argv[]){
 		}
 
 		//encrypt
-		sendData(&ENC_ctx_master, largeCryptoBuffer, sizeof(largeCryptoBuffer), &ciphermessage);
+		//sendData(&ENC_ctx_master, largeCryptoBuffer, sizeof(largeCryptoBuffer), &ciphermessage);
 		//channel
 
 		//decrypt
-		readData(&ENC_ctx_slave, &ciphermessage, largeCryptoBuffer, &decrypt_size);
+		//readData(&ENC_ctx_slave, &ciphermessage, largeCryptoBuffer, &decrypt_size);
 
 		//undo speech part
 		placeInLargeBuffer = 0;
