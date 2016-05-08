@@ -83,17 +83,37 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 		}
 		//scale the result, clip it to short range if necessary (so it positives don't become
 		//negatives and vice versa when converting to short).
-		result_left = result_left/(1<<amountToShift);
-		result_right = result_right/(1<<amountToShift);
-		if (result_left > 32767)
-			result_left = 32767;
-		else if (result_left < -32768)
-			result_left = -32767;
+		result_left = result_left>>amountToShift;
+		result_right = result_right>>amountToShift;
 
-		if (result_right > 32767)
-			result_right = 32767;
-		else if (result_right < -32768)
-			result_right = -32767;
+		if (result_left >= 0){
+			result_left = result_left>>amountToShift;
+			if(result_left > 32767)
+				result_left = 32767;
+		}else{
+			if(result_left & 1){
+				result_left = result_left>>amountToShift;
+			}else{
+				result_left = result_left>>amountToShift;
+				result_left++;
+			}if (result_left < -32768)
+				result_left = -32768;
+		}
+
+		if (result_right >= 0){
+			result_right = result_right >> amountToShift;
+			if (result_right > 32767)
+				result_right = 32767;
+		} else {
+			if (result_right & 1) {
+				result_right = result_right >> amountToShift;
+			} else {
+				result_right = result_right >> amountToShift;
+				result_right++;
+			}
+			if (result_right < -32768)
+				result_right = -32768;
+		}
 
 		//write away output
 		*(output_left + (j+outputOffset)%outputLength) = (short)(result_left);
