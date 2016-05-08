@@ -93,13 +93,15 @@ void combineWithoutDelay(short *low_freq, short *high_freq, short *out_upper, sh
 	Can work in place
 	*/
 	int i;
-	short position;
+	short position = start;
 	int temp;
 	for (i = 0; i<length; i++) {
-		position = (start + i) % arrayLength;
 		temp = low_freq[position];
 		out_upper[position] = (short)((temp + high_freq[position]) / 2); 
 		out_lower[position] = (short)((temp - high_freq[position]) / 2);
+		position++;
+		if(position == arrayLength)
+			position = 0;
 	}
 }
 

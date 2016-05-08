@@ -141,7 +141,7 @@ void combine(short *upper, short *lower, short *out_low, short *out_high,
 	//the current position in the arrays
 	short position;
 	//first one using combineTransfer
-	position = start % arrayLength;
+	position = start;
 	uppervalue = *(upper + position);
 	lowervalue = *combineTransfer;	
 	*(out_low + position) = (uppervalue + lowervalue) / 2;
@@ -152,7 +152,9 @@ void combine(short *upper, short *lower, short *out_low, short *out_high,
 	
 	//loop for other values
 	for(i=1;i<length;i++){
-		position = (start + i) % arrayLength;
+		position++;
+		if (position == arrayLength)
+			position = 0;
 		uppervalue = *(upper + position);
 		*(out_low + position) = (uppervalue + lowervalue) / 2;
 		highToWrite = (uppervalue - lowervalue) / 2;
