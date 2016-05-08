@@ -1,5 +1,5 @@
 #include "synthesis.h"
-
+#include "convolve.c"
 
 void copyToHistoryChunk(short *left_LL, short *left_LH, short *left_HL,
 	short *right_LL, short *right_LH, short *right_HL,
