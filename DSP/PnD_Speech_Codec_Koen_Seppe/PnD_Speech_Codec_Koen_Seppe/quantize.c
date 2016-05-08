@@ -50,13 +50,22 @@ void quantize(short * restrict quantized_differences, short * restrict start_of_
 
 		//Calculate the difference between the sample and the prediction. Quantize this and write to output
 		difference = sample - prediction;
-		quantized_difference = (difference / stepsize);
-		if (quantized_difference > maximum) { //Clip the value of the quantized difference to the given maximum, so that it fits in a certain amount of bits
-			quantized_difference = maximum;
+
+		if (difference > 0) {
+			quantized_difference = -1;
+			while (quantized_difference < maximum && difference >= 0) {
+				quantized_difference += 1;
+				difference -= stepsize;
+			}
+
+		} else {
+			quantized_difference = 1;
+			while (quantized_difference > minimum && difference <= 0) {
+				quantized_difference -= 1;
+				difference += stepsize;
+			}
 		}
-		else if (quantized_difference < minimum) {
-			quantized_difference = minimum;
-		}
+
 		*(quantized_differences++) = (short)quantized_difference;
 
 		//Dequantize and use this parameter instead of 'difference', since the dequantizer only has access to this parameter and not to 'difference'
