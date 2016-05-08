@@ -39,6 +39,8 @@ void quantize(short * restrict quantized_differences, short * restrict start_of_
 	short * restrict samplepointer = start_of_samples_array + start_position_in_samples_array;
 	short * restrict endOfSamplesArray = start_of_samples_array + length_of_samples_array;
 
+	unsigned int stepsize_lower, stepsize_upper, buffersum_phi_product;
+
 #pragma MUST_ITERATE(5,5,5)
 	for (; i < nb_samples_to_do; i++) {
 		sample = *samplepointer;
@@ -73,10 +75,22 @@ void quantize(short * restrict quantized_differences, short * restrict start_of_
 		//update the buffersum (=> var => stepsize ) and the buffer itself
 		buffersum = buffersum - *(bufferSamplePointer) + dequantized_difference; //Update buffersum
 		*(bufferSamplePointer) = dequantized_difference; //Update buffer
-		stepsize = (short)((((long)buffersum) * phi / buffer_length) >> 15);
-		if (!stepsize) { //stepsize cannot be 0
-			stepsize = 1;
+
+		buffersum_phi_product = (buffersum  * phi) >> 15;
+
+		stepsize_lower = 1;
+		stepsize_upper = 32767;
+		stepsize = (stepsize_lower + stepsize_upper)>>1;
+		while (stepsize != stepsize_lower) {
+			if ((buffer_length * stepsize) > buffersum_phi_product) {
+				stepsize_upper = stepsize;
+				stepsize = (stepsize_lower + stepsize_upper) >> 1;
+			} else {
+				stepsize_lower = stepsize;
+				stepsize = (stepsize_lower + stepsize_upper) >> 1;
+			}
 		}
+
 
 		//increment the buffer position
 		bufferSamplePointer++;

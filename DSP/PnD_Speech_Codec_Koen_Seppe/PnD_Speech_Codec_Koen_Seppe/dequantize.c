@@ -31,6 +31,8 @@ void dequantize(short *dequantized_samples, short *samples,
 	unsigned char i = 0; //loop counter
 	short sample;
 
+	unsigned int stepsize_lower, stepsize_upper, buffersum_phi_product;
+
 	for(; i < nb_samples_to_do; i++){
         sample = *(samples++);
 
@@ -51,9 +53,20 @@ void dequantize(short *dequantized_samples, short *samples,
         //Update the buffersum (=> var => stepsize ) and the buffer itself
 		buffersum = buffersum - *(bufferSamplePointer) + dequantized_difference; //Update buffersum
 		*(bufferSamplePointer) = dequantized_difference; //Update buffer
-		stepsize = (short)((((long)buffersum) * phi / buffer_length) >> 15);
-		if (!stepsize) { //stepsize cannot be 0
-			stepsize = 1;
+
+		buffersum_phi_product = (buffersum  * phi) >> 15;
+
+		stepsize_lower = 1;
+		stepsize_upper = 32767;
+		stepsize = (stepsize_lower + stepsize_upper) >> 1;
+		while (stepsize != stepsize_lower) {
+			if ((buffer_length * stepsize) > buffersum_phi_product) {
+				stepsize_upper = stepsize;
+				stepsize = (stepsize_lower + stepsize_upper) >> 1;
+			} else {
+				stepsize_lower = stepsize;
+				stepsize = (stepsize_lower + stepsize_upper) >> 1;
+			}
 		}
 
         //Increment the buffer_position_counter

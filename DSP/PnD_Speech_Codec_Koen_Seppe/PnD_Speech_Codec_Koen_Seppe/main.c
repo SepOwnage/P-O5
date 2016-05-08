@@ -91,11 +91,11 @@ inline void dequantizeBands(short *buffer){
 
 struct wavpcm_input input;
 struct wavpcm_output output;
-
+/*
 unsigned int decrypt_size;
 message_ctx ciphermessage;
 RSA_ctx RSA_ctx_master, RSA_ctx_slave;
-ENC_ctx ENC_ctx_master, ENC_ctx_slave;
+ENC_ctx ENC_ctx_master, ENC_ctx_slave;*/
 
 /* This is the function that is called when the program starts. */
 int main(int argc, char *argv[]){
