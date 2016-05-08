@@ -44,8 +44,10 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 	unsigned short stop = inputL-filterL; // the amount of samples that can be calculated
 	//short sample_left, sample_right;
 	short * restrict samplepointer_left, * restrict samplepointer_right;
+	short * restrict samplepointer_left_output, * restrict samplepointer_right_output;
 	//short filterelem;
 	short * restrict endOfInputArray = input_left + inputL;
+	short * restrict endOfOutputArray = output_left + outputLength;
 	//short *filterelempointer;
 	//short *stopfilterelempointer = reversedFilter + filterL;
 
@@ -68,6 +70,9 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 	}
 	temp_left_pointer = temp_left;
 	temp_right_pointer = temp_right;
+
+	samplepointer_left_output = output_left + outputOffset;
+	samplepointer_right_output = output_right + outputOffset;
 
 #pragma MUST_ITERATE(5,10,5)
 	for(j=0; j < stop; j++){
@@ -98,8 +103,12 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 			result_right = -32768;
 
 		//write away output
-		*(output_left + (j+outputOffset)%outputLength) = (short)(result_left);
-		*(output_right + (j+outputOffset)%outputLength) = (short)(result_right);
+		*(samplepointer_left_output++) = (short)(result_left);
+		*(samplepointer_right_output++) = (short)(result_right);
+		if(samplepointer_left_output == endOfOutputArray){
+			samplepointer_left_output = output_left;
+			samplepointer_right_output = output_right;
+		}
 	}
 }
 
