@@ -40,7 +40,7 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 	Note that this function can work in place if output is input
 	*/
 	int i,j; //bookkeepings
-	int result_left, result_right; //holds the temporary unscaled result
+	int result_left, result_right, result_left_sign, result_right_sign; //holds the temporary unscaled result
 	unsigned short stop = inputL-filterL; // the amount of samples that can be calculated
 	//short sample_left, sample_right;
 	short * restrict samplepointer_left, * restrict samplepointer_right;
@@ -83,37 +83,19 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 		}
 		//scale the result, clip it to short range if necessary (so it positives don't become
 		//negatives and vice versa when converting to short).
-		result_left = result_left>>amountToShift;
-		result_right = result_right>>amountToShift;
+		result_left_sign = result_left >> 31;
+		result_left = ((((result_left + result_left_sign)^result_left_sign) >> amountToShift)+result_left_sign)^result_left_sign;
+		result_right_sign = result_right >> 31;
+		result_right = ((((result_right + result_right_sign)^result_right_sign) >> amountToShift)+result_right_sign)^result_right_sign;
+		if (result_left > 32767)
+			result_left = 32767;
+		else if (result_left < -32768)
+			result_left = -32768;
 
-		if (result_left >= 0){
-			result_left = result_left>>amountToShift;
-			if(result_left > 32767)
-				result_left = 32767;
-		}else{
-			if(result_left & 1){
-				result_left = result_left>>amountToShift;
-			}else{
-				result_left = result_left>>amountToShift;
-				result_left++;
-			}if (result_left < -32768)
-				result_left = -32768;
-		}
-
-		if (result_right >= 0){
-			result_right = result_right >> amountToShift;
-			if (result_right > 32767)
-				result_right = 32767;
-		} else {
-			if (result_right & 1) {
-				result_right = result_right >> amountToShift;
-			} else {
-				result_right = result_right >> amountToShift;
-				result_right++;
-			}
-			if (result_right < -32768)
-				result_right = -32768;
-		}
+		if (result_right > 32767)
+			result_right = 32767;
+		else if (result_right < -32768)
+			result_right = -32768;
 
 		//write away output
 		*(output_left + (j+outputOffset)%outputLength) = (short)(result_left);
