@@ -111,6 +111,7 @@ int main(int argc, char *argv[]){
 
 	memset(&historyChunkAnalysis, 0, sizeof(struct chunk));
 	memset(&historyChunkSynthesis, 0, sizeof(struct chunk));
+	memset(largeCryptoBuffer, 0, sizeof(largeCryptoBuffer));
 	
 	//Create RSA ctx master & slave
 	//calculate_parameters_RSA(&RSA_ctx_master);
