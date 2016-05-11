@@ -80,6 +80,7 @@ void dequantize(short *dequantized_samples, short *samples,
 	values->prediction = prediction;
 	values->stepsize = stepsize;
 	values->prev_dequantized_sample = prev_dequantized_sample;
+	buffer_position_counter += nb_samples_to_do;
 	while (buffer_position_counter >= buffer_length) //if should be sufficient with current parameters (because 5 samples per time and bufferlength 10, but while is safer if this ever gets changed_
 		buffer_position_counter -= buffer_length;
 	values->buffer_position_counter = buffer_position_counter;
