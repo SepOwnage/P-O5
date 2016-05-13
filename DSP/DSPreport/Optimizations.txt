@@ -14,6 +14,8 @@ Compiler:
 	Keywords:
 	Restrict is used where possible. Volatile is not needed in this project.
 	
+	Pragmas: Did unrolling & must_iterate wherever possible & helpfull. Have inlined on several occasions
+	where the memory increase was not too big.
 	Analysis.c:Convolve
 	 Unroll @ #pragma MUST_ITERATE(5,10,5): Changed nothing
 	 Unroll @ #pragma MUST_ITERATE(16,32,16): 3591842 -> 3511842
@@ -28,3 +30,27 @@ Compiler:
 	 
 	 Dequantize.c:dequantize
 	 Must_iterate(5,5,5) @ for(; i < nb_samples_to_do; i++){: 3449762 -> 3444962
+	 
+	 Overall increase of 4%
+	 
+	 #TODO: data_align
+	 
+Function level optimizations:
+	Function inlining: Done, but now memory is almost full.
+	
+Loop level optimizations:
+	Note that there is only one nested loop. Every loop has been checked for the possibility
+	to add the pragmas 'must_iterate' and 'unroll' to it. The single nested loop cannot be
+	optimized further (collapsing, coalescing)
+	#TODO: Software pipelining
+	
+Kern level optimizations:
+	Don't know what to say about this. Maybe some of the many 'optimizations' in the sessions apply to this?
+	
+Processor specific:
+	SIMD: Maybe this will follow from data_align. Use _nassert()
+	#TODO: Links en rechts samen
+	#TODO: i.e., _amemd8_const. This intrinsic operation allows aligned loads and stores of 8 bytes to
+memory. Syntax as follows:
+	#TODO check casten van pointer van largecryptobuffer
+	#TODO wa intrinsics zetten dan zijn ze blij
