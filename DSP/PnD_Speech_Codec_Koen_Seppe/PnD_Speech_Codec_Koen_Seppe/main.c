@@ -8,13 +8,14 @@
 #include "dequantize.h"
 #include "bitManipulation.h"
 #include <time.h>
+#ifdef CRYPTO
 #include "crypto/global.h"
 #include "crypto/util.h"
 #include "crypto/STS_protocol.h"
 #include "crypto/aes.h"
 #include "crypto/CCM.h"
 #include "crypto/cryptoMain.h"
-
+#endif
 #define NB_OF_SMALL_BUFFERS_IN_LARGE 40
 
 struct parameters LowLowParams = { 5144, 19660, 10, 15 };
@@ -92,11 +93,12 @@ inline void dequantizeBands(short *buffer){
 struct wavpcm_input input;
 struct wavpcm_output output;
 
+#ifdef CRYPTO
 unsigned int decrypt_size;
 message_ctx ciphermessage;
 RSA_ctx RSA_ctx_master, RSA_ctx_slave;
 ENC_ctx ENC_ctx_master, ENC_ctx_slave;
-
+#endif
 /* This is the function that is called when the program starts. */
 int main(int argc, char *argv[]){
 	int bufPos, read;
@@ -115,6 +117,7 @@ int main(int argc, char *argv[]){
 	memset(largeCryptoBuffer, 0, sizeof(largeCryptoBuffer));
 	memset(wavbuffer, 0, sizeof(wavbuffer));
 	
+#ifdef CRYPTO
 	//Create RSA ctx master & slave
 	calculate_parameters_RSA(&RSA_ctx_master);
 	calculate_parameters_RSA(&RSA_ctx_slave);
@@ -125,7 +128,7 @@ int main(int argc, char *argv[]){
 
 	//Start protocol
 	STSprotocol(&ENC_ctx_master, &ENC_ctx_slave, &RSA_ctx_master, &RSA_ctx_slave);
-
+#endif
 	for (bufPos = 0; bufPos < input.samplesAvailable; ) {
 		placeInLargeBuffer = 0;
 		while (placeInLargeBuffer < 15 * NB_OF_SMALL_BUFFERS_IN_LARGE) {
@@ -147,14 +150,14 @@ int main(int argc, char *argv[]){
 
 			placeInLargeBuffer += 15;
 		}
-
+#ifdef CRYPTO
 		//encrypt
 		sendData(&ENC_ctx_master, largeCryptoBuffer, sizeof(largeCryptoBuffer), &ciphermessage);
 		//channel
 
 		//decrypt
 		readData(&ENC_ctx_slave, &ciphermessage, largeCryptoBuffer, &decrypt_size);
-
+#endif
 		//undo speech part
 		placeInLargeBuffer = 0;
 		while (placeInLargeBuffer < 15 * NB_OF_SMALL_BUFFERS_IN_LARGE) {
