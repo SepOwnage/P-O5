@@ -17,7 +17,7 @@
 #define BLOCK_LENGTH 16 /* block length in bytes */
 #define MAC_LENGTH 8 /* MAC length in bytes */
 #define AES_KEY_SIZE 16 /* aes key length in bytes */
-#define MAX_MESSAGE_LENGTH 1024 /* max message length in bytes. NOT BIGGER THAN 2^16-1 (stored in short)*/
+#define MAX_MESSAGE_LENGTH 645 /* max message length in bytes. NOT BIGGER THAN 2^16-1 (stored in short)*/
 
 // RSA parameters, ALSO CHANGE global.c if you change these!!!
 #define MODULUS_SIZE_MASTER 156/2 //see MAX_MODULUS_SIZE
