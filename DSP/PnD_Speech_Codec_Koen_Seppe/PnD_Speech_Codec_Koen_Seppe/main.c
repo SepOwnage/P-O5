@@ -6,7 +6,7 @@
 #include "synthesis.h"
 #include "quantize.h"
 #include "dequantize.h"
-#include "bitmanipulation.h" 
+#include "bitManipulation.h"
 #include <time.h>
 #include "crypto/global.h"
 #include "crypto/util.h"
