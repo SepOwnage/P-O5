@@ -17,8 +17,9 @@ void addBufferToHistory(short buffer[BUFFERSIZE], struct chunk *historyChunk){
 	}
 }
 
-short temp_left[BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF];
-short temp_right[BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF];
+short temp_left[BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF] = {0};
+short temp_right[BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF] = {0};
+
 
 void convolve(short *input_left, short *input_right, short *reversedFilter,
 		unsigned char inputOffset, unsigned char inputL,

@@ -18,32 +18,32 @@
 #define NB_OF_SMALL_BUFFERS_IN_LARGE 40
 
 struct parameters LowLowParams = { 5144, 19660, 10, 15 };
-unsigned short LowLowValuesLeftQuantize[15];
+unsigned short LowLowValuesLeftQuantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 struct start_values LowLowStartValuesLeftQuantize = { 0, 1, 0, 0, 0, LowLowValuesLeftQuantize };
-unsigned short LowLowValuesLeftDequantize[15];
+unsigned short LowLowValuesLeftDequantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 struct start_values LowLowStartValuesLeftDequantize = { 0, 1, 0, 0, 0, LowLowValuesLeftDequantize };
 struct parameters LowHighParams = { 16384, 328, 10, 7 };
-unsigned short LowHighValuesLeftQuantize[15];
-unsigned short LowHighValuesLeftDequantize[15];
+unsigned short LowHighValuesLeftQuantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+unsigned short LowHighValuesLeftDequantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 struct start_values LowHighStartValuesLeftQuantize = { 0, 1, 0, 0, 0, LowHighValuesLeftQuantize };
 struct start_values LowHighStartValuesLeftDequantize = { 0, 1, 0, 0, 0, LowHighValuesLeftDequantize };
 
 struct parameters HighParams = { 29490, 31129, 10, 3 };
-unsigned short HighValuesLeftQuantize[15];
-unsigned short HighValuesLeftDequantize[15];
+unsigned short HighValuesLeftQuantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+unsigned short HighValuesLeftDequantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 struct start_values HighStartValuesLeftQuantize = { 0, 1, 0, 0, 0, HighValuesLeftQuantize };
 struct start_values HighStartValuesLeftDequantize = { 0, 1, 0, 0, 0, HighValuesLeftDequantize };
 
-unsigned short LowLowValuesRightQuantize[15];
-unsigned short LowLowValuesRightDequantize[15];
+unsigned short LowLowValuesRightQuantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+unsigned short LowLowValuesRightDequantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 struct start_values LowLowStartValuesRightQuantize = { 0, 1, 0, 0, 0, LowLowValuesRightQuantize };
 struct start_values LowLowStartValuesRightDequantize = { 0, 1, 0, 0, 0, LowLowValuesRightDequantize };
-unsigned short LowHighValuesRightQuantize[15];
-unsigned short LowHighValuesRightDequantize[15];
+unsigned short LowHighValuesRightQuantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+unsigned short LowHighValuesRightDequantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 struct start_values LowHighStartValuesRightQuantize = { 0, 1, 0, 0, 0, LowHighValuesRightQuantize };
 struct start_values LowHighStartValuesRightDequantize = { 0, 1, 0, 0, 0, LowHighValuesRightDequantize };
-unsigned short HighValuesRightQuantize[15];
-unsigned short HighValuesRightDequantize[15];
+unsigned short HighValuesRightQuantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+unsigned short HighValuesRightDequantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 struct start_values HighStartValuesRightQuantize = { 0, 1, 0, 0, 0, HighValuesRightQuantize };
 struct start_values HighStartValuesRightDequantize = { 0, 1, 0, 0, 0, HighValuesRightDequantize };
 
@@ -91,19 +91,20 @@ inline void dequantizeBands(short *buffer){
 
 struct wavpcm_input input;
 struct wavpcm_output output;
-/*
+
 unsigned int decrypt_size;
 message_ctx ciphermessage;
 RSA_ctx RSA_ctx_master, RSA_ctx_slave;
-ENC_ctx ENC_ctx_master, ENC_ctx_slave;*/
+ENC_ctx ENC_ctx_master, ENC_ctx_slave;
 
 /* This is the function that is called when the program starts. */
 int main(int argc, char *argv[]){
 	int bufPos, read;
 
+
+	memset(&input, 0, sizeof(struct wavpcm_input));
 	input.resource = INPUTWAVFILE;
 	wavpcm_input_open(&input);
-
 	memset(&output, 0, sizeof(struct wavpcm_output));
 	output.resource = OUTPUTWAVFILE;
 	wavpcm_output_copy_settings(&input, &output);
@@ -112,17 +113,18 @@ int main(int argc, char *argv[]){
 	memset(&historyChunkAnalysis, 0, sizeof(struct chunk));
 	memset(&historyChunkSynthesis, 0, sizeof(struct chunk));
 	memset(largeCryptoBuffer, 0, sizeof(largeCryptoBuffer));
+	memset(wavbuffer, 0, sizeof(wavbuffer));
 	
 	//Create RSA ctx master & slave
-	//calculate_parameters_RSA(&RSA_ctx_master);
-	//calculate_parameters_RSA(&RSA_ctx_slave);
+	calculate_parameters_RSA(&RSA_ctx_master);
+	calculate_parameters_RSA(&RSA_ctx_slave);
 
 	//Create ENC ctx master & slave
-	//ENC_ctx_master.counter = 0;
-	//ENC_ctx_slave.counter = 0;
+	ENC_ctx_master.counter = 0;
+	ENC_ctx_slave.counter = 0;
 
 	//Start protocol
-	//STSprotocol(&ENC_ctx_master, &ENC_ctx_slave, &RSA_ctx_master, &RSA_ctx_slave);
+	STSprotocol(&ENC_ctx_master, &ENC_ctx_slave, &RSA_ctx_master, &RSA_ctx_slave);
 
 	for (bufPos = 0; bufPos < input.samplesAvailable; ) {
 		placeInLargeBuffer = 0;
@@ -147,11 +149,11 @@ int main(int argc, char *argv[]){
 		}
 
 		//encrypt
-		//sendData(&ENC_ctx_master, largeCryptoBuffer, sizeof(largeCryptoBuffer), &ciphermessage);
+		sendData(&ENC_ctx_master, largeCryptoBuffer, sizeof(largeCryptoBuffer), &ciphermessage);
 		//channel
 
 		//decrypt
-		//readData(&ENC_ctx_slave, &ciphermessage, largeCryptoBuffer, &decrypt_size);
+		readData(&ENC_ctx_slave, &ciphermessage, largeCryptoBuffer, &decrypt_size);
 
 		//undo speech part
 		placeInLargeBuffer = 0;
