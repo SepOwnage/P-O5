@@ -1,0 +1,11 @@
+DSP specifics in details.
+
+Approach for Optimization:
+	Analytically, it was obvious that convolve would be a bottleneck because
+	it is the only nested for loop in the program. Profiling with a simulator confirmed this.
+	After optimizing convolve, quantize and dequantize turned out to be the next bottlenecks.
+	Pen&paper approach: Negeren?
+	
+Compiler:
+	-mt: we use -mt (--no_bad_aliases) in the release mode, and have used the 'restrict'
+	keyword where possible

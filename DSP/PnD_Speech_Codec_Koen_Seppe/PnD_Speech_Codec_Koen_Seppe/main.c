@@ -139,7 +139,6 @@ int main(int argc, char *argv[]){
 					printf("Warning: Not a full buffer read, amount read: %d. samplesAvailable: %d. bufPos: %d",
 						read, input.samplesAvailable, bufPos);
 				}
-				//TODO: fill with zeros? ignore?
 			}
 			bufPos += read/2;
 
