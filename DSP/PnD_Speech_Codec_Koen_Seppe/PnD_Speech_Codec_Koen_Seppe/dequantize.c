@@ -22,10 +22,10 @@ void dequantize(short *dequantized_samples, short *samples,
 	short prediction = values->prediction;
 	unsigned int buffersum = values->buffersum; //It's an int so don't use too many additions ->low samples_length
 	short prev_dequantized_sample = values->prev_dequantized_sample;
-	unsigned short * /*restrict*/ buffer = values->buffer;
+	unsigned short * restrict buffer = values->buffer;
 	unsigned short buffer_position_counter = values->buffer_position_counter;
-	unsigned short * /*restrict*/ bufferSamplePointer = buffer + buffer_position_counter;
-	unsigned short * /*restrict*/ endOfBuffer = buffer + buffer_length;
+	unsigned short * restrict bufferSamplePointer = buffer + buffer_position_counter;
+	unsigned short * restrict endOfBuffer = buffer + buffer_length;
 	short dequantized_difference;
 	short dequantized_sample;
 	unsigned char i = 0; //loop counter

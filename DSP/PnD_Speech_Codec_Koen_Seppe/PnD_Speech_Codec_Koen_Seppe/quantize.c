@@ -2,7 +2,7 @@
 #include "quantize.h"
 #include <stdio.h>
 
-void quantize(short * /*restrict*/ quantized_differences, short * /*restrict*/ start_of_samples_array,
+void quantize(short * restrict quantized_differences, short * restrict start_of_samples_array,
 	unsigned char start_position_in_samples_array, unsigned char length_of_samples_array,
 	unsigned char nb_samples_to_do, struct parameters *params, struct start_values *values) {
 	/*
@@ -30,14 +30,14 @@ void quantize(short * /*restrict*/ quantized_differences, short * /*restrict*/ s
 	short prediction = values->prediction;
 	unsigned int buffersum = values->buffersum; //Sum of the values in the buffer, used to calculate the stepsize
 	short prev_dequantized_sample = values->prev_dequantized_sample;
-	unsigned short * /*restrict*/ buffer = values->buffer;
+	unsigned short * restrict buffer = values->buffer;
 	unsigned short buffer_position_counter = values->buffer_position_counter;
-	unsigned short * /*restrict*/ bufferSamplePointer = buffer + buffer_position_counter;
-	unsigned short * /*restrict*/ endOfBuffer = buffer + buffer_length;
+	unsigned short * restrict bufferSamplePointer = buffer + buffer_position_counter;
+	unsigned short * restrict endOfBuffer = buffer + buffer_length;
 	unsigned char i = 0; //loop counter
 	short sample;
-	short * /*restrict*/ samplepointer = start_of_samples_array + start_position_in_samples_array;
-	short * /*restrict*/ endOfSamplesArray = start_of_samples_array + length_of_samples_array;
+	short * restrict samplepointer = start_of_samples_array + start_position_in_samples_array;
+	short * restrict endOfSamplesArray = start_of_samples_array + length_of_samples_array;
 
 	unsigned int stepsize_lower, stepsize_upper, buffersum_phi_product;
 
