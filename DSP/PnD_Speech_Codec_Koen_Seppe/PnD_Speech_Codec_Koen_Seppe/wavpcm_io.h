@@ -19,7 +19,7 @@
 *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 *  ************************************************************************ */
 #include "globals.h"
-
+#include <stdio.h>
 
 /*Note: we are assuming short is 16 bit, char is 8 bit etc: not so for DSP */ 
 

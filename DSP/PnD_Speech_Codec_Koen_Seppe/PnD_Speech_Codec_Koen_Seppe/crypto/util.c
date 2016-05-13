@@ -83,9 +83,9 @@ void XOR(void *out, const void *in1, const void *in2, const unsigned int XORlen)
     const unsigned int * in1int = in1;
     const unsigned int * in2int = in2;*/
 
-    unsigned char * restrict outchar = out;
-	const unsigned char * restrict in1char = in1;
-	const unsigned char * restrict in2char = in2;
+    unsigned char * /*restrict*/ outchar = out;
+	const unsigned char * /*restrict*/ in1char = in1;
+	const unsigned char * /*restrict*/ in2char = in2;
 
 
 	/*while(i+3<XORlen){
