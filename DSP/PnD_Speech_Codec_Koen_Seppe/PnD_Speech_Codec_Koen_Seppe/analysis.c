@@ -44,16 +44,16 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 	int result_left, result_right, result_left_sign, result_right_sign; //holds the temporary unscaled result
 	unsigned short stop = inputL-filterL; // the amount of samples that can be calculated
 	//short sample_left, sample_right;
-	short * restrict samplepointer_left, * restrict samplepointer_right;
-	short * restrict samplepointer_left_output, * restrict samplepointer_right_output;
+	short * /*restrict*/ samplepointer_left, * /*restrict*/ samplepointer_right;
+	short * /*restrict*/ samplepointer_left_output, * /*restrict*/ samplepointer_right_output;
 	//short filterelem;
-	short * restrict endOfInputArray = input_left + inputL;
-	short * restrict endOfOutputArray = output_left + outputLength;
+	short * /*restrict*/ endOfInputArray = input_left + inputL;
+	short * /*restrict*/ endOfOutputArray = output_left + outputLength;
 	//short *filterelempointer;
 	//short *stopfilterelempointer = reversedFilter + filterL;
 
-	short * restrict temp_left_pointer = temp_left;
-	short * restrict temp_right_pointer = temp_right;
+	short * /*restrict*/ temp_left_pointer = temp_left;
+	short * /*restrict*/ temp_right_pointer = temp_right;
 
 	samplepointer_left = input_left + inputOffset;
 	samplepointer_right = input_right + inputOffset;

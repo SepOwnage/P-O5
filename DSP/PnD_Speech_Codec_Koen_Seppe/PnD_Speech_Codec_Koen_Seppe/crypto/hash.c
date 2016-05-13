@@ -17,7 +17,7 @@ struct sha3_256_ctx ctx;
  *
  * out          	output array with size >= outputLength
  * outputLength		the length of the hash to be generated. (there are
- *					some restrictions on this length, but still need to
+ *					some /*restrict*/ions on this length, but still need to
  *					figure out which ones.)
  * in 				the input data used to generate the hash from
  * inputLength 		the length of the input data

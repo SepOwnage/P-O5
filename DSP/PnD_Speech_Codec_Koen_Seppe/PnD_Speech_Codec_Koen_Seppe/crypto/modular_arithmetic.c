@@ -83,20 +83,20 @@ void mp_subtraction(void *resin, const void *in1in, const void *in2in, const uns
  * carrier          pointer to carrier array of size 1
  * in1,x,y,u,m      pointer to input arrays of size size
  */
-inline void mp_addition_special2(void *resin, void * restrict carrierin, const void *in1in, const void * restrict xin,
-                          const void * restrict yin, const void * restrict uin, const void * restrict min, const unsigned int size)
+inline void mp_addition_special2(void *resin, void * /*restrict*/ carrierin, const void *in1in, const void * /*restrict*/ xin,
+                          const void * /*restrict*/ yin, const void * /*restrict*/ uin, const void * /*restrict*/ min, const unsigned int size)
 
 {   unsigned short * res = resin;
-    unsigned short * restrict carrier = carrierin;
+    unsigned short * /*restrict*/ carrier = carrierin;
     const unsigned short * in1 = in1in;
-    const unsigned short * restrict x = xin;
-    const unsigned short * restrict y = yin;
-    const unsigned short * restrict u = uin;
-    const unsigned short * restrict m = min;
+    const unsigned short * /*restrict*/ x = xin;
+    const unsigned short * /*restrict*/ y = yin;
+    const unsigned short * /*restrict*/ u = uin;
+    const unsigned short * /*restrict*/ m = min;
 
 	unsigned int i;
 	unsigned int c;
-	unsigned short * restrict resRestricted = res-1;
+	unsigned short * /*restrict*/ res/*restrict*/ed = res-1;
 	unsigned long long temp;
     unsigned int temp1;
     unsigned int temp2;
@@ -110,7 +110,7 @@ inline void mp_addition_special2(void *resin, void * restrict carrierin, const v
         temp1 = x[0]*y[i] + in1[i];
         temp2 = u[0]*m[i];
         temp = (unsigned long long) (temp1) + (unsigned long long) (temp2) + (unsigned long long) (c);
-		resRestricted[i] = temp;
+		res/*restrict*/ed[i] = temp;
         c = temp>> 16;
 	}
     temp1 = carrier[0];
