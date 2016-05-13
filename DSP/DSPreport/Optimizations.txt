@@ -7,5 +7,24 @@ Approach for Optimization:
 	Pen&paper approach: Negeren?
 	
 Compiler:
+	Options:
 	-mt: we use -mt (--no_bad_aliases) in the release mode, and have used the 'restrict'
-	keyword where possible
+	keyword where possible. '-k' and '-mw' are enabled in the release mode.
+	
+	Keywords:
+	Restrict is used where possible. Volatile is not needed in this project.
+	
+	Analysis.c:Convolve
+	 Unroll @ #pragma MUST_ITERATE(5,10,5): Changed nothing
+	 Unroll @ #pragma MUST_ITERATE(16,32,16): 3591842 -> 3511842
+	 
+	Analysis.c:Combine
+	 Must_iterate(5,10,5) @ for(i=1;i<length;i++){: 3511842->3504162
+	 Unroll @ #pragma MUST_ITERATE(5,10,5): Crashes the program (reverted)
+	 
+	Synthesis.combineWithoutDelay
+	 Must_iterate(5,10,5) @ for (i = 0; i<length; i++) {: 3504162->3491682
+	 Unroll @ #pragma MUST_ITERATE(5,10,5): 3491682 -> 3449762
+	 
+	 Dequantize.c:dequantize
+	 Must_iterate(5,5,5) @ for(; i < nb_samples_to_do; i++){: 3449762 -> 3444962

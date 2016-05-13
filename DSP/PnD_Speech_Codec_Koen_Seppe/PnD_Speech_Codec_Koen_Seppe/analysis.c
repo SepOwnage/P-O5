@@ -83,6 +83,8 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 		samplepointer_right = temp_right_pointer + j;
 
 #pragma MUST_ITERATE(16,32,16)
+#pragma UNROLL(16)
+
 		for(i=0;i<filterL;i++){
 			result_left += samplepointer_left[i+1] * reversedFilter[i];
 			result_right += samplepointer_right[i+1] * reversedFilter[i];
@@ -151,6 +153,7 @@ void combine(short *upper, short *lower, short *out_low, short *out_high,
 	lowervalue = *(lower + position);
 	*(out_high + position) = highToWrite;
 	
+#pragma MUST_ITERATE(5,10,5)
 	//loop for other values
 	for(i=1;i<length;i++){
 		position++;
@@ -173,6 +176,7 @@ void copyToLowerLayer(struct chunk *historyChunk){
 	position2 is set after the newly written data
 	*/
 	int i;
+
 	for(i=0;i < BUFFERSIZE_DIV8;i++){   //   /8 ?/
 		*(historyChunk->leftLowEven + historyChunk->position2) = 
 			*(historyChunk->leftEven + (historyChunk->position1 + (i*2))%(BUFFERSIZE_DIV4+LENGTH_FILTER1_HALF));

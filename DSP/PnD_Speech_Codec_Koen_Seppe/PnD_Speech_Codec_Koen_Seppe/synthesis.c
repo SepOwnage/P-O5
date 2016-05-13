@@ -66,6 +66,7 @@ void copyToUpperLayer(struct chunk *historyChunk) {
 void writeHistoryInBuffer(struct chunk *historyChunk, short *output) {
 	int i;
 	unsigned short position = historyChunk->position1;
+
 	for (i = 0; i<BUFFERSIZE_DIV4; i++) {
 		output[4 * i] = *((historyChunk->leftOdd) + position);
 		output[4 * i + 1] = *((historyChunk->rightOdd) + position);
@@ -95,6 +96,8 @@ void combineWithoutDelay(short *low_freq, short *high_freq, short *out_upper, sh
 	int i;
 	short position = start;
 	int temp;
+#pragma MUST_ITERATE(5,10,5)
+#pragma UNROLL(5)
 	for (i = 0; i<length; i++) {
 		temp = low_freq[position];
 		out_upper[position] = (short)((temp + high_freq[position]) / 2); 

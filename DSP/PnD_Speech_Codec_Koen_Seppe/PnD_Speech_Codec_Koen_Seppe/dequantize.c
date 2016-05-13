@@ -33,6 +33,7 @@ void dequantize(short *dequantized_samples, short *samples,
 
 	unsigned int stepsize_lower, stepsize_upper, buffersum_phi_product;
 
+#pragma MUST_ITERATE(5,5,5)
 	for(; i < nb_samples_to_do; i++){
         sample = *(samples++);
 
