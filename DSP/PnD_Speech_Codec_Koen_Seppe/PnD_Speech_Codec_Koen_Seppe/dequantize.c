@@ -47,9 +47,7 @@ void dequantize(short *dequantized_samples, short *samples,
 		prev_dequantized_sample = dequantized_sample;
 
 		//dequantized_difference = abs(dequantized_difference)
-		if (dequantized_difference < 0) {
-			dequantized_difference = -dequantized_difference;
-		}
+		dequantized_difference = abs(dequantized_difference);
 
         //Update the buffersum (=> var => stepsize ) and the buffer itself
 		buffersum = buffersum - *(bufferSamplePointer) + dequantized_difference; //Update buffersum
@@ -59,7 +57,7 @@ void dequantize(short *dequantized_samples, short *samples,
 
 		stepsize_lower = 1;
 		stepsize_upper = 32767;
-		stepsize = (stepsize_lower + stepsize_upper) >> 1;
+		stepsize = (stepsize_lower + stepsize_upper) >> 1; //Compiler knows this is a constant
 		while (stepsize != stepsize_lower) {
 			if ((buffer_length * stepsize) > buffersum_phi_product) {
 				stepsize_upper = stepsize;

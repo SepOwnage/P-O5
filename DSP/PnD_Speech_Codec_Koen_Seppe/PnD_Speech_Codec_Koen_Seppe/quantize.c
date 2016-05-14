@@ -86,7 +86,7 @@ void quantize(short * restrict quantized_differences, short * restrict start_of_
 
 		stepsize_lower = 1;
 		stepsize_upper = 32767;
-		stepsize = (stepsize_lower + stepsize_upper)>>1;
+		stepsize = (stepsize_lower + stepsize_upper)>>1; //Compiler knows this is a constant
 		while (stepsize != stepsize_lower) {
 			if ((buffer_length * stepsize) > buffersum_phi_product) {
 				stepsize_upper = stepsize;
