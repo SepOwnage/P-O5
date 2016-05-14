@@ -8,7 +8,6 @@
 #include "quantizeTogether.h"
 #include "dequantizeTogether.h"
 #include "bitManipulation.h"
-#include <time.h>
 
 #ifdef CRYPTO
 #include "crypto/global.h"
