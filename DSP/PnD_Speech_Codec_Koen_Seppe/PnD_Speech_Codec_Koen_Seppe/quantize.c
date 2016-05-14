@@ -72,14 +72,11 @@ void quantize(short * restrict quantized_differences, short * restrict start_of_
 		dequantized_difference = quantized_difference * stepsize;
 
 		//Update prediction
-		dequantized_sample = (short)(dequantized_difference + prediction);
+		dequantized_sample = dequantized_difference + prediction;
 		prediction = dequantized_sample - (mu * prev_dequantized_sample)/(1<<15);
 		prev_dequantized_sample = dequantized_sample;
 
-		//dequantized_difference = abs(dequantized_difference)
-		if (dequantized_difference < 0) {
-			dequantized_difference = -dequantized_difference;
-		}
+		dequantized_difference = abs(dequantized_difference);
 
 		//update the buffersum (=> var => stepsize ) and the buffer itself
 		buffersum = buffersum - *(bufferSamplePointer) + dequantized_difference; //Update buffersum
@@ -89,7 +86,7 @@ void quantize(short * restrict quantized_differences, short * restrict start_of_
 
 		stepsize_lower = 1;
 		stepsize_upper = 32767;
-		stepsize = (stepsize_lower + stepsize_upper)>>1;
+		stepsize = (stepsize_lower + stepsize_upper)>>1; //Compiler knows this is a constant
 		while (stepsize != stepsize_lower) {
 			if ((buffer_length * stepsize) > buffersum_phi_product) {
 				stepsize_upper = stepsize;

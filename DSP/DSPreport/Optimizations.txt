@@ -54,6 +54,7 @@ Processor specific:
 memory. Syntax as follows:
 	#TODO check casten van pointer van largecryptobuffer
 	#TODO wa intrinsics zetten dan zijn ze blij
+	Intrinsic: _abs
 
 
 
