@@ -9,7 +9,8 @@
 #include "bitManipulation.h"
 #include <time.h>
 
-#define CRYPTO
+
+
 #ifdef CRYPTO
 #include "crypto/global.h"
 #include "crypto/util.h"
@@ -105,7 +106,6 @@ ENC_ctx ENC_ctx_master, ENC_ctx_slave;
 int main(int argc, char *argv[]){
 	int bufPos, read;
 
-
 	memset(&input, 0, sizeof(struct wavpcm_input));
 	input.resource = INPUTWAVFILE;
 	wavpcm_input_open(&input);
@@ -131,7 +131,7 @@ int main(int argc, char *argv[]){
 	//Start protocol
 	STSprotocol(&ENC_ctx_master, &ENC_ctx_slave, &RSA_ctx_master, &RSA_ctx_slave);
 #endif
-	for (bufPos = 0; bufPos < input.samplesAvailable; ) {
+	for (bufPos = 0; bufPos < input.samplesAvailable-BUFFERSIZE/2; ) {
 		placeInLargeBuffer = 0;
 		while (placeInLargeBuffer < 15 * NB_OF_SMALL_BUFFERS_IN_LARGE) {
 			//read a buffer
@@ -143,6 +143,8 @@ int main(int argc, char *argv[]){
 				}
 			}
 			bufPos += read/2;
+			if(bufPos>=input.samplesAvailable - BUFFERSIZE/2)
+				break;
 
 			analysis(wavbuffer, &historyChunkAnalysis);
 			quantizeBands((short *) (largeCryptoBuffer + placeInLargeBuffer), &historyChunkAnalysis);
