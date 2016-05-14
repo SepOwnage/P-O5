@@ -42,7 +42,7 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 
 	Note that this function can work in place if output is input
 	*/
-	int i,j; //bookkeepings
+	short i,j; //bookkeepings
 	int result_left, result_right, result_left_sign, result_right_sign; //holds the temporary unscaled result
 	unsigned short stop = inputL-filterL; // the amount of samples that can be calculated
 	//short sample_left, sample_right;
@@ -84,15 +84,14 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 	for(j=0; j < stop; j++){
 		result_left = 0;
 		result_right = 0;
-		samplepointer_left = temp_left_pointer + j;
-		samplepointer_right = temp_right_pointer + j;
+		samplepointer_left = temp_left_pointer + j+1;
+		samplepointer_right = temp_right_pointer + j+1;
 
 #pragma MUST_ITERATE(16,32,16)
 #pragma UNROLL(4)
-
 		for(i=0;i<filterL;i++){
-			result_left += samplepointer_left[i+1] * reversedFilter[i];
-			result_right += samplepointer_right[i+1] * reversedFilter[i];
+			result_left += samplepointer_left[i] * reversedFilter[i];
+			result_right += samplepointer_right[i] * reversedFilter[i];
 		}
 		//scale the result, clip it to short range if necessary (so it positives don't become
 		//negatives and vice versa when converting to short).
@@ -100,6 +99,8 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 		result_left = ((((result_left + result_left_sign)^result_left_sign) >> amountToShift)+result_left_sign)^result_left_sign;
 		result_right_sign = result_right >> 31;
 		result_right = ((((result_right + result_right_sign)^result_right_sign) >> amountToShift)+result_right_sign)^result_right_sign;
+		//result_left = _spack2(result_left, result_right); //This intrinsic makes it slower? why?
+
 		if (result_left > 32767)
 			result_left = 32767;
 		else if (result_left < -32768)
