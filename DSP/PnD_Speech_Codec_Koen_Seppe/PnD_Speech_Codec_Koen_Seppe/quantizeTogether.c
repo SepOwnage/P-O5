@@ -1,5 +1,5 @@
 #include "globals.h"
-#include "quantize.h"
+#include "quantizeTogether.h"
 #include <stdio.h>
 
 void quantizeTogether(short * restrict quantized_differences_left, short * restrict start_of_samples_array_left,
@@ -43,10 +43,9 @@ void quantizeTogether(short * restrict quantized_differences_left, short * restr
 	short prev_dequantized_sample_right = values_right->prev_dequantized_sample;
 	unsigned short * restrict buffer_left = values_left->buffer;
 	unsigned short * restrict buffer_right = values_right->buffer;
-	unsigned short buffer_position_counter_left = values_left->buffer_position_counter;
-	unsigned short buffer_position_counter_right = values_right->buffer_position_counter;
-	unsigned short * restrict bufferSamplePointer_left = buffer_left + buffer_position_counter_left;
-	unsigned short * restrict bufferSamplePointer_right = buffer_right + buffer_position_counter_right;
+	unsigned short buffer_position_counter = values_left->buffer_position_counter;
+	unsigned short * restrict bufferSamplePointer_left = buffer_left + buffer_position_counter;
+	unsigned short * restrict bufferSamplePointer_right = buffer_right + buffer_position_counter;
 	unsigned short * restrict endOfBuffer_left = buffer_left + buffer_length;
 	unsigned short * restrict endOfBuffer_right = buffer_right + buffer_length;
 	unsigned char i = 0; //loop counter
@@ -174,14 +173,11 @@ void quantizeTogether(short * restrict quantized_differences_left, short * restr
 	values_right->stepsize = stepsize_right;
 	values_left->prev_dequantized_sample = prev_dequantized_sample_left;
 	values_right->prev_dequantized_sample = prev_dequantized_sample_right;
-	buffer_position_counter_left += nb_samples_to_do_left;
-	buffer_position_counter_right += nb_samples_to_do_right;
-	while (buffer_position_counter_left >= buffer_length) //if should be sufficient with current parameters (because 5 samples per time and bufferlength 10, but while is safer if this ever gets changed_
-		buffer_position_counter_left -= buffer_length;
-	while (buffer_position_counter_right >= buffer_length)
-		buffer_position_counter_right -= buffer_length;
-	values_left->buffer_position_counter = buffer_position_counter_left;
-	values_right->buffer_position_counter = buffer_position_counter_right;
+	buffer_position_counter += nb_samples_to_do;
+	while (buffer_position_counter >= buffer_length) //if should be sufficient with current parameters (because 5 samples per time and bufferlength 10, but while is safer if this ever gets changed_
+		buffer_position_counter -= buffer_length;
+	values_left->buffer_position_counter = buffer_position_counter;
+	values_right->buffer_position_counter = buffer_position_counter;
 	values_left->buffersum = buffersum_left;
 	values_right->buffersum = buffersum_right;
 }

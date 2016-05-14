@@ -55,6 +55,8 @@ unsigned char largeCryptoBuffer[15 * NB_OF_SMALL_BUFFERS_IN_LARGE + 45];  //TODO
 short placeInLargeBuffer=0;
 short wavbuffer[BUFFERSIZE];
 
+char stillMono = 1;
+int i;
 
 
 inline void quantizeBands(short* start, struct chunk* theChunk){
@@ -107,6 +109,7 @@ inline void quantizeBands(short* start, struct chunk* theChunk){
 			&HighParams, &HighStartValuesRightQuantize);
 
 }
+
 inline void dequantizeBands(short *buffer){
 	dequantize(buffer, buffer, 5, &LowLowParams, &LowLowStartValuesLeftDequantize);
 	dequantize(buffer + 5 , buffer + 5, 5, &LowLowParams, &LowLowStartValuesRightDequantize);
@@ -168,6 +171,17 @@ int main(int argc, char *argv[]){
 			}
 			bufPos += read/2;
 
+			if(stillMono){ //Check if new buffer is still mono
+				for(i=0; i < BUFFERSIZE_DIV2; i++){
+					if(wavbuffer[2*i] != wavbuffer[2*i+1]){
+						stillMono = 0;
+						break;
+					}
+				}
+			}
+			if(stillMono){
+
+			}
 			analysis(wavbuffer, &historyChunkAnalysis);
 			quantizeBands((short *) (largeCryptoBuffer + placeInLargeBuffer), &historyChunkAnalysis);
 
