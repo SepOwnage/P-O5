@@ -4,6 +4,7 @@
 #include "globals.h"
 #include "wavpcm_io.h"
 #include "synthesis.h"
+#include "quantizeStructs.h"
 #include "quantizeTogether.h"
 #include "dequantizeTogether.h"
 #include "bitManipulation.h"
@@ -18,7 +19,7 @@
 #include "crypto/cryptoMain.h"
 #endif
 
-#define cheatMono
+
 #ifdef cheatMono
 #include "quantizeMono.h"
 #include "dequantizeMono.h"

@@ -1,4 +1,8 @@
+#define cheatMono
+//#define CRYPTO
 
+#ifndef GLOBALS_DEFINED
+#define GLOBALS_DEFINED
 typedef int size32_t;
 typedef long size40_t;
 typedef short size16_t;
@@ -31,3 +35,4 @@ extern short filter2Even[LENGTH_FILTER2_HALF];
 extern short filter2Odd[LENGTH_FILTER2_HALF];
 extern short filter3Even[LENGTH_FILTER2_HALF];
 extern short filter3Odd[LENGTH_FILTER2_HALF];
+#endif
