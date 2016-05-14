@@ -4,7 +4,8 @@
 #include "globals.h"
 #include "wavpcm_io.h"
 #include "synthesis.h"
-#include "quantize.h"
+//#include "quantize.h"
+#include "quantizeTogether.h"
 #include "dequantize.h"
 #include "bitManipulation.h"
 #include <time.h>
@@ -57,7 +58,7 @@ short wavbuffer[BUFFERSIZE];
 
 
 inline void quantizeBands(short* start, struct chunk* theChunk){
-	quantize(start,
+	/*quantize(start,
 			theChunk->leftLowEven, theChunk->position2,
 			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 			5, &LowLowParams, &LowLowStartValuesLeftQuantize);
@@ -65,6 +66,7 @@ inline void quantizeBands(short* start, struct chunk* theChunk){
 			theChunk->rightLowEven, theChunk->position2,
 			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 			5, &LowLowParams, &LowLowStartValuesRightQuantize);
+
 	quantize(start + 10,
 			theChunk->leftLowOdd, theChunk->position2,
 			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
@@ -81,6 +83,29 @@ inline void quantizeBands(short* start, struct chunk* theChunk){
 			theChunk->rightHighEven, theChunk->position2,
 			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 			5, &HighParams, &HighStartValuesRightQuantize);
+	*/
+	  	quantizeTogether(start,
+			theChunk->leftLowEven, theChunk->position2,
+			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
+			5, &LowLowParams, &LowLowStartValuesLeftQuantize,start + 5,
+			theChunk->rightLowEven, theChunk->position2,
+			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
+			&LowLowParams, &LowLowStartValuesRightQuantize);
+	quantizeTogether(start + 10,
+			theChunk->leftLowOdd, theChunk->position2,
+			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
+			5, &LowHighParams, &LowHighStartValuesLeftQuantize,start + 15,
+			theChunk->rightLowOdd, theChunk->position2,
+			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
+			&LowHighParams, &LowHighStartValuesRightQuantize);
+	quantizeTogether(start + 20,
+			theChunk->leftHighEven, theChunk->position2,
+			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
+			5, &HighParams, &HighStartValuesLeftQuantize,start + 25,
+			theChunk->rightHighEven, theChunk->position2,
+			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
+			&HighParams, &HighStartValuesRightQuantize);
+
 }
 inline void dequantizeBands(short *buffer){
 	dequantize(buffer, buffer, 5, &LowLowParams, &LowLowStartValuesLeftDequantize);
