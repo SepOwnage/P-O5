@@ -22,34 +22,30 @@ void quantizeTogether(short * restrict quantized_differences_left, short * restr
 	// Variable declaration & initialisation
 	short phi = params_left->phi;
 	short mu = params_left->mu;
-	int two_mus = mu<<16|mu;
-	int two_phis = phi<<16|phi;
 	unsigned char buffer_length = params_left->buffer_length;
 	short maximum = params_left->maximum;
 	short minimum = -maximum -1;
 	short difference_left;
 	short difference_right;
-	int two_differences;
+	int *two_differences;
 	short quantized_difference_left;
 	short quantized_difference_right;
-	int two_quantized_differences;
 	short dequantized_difference_left;
 	short dequantized_difference_right;
-	int two_dequantized_differences;
+	int *two_dequantized_differences;
 	short dequantized_sample_left;
 	short dequantized_sample_right;
-	int two_dequantized_samples;
+	int *two_dequantized_samples;
 	short stepsize_left = values_left->stepsize;
 	short stepsize_right = values_right->stepsize;
-	int two_stepsizes;
+	int *two_stepsizes;
 	short prediction_left = values_left->prediction;
 	short prediction_right = values_right->prediction;
-	int two_predictions ;
+	int *two_predictions ;
 	unsigned int buffersum_left = values_left->buffersum; //Sum of the values in the buffer, used to calculate the stepsize
 	unsigned int buffersum_right = values_right->buffersum;
 	short prev_dequantized_sample_left = values_left->prev_dequantized_sample;
 	short prev_dequantized_sample_right = values_right->prev_dequantized_sample;
-	int two_prev_deq_samples = prev_dequantized_sample_left<<16|prev_dequantized_sample_right;
 	unsigned short * restrict buffer_left = values_left->buffer;
 	unsigned short * restrict buffer_right = values_right->buffer;
 	unsigned short buffer_position_counter = values_left->buffer_position_counter;
@@ -58,10 +54,9 @@ void quantizeTogether(short * restrict quantized_differences_left, short * restr
 	unsigned short * restrict endOfBuffer_left = buffer_left + buffer_length;
 	unsigned short * restrict endOfBuffer_right = buffer_right + buffer_length;
 	unsigned char i = 0; //loop counter
-	//short sample_left;
-	//short sample_right;
-	int two_samples;
-
+	short sample_left;
+	short sample_right;
+	int *two_samples;
 	short * restrict samplepointer_left = start_of_samples_array_left + start_position_in_samples_array_left;
 	short * restrict samplepointer_right = start_of_samples_array_right + start_position_in_samples_array_right;
 	short * restrict endOfSamplesArray_left = start_of_samples_array_left + length_of_samples_array_left;
@@ -69,9 +64,17 @@ void quantizeTogether(short * restrict quantized_differences_left, short * restr
 	unsigned int stepsize_lower, stepsize_upper, buffersum_phi_product_left, buffersum_phi_product_right;
 
 
+	two_differences= (int *) &difference_right;
+	two_dequantized_differences = (int*) &dequantized_difference_right;
+	two_dequantized_samples = (int*) &dequantized_sample_right;
+	two_samples = (int *) &sample_right;
+	two_predictions = (int*) &prediction_right;
+	two_stepsizes = (int*) &stepsize_right;
+
 #pragma MUST_ITERATE(5,5,5)
 	for (; i < nb_samples_to_do; i++) {
-		two_samples = _spack2(*samplepointer_left,*samplepointer_right);
+		sample_left = *samplepointer_left;
+		sample_right = *samplepointer_right;
 		samplepointer_left++;
 		samplepointer_right++;
 		if(samplepointer_left == endOfSamplesArray_left) //Assume this happens for the right part too
@@ -80,9 +83,9 @@ void quantizeTogether(short * restrict quantized_differences_left, short * restr
 
 
 		//Calculate the difference between the sample and the prediction. Quantize this and write to output
-		two_differences = _sub2(two_samples, two_predictions);
-		difference_left = two_differences>>16;
-		difference_right = two_differences;
+		*two_differences = _sub2(*two_samples, *two_predictions);
+		//difference_left = sample_left - prediction_left;
+		//difference_right = sample_right - prediction_right;
 
 		if (difference_left > 0) {
 			quantized_difference_left = -1;
@@ -116,33 +119,25 @@ void quantizeTogether(short * restrict quantized_differences_left, short * restr
 		*(quantized_differences_left++) = quantized_difference_left;
 		*(quantized_differences_right++) = quantized_difference_left;
 
-		two_quantized_differences = _spack2(quantized_difference_left,quantized_difference_right);
-
 		//Dequantize and use this parameter instead of 'difference', since the dequantizer only has access to this parameter and not to 'difference'
-		two_dequantized_differences = _mpy2(two_quantized_differences, two_stepsizes);
+		*two_dequantized_differences = _mpy2(*two_quantized_differences, *two_stepsizes);
 		//dequantized_difference_left = quantized_difference_left * stepsize_left;
 		//dequantized_difference_right = quantized_difference_right * stepsize_right;
 
 		//Update prediction
-		//dequantized_sample_left = dequantized_difference_left + prediction_left;
-		//dequantized_sample_right = dequantized_difference_right + prediction_right;
-		two_dequantized_samples = _add2(two_dequantized_differences, two_predictions);
-
-		two_predictions = _sub2(two_dequantized_samples, _shr2(_mpy2(two_mus, two_prev_deq_samples),15));
-		/*prediction_left = dequantized_sample_left - (mu * prev_dequantized_sample_left)/(1<<15);
+		dequantized_sample_left = dequantized_difference_left + prediction_left;
+		dequantized_sample_right = dequantized_difference_right + prediction_right;
+		*two_dequantized_samples = _add2(*two_dequantized_differences, *two_predictions);
+		prediction_left = dequantized_sample_left - (mu * prev_dequantized_sample_left)/(1<<15);
 		prediction_right = dequantized_sample_right - (mu * prev_dequantized_sample_right)/(1<<15);
 		prev_dequantized_sample_left = dequantized_sample_left;
-		prev_dequantized_sample_right = dequantized_sample_right;*/
-		two_prev_deq_samples=two_dequantized_samples;
-		two_dequantized_differences = _abs2(two_dequantized_differences);
+		prev_dequantized_sample_right = dequantized_sample_right;
 
-		//dequantized_difference_left = abs(dequantized_difference_left);
-		//dequantized_difference_right = abs(dequantized_difference_right);
+		dequantized_difference_left = abs(dequantized_difference_left);
+		dequantized_difference_right = abs(dequantized_difference_right);
 
 
 		//update the buffersum (=> var => stepsize ) and the buffer itself
-		dequantized_difference_left = two_dequantized_differences>>16;
-		dequantized_difference_right = two_dequantized_differences;
 		buffersum_left = buffersum_left - *(bufferSamplePointer_left) + dequantized_difference_left; //Update buffersum
 		buffersum_right = buffersum_right - *(bufferSamplePointer_right) + dequantized_difference_right;
 		*(bufferSamplePointer_left) = dequantized_difference_left; //Update buffer
@@ -175,7 +170,7 @@ void quantizeTogether(short * restrict quantized_differences_left, short * restr
 				stepsize_right = (stepsize_lower + stepsize_upper) >> 1;
 			}
 		}
-		two_stepsizes = _spack2(stepsize_left, stepsize_right);
+
 
 		//increment the buffer position
 		bufferSamplePointer_left++;
