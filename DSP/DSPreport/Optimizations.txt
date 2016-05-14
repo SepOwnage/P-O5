@@ -54,3 +54,8 @@ Processor specific:
 memory. Syntax as follows:
 	#TODO check casten van pointer van largecryptobuffer
 	#TODO wa intrinsics zetten dan zijn ze blij
+
+
+
+MUSTITERATE in copy loop van convolve 44000->31000  UNROLL(21) er bij maakt het trager! (instructiecache ofzo???)
+changed  unroll(16) naar unroll(4) voor convolve -> 431000->301000

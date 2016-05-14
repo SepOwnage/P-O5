@@ -16,7 +16,9 @@ void addBufferToHistory(short buffer[BUFFERSIZE], struct chunk *historyChunk){
 		(historyChunk->position1) = ((historyChunk->position1) +1) % (BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF);
 	}
 }
-
+//unsigned char somespace = 5;
+//#pragma DATA_ALIGN(temp_left,2)
+//#pragma DATA_ALIGN(temp_right,2)
 short temp_left[BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF] = {0};
 short temp_right[BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF] = {0};
 
@@ -54,15 +56,18 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 
 	short * restrict temp_left_pointer = temp_left;
 	short * restrict temp_right_pointer = temp_right;
-
+	//somespace+=1;
 	samplepointer_left = input_left + inputOffset;
 	samplepointer_right = input_right + inputOffset;
+
+#pragma MUST_ITERATE(21,42,21)
 	for(i=0; i < inputL; i++){
 		*temp_left_pointer = *samplepointer_left;
 		*temp_right_pointer = *samplepointer_right;
 		samplepointer_left++;
 		samplepointer_right++;
 		if(samplepointer_left >= endOfInputArray){
+
 			samplepointer_left = input_left;
 			samplepointer_right = input_right;
 		}
@@ -83,7 +88,7 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 		samplepointer_right = temp_right_pointer + j;
 
 #pragma MUST_ITERATE(16,32,16)
-#pragma UNROLL(16)
+#pragma UNROLL(4)
 
 		for(i=0;i<filterL;i++){
 			result_left += samplepointer_left[i+1] * reversedFilter[i];
