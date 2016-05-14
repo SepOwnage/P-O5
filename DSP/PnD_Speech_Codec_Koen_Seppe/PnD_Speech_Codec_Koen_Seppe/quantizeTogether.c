@@ -6,7 +6,7 @@ void quantizeTogether(short * restrict quantized_differences_left, short * restr
 	unsigned char start_position_in_samples_array_left, unsigned char length_of_samples_array_left,
 	unsigned char nb_samples_to_do, struct parameters *params_left, struct start_values *values_left,
 	short * restrict quantized_differences_right, short * restrict start_of_samples_array_right,
-		unsigned char start_position_in_samples_array_right, unsigned char length_of_samples_array_right, struct parameters *params_right, struct start_values *values_right) {
+		unsigned char start_position_in_samples_array_right, unsigned char length_of_samples_array_right, struct start_values *values_right) {
 
 	/*
 	Quantizes the inputs with an adaptive, differential quantization scheme.

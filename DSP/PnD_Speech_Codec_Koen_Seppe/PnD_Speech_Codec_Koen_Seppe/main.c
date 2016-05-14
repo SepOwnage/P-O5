@@ -4,9 +4,8 @@
 #include "globals.h"
 #include "wavpcm_io.h"
 #include "synthesis.h"
-//#include "quantize.h"
 #include "quantizeTogether.h"
-#include "dequantize.h"
+#include "dequantizeTogether.h"
 #include "bitManipulation.h"
 #include <time.h>
 
@@ -17,6 +16,12 @@
 #include "crypto/aes.h"
 #include "crypto/CCM.h"
 #include "crypto/cryptoMain.h"
+#endif
+
+#define cheatMono
+#ifdef cheatMono
+#include "quantizeMono.h"
+#include "dequantizeMono.h"
 #endif
 #define NB_OF_SMALL_BUFFERS_IN_LARGE 40
 
@@ -55,68 +60,70 @@ unsigned char largeCryptoBuffer[15 * NB_OF_SMALL_BUFFERS_IN_LARGE + 45];  //TODO
 short placeInLargeBuffer=0;
 short wavbuffer[BUFFERSIZE];
 
+#ifdef cheatMono
 char stillMono = 1;
 int i;
+inline void quantizeBandsMono(short* start, struct chunk* theChunk){
+  	quantizeMono(start,
+		theChunk->leftLowEven, theChunk->position2,
+		BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
+		5, &LowLowParams, &LowLowStartValuesLeftQuantize,start + 5,
+		theChunk->rightLowEven, theChunk->position2,
+		BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
+		&LowLowStartValuesRightQuantize);
+  	quantizeMono(start + 10,
+		theChunk->leftLowOdd, theChunk->position2,
+		BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
+		5, &LowHighParams, &LowHighStartValuesLeftQuantize,start + 15,
+		theChunk->rightLowOdd, theChunk->position2,
+		BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
+		&LowHighStartValuesRightQuantize);
+  	quantizeMono(start + 20,
+		theChunk->leftHighEven, theChunk->position2,
+		BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
+		5, &HighParams, &HighStartValuesLeftQuantize,start + 25,
+		theChunk->rightHighEven, theChunk->position2,
+		BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
+		&HighStartValuesRightQuantize);
+}
+inline void dequantizeBandsMono(short *buffer){
+	dequantizeMono(buffer, buffer, 5, &LowLowParams, &LowLowStartValuesLeftDequantize,buffer + 5 , buffer + 5, &LowLowStartValuesRightDequantize);
+	dequantizeMono(buffer + 10, buffer + 10, 5, &LowHighParams, &LowHighStartValuesLeftDequantize,buffer + 15, buffer + 15, &LowHighStartValuesRightDequantize);
+	dequantizeMono(buffer + 20, buffer + 20, 5, &HighParams, &HighStartValuesLeftDequantize,buffer + 25, buffer + 25, &HighStartValuesRightDequantize);
+}
+#endif
 
 
 inline void quantizeBands(short* start, struct chunk* theChunk){
-	/*quantize(start,
-			theChunk->leftLowEven, theChunk->position2,
-			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
-			5, &LowLowParams, &LowLowStartValuesLeftQuantize);
-	quantize(start + 5,
-			theChunk->rightLowEven, theChunk->position2,
-			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
-			5, &LowLowParams, &LowLowStartValuesRightQuantize);
-
-	quantize(start + 10,
-			theChunk->leftLowOdd, theChunk->position2,
-			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
-			5, &LowHighParams, &LowHighStartValuesLeftQuantize);
-	quantize(start + 15,
-			theChunk->rightLowOdd, theChunk->position2,
-			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
-			5, &LowHighParams, &LowHighStartValuesRightQuantize);
-	quantize(start + 20,
-			theChunk->leftHighEven, theChunk->position2,
-			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
-			5, &HighParams, &HighStartValuesLeftQuantize);
-	quantize(start + 25,
-			theChunk->rightHighEven, theChunk->position2,
-			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
-			5, &HighParams, &HighStartValuesRightQuantize);
-	*/
 	  	quantizeTogether(start,
 			theChunk->leftLowEven, theChunk->position2,
 			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 			5, &LowLowParams, &LowLowStartValuesLeftQuantize,start + 5,
 			theChunk->rightLowEven, theChunk->position2,
 			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
-			&LowLowParams, &LowLowStartValuesRightQuantize);
+			&LowLowStartValuesRightQuantize);
 	quantizeTogether(start + 10,
 			theChunk->leftLowOdd, theChunk->position2,
 			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 			5, &LowHighParams, &LowHighStartValuesLeftQuantize,start + 15,
 			theChunk->rightLowOdd, theChunk->position2,
 			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
-			&LowHighParams, &LowHighStartValuesRightQuantize);
+			&LowHighStartValuesRightQuantize);
 	quantizeTogether(start + 20,
 			theChunk->leftHighEven, theChunk->position2,
 			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 			5, &HighParams, &HighStartValuesLeftQuantize,start + 25,
 			theChunk->rightHighEven, theChunk->position2,
 			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
-			&HighParams, &HighStartValuesRightQuantize);
+			&HighStartValuesRightQuantize);
 
 }
 
+
 inline void dequantizeBands(short *buffer){
-	dequantize(buffer, buffer, 5, &LowLowParams, &LowLowStartValuesLeftDequantize);
-	dequantize(buffer + 5 , buffer + 5, 5, &LowLowParams, &LowLowStartValuesRightDequantize);
-	dequantize(buffer + 10, buffer + 10, 5, &LowHighParams, &LowHighStartValuesLeftDequantize);
-	dequantize(buffer + 15, buffer + 15, 5, &LowHighParams, &LowHighStartValuesRightDequantize);
-	dequantize(buffer + 20, buffer + 20, 5, &HighParams, &HighStartValuesLeftDequantize);
-	dequantize(buffer + 25, buffer + 25, 5, &HighParams, &HighStartValuesRightDequantize);
+	dequantizeTogether(buffer, buffer, 5, &LowLowParams, &LowLowStartValuesLeftDequantize,buffer + 5 , buffer + 5, &LowLowStartValuesRightDequantize);
+	dequantizeTogether(buffer + 10, buffer + 10, 5, &LowHighParams, &LowHighStartValuesLeftDequantize,buffer + 15, buffer + 15, &LowHighStartValuesRightDequantize);
+	dequantizeTogether(buffer + 20, buffer + 20, 5, &HighParams, &HighStartValuesLeftDequantize,buffer + 25, buffer + 25, &HighStartValuesRightDequantize);
 }
 
 struct wavpcm_input input;
@@ -171,6 +178,8 @@ int main(int argc, char *argv[]){
 			}
 			bufPos += read/2;
 
+			analysis(wavbuffer, &historyChunkAnalysis);
+#ifdef cheatMono
 			if(stillMono){ //Check if new buffer is still mono
 				for(i=0; i < BUFFERSIZE_DIV2; i++){
 					if(wavbuffer[2*i] != wavbuffer[2*i+1]){
@@ -179,12 +188,14 @@ int main(int argc, char *argv[]){
 					}
 				}
 			}
-			if(stillMono){
-
-			}
-			analysis(wavbuffer, &historyChunkAnalysis);
+			if(stillMono){ //if still mono, use it to cheat (de)quantize
+				quantizeBandsMono((short *) (largeCryptoBuffer + placeInLargeBuffer), &historyChunkAnalysis);
+			}else{
+#endif
 			quantizeBands((short *) (largeCryptoBuffer + placeInLargeBuffer), &historyChunkAnalysis);
-
+#ifdef cheatMono
+			}
+#endif
 			compress30Samples((short *) (largeCryptoBuffer + placeInLargeBuffer));
 
 			placeInLargeBuffer += 15;
@@ -203,8 +214,15 @@ int main(int argc, char *argv[]){
 
 			decompress30samples((largeCryptoBuffer + placeInLargeBuffer), wavbuffer);
 
-			dequantizeBands(wavbuffer);
-
+#ifdef cheatMono
+			if(stillMono){ //if still mono, use it to cheat (de)quantize
+				dequantizeBandsMono(wavbuffer);
+			}else{
+#endif
+				dequantizeBands(wavbuffer);
+#ifdef cheatMono
+			}
+#endif
 			synthesis(wavbuffer,
 				wavbuffer, wavbuffer + 10, wavbuffer + 20, wavbuffer + 5, wavbuffer + 15, wavbuffer + 25,
 				&historyChunkSynthesis);
