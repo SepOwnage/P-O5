@@ -9,7 +9,6 @@
 #include "bitManipulation.h"
 #include <time.h>
 
-#define CRYPTO
 #ifdef CRYPTO
 #include "crypto/global.h"
 #include "crypto/util.h"
