@@ -19,7 +19,6 @@
 #include "crypto/cryptoMain.h"
 #endif
 
-
 #ifdef cheatMono
 #include "quantizeMono.h"
 #include "dequantizeMono.h"
