@@ -1,6 +1,5 @@
 #include "globals.h"
-#include "quantizeTogether.h"
-#include <stdio.h>
+#include "quantizeStructs.h"
 
 void quantizeMono(short * restrict quantized_differences_left, short * restrict start_of_samples_array_left,
 	unsigned char start_position_in_samples_array_left, unsigned char length_of_samples_array_left,

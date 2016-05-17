@@ -1,4 +1,4 @@
-#define cheatMono
+//#define cheatMono
 //#define CRYPTO
 
 #ifndef GLOBALS_DEFINED
