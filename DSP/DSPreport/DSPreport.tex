@@ -198,7 +198,7 @@ depth 2 &  15 & • & 15  \\
 \caption{Current scaling parameters (\#bits to shift)}
 \label{tab:scalingparameters}
 \end{table}
-Lower subbands have more bits per sample, since they are more important to the human hearing. Notice that the highest frequencies are simply thrown away. Finding the other values started by chosing the values for the scaling, because these give very high differences in PESQ scores. One division by 2 (one bitshift) too many results in a lower amplitude of the signal, one too few leads to clipping and thus distortion. Next the buffer\_lengths were changed. The length for the lowest frequency made a large difference. The others did not have much influence and were thus set to the same value for easy implementation. From this point on $\mu$, $\phi$ and buffer\_length values were changed one by one, always selecting a value that increased the average PESQ score. This lead to mentioned values.\\
+Lower subbands have more bits per sample, since they are more important to the human hearing. Notice that the highest frequencies are simply thrown away. Finding the other values started by chosing the values for the scaling, because these give very high differences in PESQ scores. One division by 2 (one bitshift) too many results in a lower amplitude of the signal, one too few leads to clipping and thus distortion. Next the buffer\_lengths were changed. The length for the lowest frequency made a large difference. The others did not have much influence and were thus set to the same value for easy implementation. From this point on $\mu$, $\phi$ and buffer\_length values were changed one by one, always selecting a value that increased the average PESQ score. It is comparable to a greedy optimizing algorithm. This way lead to mentioned values.\\
 
 \subsection{SNR \& PESQ score}
 The perceptual metric PESQ is used to grade the quality of the codec. It was decided to use PESQ instead of SNR since it takes features of the human hearing into account (such as masking). This is why the optimal values are chosen on basis of PESQ scores, and SNR is mainly ignored.\\
@@ -276,7 +276,7 @@ C rounds the result of a division by shift towards zero &
 \label{tbl:roundingassumptions}
 \end{table}
 
-\subsection{Execution order}
+\subsubsection{Execution order}
 The MATLAB implementation is just for quality testing, for which the complete input signal can be known at starting time. Therefore, a whole .wav-file can be and is loaded at the start. Each intermediate signal, e.g. the result of a convolution, is calculated over the full length of the signal at once. Only after the full signal is calculated, it is passed to further calculations. This simplifies the code. The C code however, targets a real time-application. The complete input signal is thus not known beforehand. Waiting until the complete signal is received is impossible, because the delay would be unacceptable and the length of the input is not bounded. Therefore, the C code works buffer per buffer. It reads a specified amount of values and saves them in a buffer. On this buffer, all calculations are performed and the final output is received immediately without waiting for the rest of the signal. When the final output for the current buffer is calculated, a new buffer is read. The delay is thus no more than the time it takes to fill the buffer added to the intrinsic delay of the filterbank. The time needed to calculate the output of an input buffer should be negligible. \\
 
 The analysis and synthesis functions do not only require the samples of the current buffer, but also older samples and older intermediate values to do the convolutions. The quantization and dequantization functions require previous samples to calculate the moving average. To do this, both functions use a structure containing previous samples.
@@ -455,7 +455,8 @@ Extra session & Change some unrolls, must\_iterates & Global & 3.6M & 3.2M & 11 
 \end{table}
 
 \section{Application description}
-The structure of the C/DSP code is the same as the MATLAB structure. The .c-files are largely the same as the MATLAB files. A difference is that for the DSP version, we use \texttt{quantizeTogether} and \texttt{dequantizeTogether} instead of texttt{quantize} and texttt{dequantize}, because this is more efficient.
+The structure of the C/DSP code is the same as the MATLAB structure. The .c-files are largely the same as the MATLAB files. Some small extra functions were made to transfer data or sum arrays. All functions are well documented, so please refer to this documentation for further explanation of their function and use. Another difference is that for the DSP version, we use \texttt{quantizeTogether} and \texttt{dequantizeTogether} instead of \texttt{quantize} and \texttt{dequantize}, because this is more efficient.
+
 The application is executed by running main.c. Enabling the cryptography part from another group and enabling cheating mono input signals is done by defining 'CRYPTO' and 'cheatMono' respectively, as can be seen in globals.h. The input and output .wav-file can also be specified in globals.h.
 
 \section{Porting and integration}
@@ -472,15 +473,21 @@ These are three things that we will remember from this project:
 \item Initializing variables is important and can easily be forgotten for some variables.
 \item Simply reducing variable types can result in quick but impactful optimizations.
 \item Always check if the hardware (DSP) that you get is configured correctly.
+\item When optimizing code for the DSP, the effects of changes are not always predictable.
 \end{itemize}
 
 \section{Conclusions}
 This was the final report for the P\&D assignment on creating a speech codec. A speech codec has been succesfully created and works on the DSP simulator, but sadly not in real-time. \\
-The paper first explained the key concepts of the codec: QMF subband splitting and adaptive differential quantization. Then, the MATLAB implementation was thoroughly explained: what every function does, on what the PESQ score was based and how the optimal parameter values were found, followed by an evaluation of the MATLAB code. \\
-Next, the transition to C code was covered: the differences between MATLAB and C (mainly the execution order), the preparation to integrate with an encryption group (e.g. compressing) and the performance enhacements that were made, followed by an evaluation of this C implementation. \\
-Finally, there was a transition from C to the DSP simulator and eventually to the DSP itself. The paper discussed the optimizations that were made to make the code more efficient, the actual porting onto the simulator and the DSP and the integratino with the crypto group.
-Lastly, this paper ends with the lessons that we learned and a personal course evaluation.\\
-If one were to work further on this project, a good thing to do would be to implement more intrinsics. When used correctly, these specialised lowest-level instructions are capable or speeding up the system quite a bit.
+
+The paper first explained the key concepts of the codec: QMF subband splitting and adaptive differential quantization. Then, the MATLAB implementation was thoroughly explained. The paper explained that during optimizing, a high average PESQ score was targetted and that optimizing was done by hand, changing the values in greedy like approach. The achieved PESQ scores ranged from 3.00 to 3.54, depending on the file. This indicates decent performance.\\
+
+Next, the transition to C code was covered. The execution order and loss of flexibility were identified as differences between the MATLAB and C implementations. The paper explained the use of the new compress and decompress functions which pack and unpack the usefull bits, as preparation to integrate with an encryption group. It also addressed performance enhancements that were made before porting to a DSP. These sped up the code by a factor of 2. \\
+
+Finally, there was a transition from C to the DSP simulator and eventually to the DSP itself. The actual porting onto the simulator and the integration with the crypto group did not raise problems. Running it on the actual DSP did cause some headaches though, caused by not proper initializing all variables and a wrongly configured DSP. The paper discussed the optimizations that were made to make the code more efficient, leading to another speed-up factor of 6.8. The main optimizations leading to this factor are smaller variable types and elimination of calls to division and reminder functions. More classical 'tricks' to improve performance, like pragmas and intrinsics, did not seem to help as much on our code.\\
+
+Finally, this paper ends with the lessons that we learned and a personal course evaluation. \\
+
+If one were to work further on this project, a good thing to do would be to implement more intrinsics. When used correctly, these specialised lowest-level instructions are capable or speeding up the system quite a bit. However, for this to be possible, the high level structure of the code may have to be changed.
 
 \section{Course evaluation}
 Overall, we enjoyed working on this project. The workload is okay and the topic is interesting. The supervision was good for the C and DSP part, but lacked for the MATLAB part.
