@@ -200,7 +200,6 @@ depth 2 &  15 & • & 15  \\
 Lower subbands have more bits per sample, since they are more important to the human hearing. Notice that the highest frequencies are simply thrown away. Finding the other values started by chosing the values for the scaling, because these give very high differences in PESQ scores. One division by 2 (one bitshift) too many results in a lower amplitude of the signal, one too few leads to clipping and thus distortion. Next the buffer\_lengths were changed. The length for the lowest frequency made a large difference. The others did not have much influence and were thus set to the same value for easy implementation. From this point on $\mu$, $\phi$ and buffer\_length values were changed one by one, always selecting a value that increased the average PESQ score. This lead to mentioned values.\\
 
 \subsection{SNR \& PESQ score}
-\mytodo{update?}
 The perceptual metric PESQ is used to grade the quality of the codec. It was decided to use PESQ instead of SNR since it takes features of the human hearing into account (such as masking). This is why the optimal values are chosen on basis of PESQ scores, and SNR is mainly ignored.\\
 
 \begin{table}[bth]
@@ -230,16 +229,14 @@ The filters used in the QMF filter bank lead to a delay. For each depth in the f
 delay = \frac{(64-1)}{8000 Hz} + \frac{(32-1)}{4000 Hz} = 15.625 ms.
 \end{equation*}
 
-\section{MATLAB conclusion}
-\mytodo{see if there's anything useful in the matlab conclusion and use this to end the matlab part of this paper}
+\section{Evaluation of MATLAB code}
+All MATLAB functions work with fixed point values. This simulates the working on a DSP. All performance results should therefore not change when the system is run on a DSP. The achieved PESQ scores (3.00 to 3.54) were shown and indicate decent performance. The optimal values of the parameters were found by searching for the highest PESQ score by changing the parameters. Finally, the inherent delay of the implementation was briefly discussed and calculated to be less than $16ms$. This leaves $134ms$ for the encryption and decryption, processing and other kinds of buffering.\\
 
-\section{C code}
-\mytodo{maybe include this in matlab conclusion}
-Having written a MATLAB model for the codec, it is now time to translate this code into an efficient implementation in C, which can later on be used on a Digital Signal Processor.
+While translating the MATLAB code to C (see below), it became clear that although the MATLAB code can use asymetric filter banks, it is not implemented properly: a path with less filters or filters of smaller order is not extra delayed to have the same delay as the longer path. This error is not fixed, since we decided not to use an asymmetric structure anyway.
 
 \section{C implementation on a PC}
+Given the MATLAB model for the codec, the next task is to translate this code into an efficient implementation in C. This can later on be ported onto a Digital Signal Processor.
 \subsection{Differences between the MATLAB and C implementation}\label{sec:differences}
-
 \subsubsection{Flexibility}
 The MATLAB code offers more flexibility than the C code. In MATLAB, even the structure of the analysis and synthesis filter banks (e.g. the amount of subbands) can be derived from given parameters. In C however, this structure is fixed in the code.\\
 
@@ -367,7 +364,8 @@ The optimized version is derived from the unoptimized by:
 \end{itemize}
 \end{minipage}
 
-\section{C conclusion}
+\subsection{Evaluation of the initial C implementation}
+The MATLAB code is successfully translated to a C implementation. Both implementations produce the exact same output. Changes made to the MATLAB code to make its rounding mechanism the same as C's and vice versa are explained. Above text also illustrated why the C implementation is less flexible and works buffer per buffer. Next, it explained that bitwise operations were used in order to group useful bits. This is new in the C implementation: there is no equivalent in MATLAB. This is a preparation to communicate with an encryption algorithm, which will be provided by another group in the near future. The above text also handled about saving memory by using functions that work in-place, and about saving execution time. The latter was realized by profiling the code, and optimizing the critical inner loop of the \texttt{convolve} function. This enhanced execution time with approximately a factor 2. Previous text also explained how both the buffer per buffer execution order and the use of pointers made debugging harder, and the measure taken to facilitate this.
 
 \section{Digital Signal Processor}
 \mytodo{maybe include this in matlab conclusion}
