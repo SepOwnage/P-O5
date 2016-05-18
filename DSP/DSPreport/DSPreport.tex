@@ -31,7 +31,6 @@ uitleggen doel = porting en real time running on dsp
 
 check overlapp met intro. Wat waar ?  combine?
 \subsection{Main design specifications}
-\mytodo{mention max cycle count/something}		
 The following list contains the specifications that the design of the codec has to meet.
 
 \begin{itemize}
@@ -42,6 +41,7 @@ The following list contains the specifications that the design of the codec has 
 \item An adaptive differential quantization scheme should be used for every subband signal
 \item The filterbank of the codec consists of a minimum of 4 subbands
 \item The total delay of the coder and decoder must not exceed a certain threshold: the entire one way communication delay (ADC, coding, encryption, decryption, decoding, DAC) should be less than 150 ms. This puts a maximum on the number of subbands, on the complexity of the filters and on the buffer size in the cryptography section. Note that the encryption and decryption functionality is provided by another group and is not a part of this assignment.
+\item When running on the DSP, each stereo sample must be processed in less than 25000 cycles for real-time performance
 
 \end{itemize}
 \section{Splitting into subbands: QMF}
@@ -119,9 +119,9 @@ This section gives a brief explanation of the used MATLAB files and their functi
 This script can be run to generate parameters used to call run.m
 
 \subsection{run.m}
-This is the main function used to divide an audio file into subbands, encode and decode those subbands, and synthesize them again to create an audio signal that closely resembles the original signal. Accepted audio files are .wav-files that are stereo or pairwise mono. The input audio file that should be used, has to be named 'input.wav'.\\
+This is the main function used to divide an audio file into subbands, quantize and dequantize those subbands, and synthesize them again to create an audio signal that closely resembles the original signal. Accepted audio files are .wav-files that are stereo or pairwise mono. The input audio file that should be used is passed as an argument.\\
 
-The input is scaled to a 16-bit signed integer. The input is then split into subbands by calling analysis.m. These subbands are first encoded by calling encode.m. The result that is now obtained, is the signal that would be saved or transmitted in real use. Next, the function decodes the result by calling decode.m. Finally, calling synthesis.m recombines the subbands and the PESQ score for the reconstructed audio file is calculated. For this calculation, only one channel is considered, because in most of the test files the two channels are the same (effectively mono). Even when this is not the case, a noticeable increase of score in one channel should lead to a similar increase in the other for real life signals.
+The input is scaled to a 16-bit signed integer. The input is then split into subbands by calling analysis.m. These subbands are first quantized by calling quantize.m. The result that is now obtained, is the signal that would be saved or transmitted in real use. Next, the function dequantizes the result by calling dequantize.m. Finally, calling synthesis.m recombines the subbands and the PESQ score for the reconstructed audio file is calculated. For this calculation, only one channel is considered, because in most of the test files the two channels are the same (effectively mono). Even when this is not the case, a noticeable increase of score in one channel should lead to a similar increase in the other for real life signals.
 
 \subsection{analysis.m}
 This MATLAB function splits the stereo (or pairwise mono) channels into separate channels, and splits them into subbands by calling get\_subbands.m.
@@ -131,11 +131,11 @@ This function recursively splits an audio signal into its subbands. It does this
 
 Convolutions are used to apply the filters. Since this is a sum of products, the output values exceed the 16-bit range. The output must thus be downscaled again. This downscaling is done by division of a power of two, so it is easily implementable as a bit shift. The exponent of two can be chosen, as it is a parameter of this function. It should however be chosen with respect to the filter length: longer filters add more numbers, creating a larger result and thus the need for more downscaling. The choice of exponent gives rise to a trade-off between clipping and quantization noise. An exponent that is too small leads to the former, while a too large exponent leads to relatively larger quantization noise.
 
-\subsection{encode.m}
+\subsection{quantize.m}
 This function uses the earlier mentioned adaptive differential quantization method to compress an input signal. A parameter determines the maximum output and thereby the amount of bits needed. Larger values are clipped. This should be avoided by changing the other parameters. For analysis purposes, the function keeps track of the number of times the clippings happened. Input parameters $\phi$ and $\mu$ must be scaled to signed 16-bit integers.
 
-\subsection{decode.m}
-This function is the inverse of encode.m: it takes the output of the adaptive differential quantisation function and constructs s'(n), which approximate the original input signal s(n). Parameters $\phi$ and $\mu$ and 'buffer\_length' should be the same as those used for encoding with encode.m.
+\subsection{dequantize.m}
+This function is the inverse of quantize.m: it takes the output of the adaptive differential quantisation function and constructs s'(n), which approximate the original input signal s(n). Parameters $\phi$ and $\mu$ and 'buffer\_length' should be the same as those used for encoding with quantize.m.
 
 
 \subsection{synthesis.m}
@@ -143,7 +143,6 @@ This function is the inverse of get\_subbands.m: its inputs are the separate sub
 
 \section{Parameter values and their PESQ and SNR scores}
 \subsection{Proposed values of controllable parameters}
-\mytodo{update dees}
 This section handles all of the parameters that define the implementation of the speech codec. Please note that although these values are currently our optimal values, they may be subject to changes in the future. This can be because of changes in the code, or because better values are found by (brute force) searching.\\
 
 The QMF filters generated with the given function QMF\_design.m are characterized by the following parameters:
@@ -151,14 +150,14 @@ The QMF filters generated with the given function QMF\_design.m are characterize
 \begin{itemize}
 \item The sampling frequency, which is mandatory 8 kHz
 \item The total transition width of the prototype filter. This is default at a tenth of the sampling rate, and thus we have left it at 800
-\item The minimum stopband attenuation of the prototype filter, which we have left at the default value of 60 dB for the first filter and changed to 50dB for the following filters
+\item The minimum stopband attenuation of the prototype filter, which we changed to 300dB for the filter that further splits the high-frequency channel and to 50dB for the other two filters
 \item The frequency step for finding the optimal cut-off frequency, which we have left at the default value of 10
 \item The maximum number of iterations, which we have at 600
 \item The filter lengths, which we have at 64 for the filter at the first depth and 32 for the filters at the second depth. We have chosen these lengths as a compromise between filter quality and implementation delay
 \
 \end{itemize}
 
-The encoding parameters $\mu$, $\phi$, buffer\_length and the number of bits per sample can be different for each subband. The values for all these parameters are listed in tables \ref{tab:parametervalues}. Table \ref{tab:scalingparameters} shows the amount of scaling used after the convolutions in each QMF filter.
+The encoding parameters $\mu$, $\phi$, buffer\_length and the number of bits per sample can be different for each subband. The values for all these parameters are listed in table \ref{tab:parametervalues}. Table \ref{tab:scalingparameters} shows the amount of scaling used after the convolutions in each QMF filter.
 
 \begin{table}[h]
 \centering
@@ -166,8 +165,8 @@ The encoding parameters $\mu$, $\phi$, buffer\_length and the number of bits per
 band frequency & lowest & low & high & highest \\ 
 \hline 
 \#bits & 5 & 4 & 3 & 0 \\ 
-$\mu$ & 19660 & 1638 & 31129 & / \\  
-$\phi$ & 8192 & 16384 & 29490 & / \\  
+$\mu$ & 19660 & 328 & 31129 & / \\  
+$\phi$ & 5144 & 16384 & 29490 & / \\  
 buffer\_length & 10 & 10 & 10 & / \\  
 \hline 
 \end{tabular}
@@ -177,44 +176,53 @@ buffer\_length & 10 & 10 & 10 & / \\
 \begin{table}[h]
 \centering
 \begin{tabular}{c|ccc}
+\multicolumn{4}{c}{Analysis filter bank}\\
+\hline
+\hline
 scalings & lower frequencies & • &  higher frequencies \\ 
 \hline 
-depth 1 &  • & 17 & •  \\ 
-depth 2 &  15 & • & 16  \\ 
+depth 1 &  • & 15 & •  \\ 
+depth 2 &  15 & • & 15  \\ 
+\hline 
+\multicolumn{4}{c}{}\\
+\multicolumn{4}{c}{Synthesis filter bank}\\
+\hline 
+\hline
+scalings & lower frequencies & • &  higher frequencies \\ 
+\hline 
+depth 1 &  • & 13 & •  \\ 
+depth 2 &  15 & • & 15  \\ 
 \hline 
 \end{tabular} 
 \caption{Current scaling parameters (\#bits to shift)}
 \label{tab:scalingparameters}
 \end{table}
-Lower subbands have more bits per sample, since they are more important to the human hearing. Notice that the highest frequencies are simply thrown away. Finding the other values started by chosing the values for the scaling, because these give very high differences in PESQ scores. One division by 2 (one bitshift) too many results in a lower amplitude of the signal, one too few leads to clipping and thus distortion. Next the buffer\_lengths were changed. The length for the lowest frequency made a large difference. The others did not have much influence and were thus set to the same value for easy implementation. From this point on $\mu$, $\phi$ and buffer\_length values were changed one by one, always selecting a value that increased the PESQ score on combined\_8000\_short.wav. This lead to mentioned values.
+Lower subbands have more bits per sample, since they are more important to the human hearing. Notice that the highest frequencies are simply thrown away. Finding the other values started by chosing the values for the scaling, because these give very high differences in PESQ scores. One division by 2 (one bitshift) too many results in a lower amplitude of the signal, one too few leads to clipping and thus distortion. Next the buffer\_lengths were changed. The length for the lowest frequency made a large difference. The others did not have much influence and were thus set to the same value for easy implementation. From this point on $\mu$, $\phi$ and buffer\_length values were changed one by one, always selecting a value that increased the average PESQ score. This lead to mentioned values.\\
 
 \subsection{SNR \& PESQ score}
 \mytodo{update?}
-The perceptual metric PESQ is used to grade the quality of the codec. It was decided to use PESQ instead of SNR since it takes features of the human hearing into account (such as masking). This is why the optimal values are chosen on basis of PESQ scores, and SNR is mainly ignored.
+The perceptual metric PESQ is used to grade the quality of the codec. It was decided to use PESQ instead of SNR since it takes features of the human hearing into account (such as masking). This is why the optimal values are chosen on basis of PESQ scores, and SNR is mainly ignored.\\
 
 \begin{table}[bth]
 \begin{center}
 \begin{tabular}{ l|ll }
   File name & PESQ score & Segmental SNR \\
   \hline
-  belasting & 3.35 & 17.9\\
-  bir & 3.66 & 19.2\\
-  f116 & 3.04 & 14.3 \\
-  f216 & 2.97 & 17.8\\
-  m116 & 3.38 & 14.0\\
-  m216 & 3.43 & 14.0\\
-  words\_f & 3.46 & 19.1\\
-  words\_m & 3.28 & 18.2\\
-  combined\_8000\_short & 3.34 & 15.5 \\
-  combined\_8000 & 3.54 & 18.4\\
+  belasting & 3.41 & 17.44\\
+  bir & 3.51 & 17.59\\
+  f116 & 3.22 & 14.11 \\
+  f216 & 3.00 & 16.98\\
+  m116 & 3.29 & 13.26\\
+  m216 & 3.38 & 12.31\\
+  words\_f & 3.51 & 18.61\\
+  words\_m & 3.54 & 16.12\\
   \hline
 \end{tabular}
   \caption{PESQ and segmental SNR scores for different audio files}
 \label{tab:pesqscores}
 \end{center}
 \end{table}
-
-The parameters are optimized by maximizing the PESQ score for the audio file 'combined\_8000\_short.wav'. This is a combination of the audio files 'm116.wav', 'f116.wav' and 'f216.wav'. This is preferred to a single file, since it contains more variation as training data. All audio streams were delivered at 16kHz sampling rate, but the system is designed for 8kHz. Using Audacity, an anti-aliasing filter with 70dB attenuation for frequencies above 4kHz was applied to these audio files, before downsampling them to 8kHz. The values in table \ref{tab:pesqscores} are obtained using run.m with these downsampled versions.
+The parameters are optimized by maximizing the average PESQ score of the files in table \ref{tab:pesqscores}. This is preferred to a single file, since it contains more variation as training data. All files were equally weighted in the average. All audio streams were delivered at 16kHz sampling rate, but the system is designed for 8kHz. Using Audacity, an anti-aliasing filter with 70dB attenuation for frequencies above 4kHz was applied to these audio files, before downsampling them to 8kHz. The values in table \ref{tab:pesqscores} are obtained using run.m with these downsampled versions.
 
 \subsection{Inherent delay of the implementation}
 The filters used in the QMF filter bank lead to a delay. For each depth in the filterbank, the delay is given by $delay_i = (n_i-1) / sample\_rate_i$ with $i$ the depth, $n_i$ the amount of filter taps at this depth and $sample\_rate_i$ the sample rate at this depth, which is equal to the original sample rate divided by $2^{i-1}$. With filters of 64 and 32 taps, the delay becomes:
@@ -382,9 +390,9 @@ EN VOEG AFBEELDIGN TOE}\\
 After improving these functions, convolve was once again the bottleneck. \mytodo{
 Convolve:
 Division as shift:  46\% on convolve
-	 eliminates function call
+	 eliminates function call
 Original:
-Division for roundig to zero
+Division for roundig to zero
 New:
 Complex division as shift for rounding behaviour+speed
 EN VOEG AFBEELDING TOE}\\
