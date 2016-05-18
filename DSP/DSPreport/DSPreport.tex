@@ -485,14 +485,11 @@ well as the scope of optimizations\\
 coming years
 
 \section{Conclusions}
-\mytodo{Each team submits a final report as a PDF file. It contains an overview of the work and an evaluation of the course.
-This report is not a day-to-day overview of your activities; it is more an executive overview. It has to integrate the content of the intermediate reports and also has to elaborate on the topics listed in the DSP final report format document (under Projects/DSP optimization).
-
-The part about the course evaluation bundles the remarks and suggestions for improvement of the logistics as well as of the overall course planning.}
-
-\mytodo{if we had more time ... intrinsics etc.Why are we so slow?}
-\section{Appendix}
-List of your functions and in which files (.c, .h) are they declared \& defined, such that it can help the assistants going through the code (if needed)
-\end{document}
+This was the final report for the P\&D assignment on creating a speech codec. A speech codec has been succesfully created and works on the DSP simulator, but sadly not in real-time. \\
+The paper first explained the key concepts of the codec: QMF subband splitting and adaptive differential quantization. Then, the MATLAB implementation was thoroughly explained: what every function does, on what the PESQ score was based and how the optimal parameter values were found, followed by an evaluation of the MATLAB code. \\
+Next, the transition to C code was covered: the differences between MATLAB and C (mainly the execution order), the preparation to integrate with an encryption group (e.g. compressing) and the performance enhacements that were made, followed by an evaluation of this C implementation. \\
+Finally, there was a transition from C to the DSP simulator and eventually to the DSP itself. The paper discussed the optimizations that were made to make the code more efficient, the actual porting onto the simulator and the DSP and the integratino with the crypto group.
+Lastly, this paper ends with the lessons that we learned and a personal course evaluation.\\
+If one were to work further on this project, a good thing to do would be to implement more intrinsics. When used correctly, these specialised lowest-level instructions are capable or speeding up the system quite a bit.
 
 \end{document}
