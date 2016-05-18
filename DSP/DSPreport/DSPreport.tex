@@ -24,6 +24,333 @@
 
 \section{Introduction}
 
+\section{Project description}
+\subsection{Main design specifications}
+\mytodo{mention max cycle count/something}		
+The following list contains the specifications that the design of the codec has to meet.
+
+\begin{itemize}
+\item It accepts stereo signals
+\item The sampling frequency is 8 kHz
+\item The bit rate is 24 kbit/s per channel codec, with good to very good speech quality
+\item The implementation consists of a QMF tree-structured filterbank with polyphase implementation
+\item An adaptive differential quantization scheme should be used for every subband signal
+\item The filterbank of the codec consists of a minimum of 4 subbands
+\item The total delay of the coder and decoder must not exceed a certain threshold: the entire one way communication delay (ADC, coding, encryption, decryption, decoding, DAC) should be less than 150 ms. This puts a maximum on the number of subbands, on the complexity of the filters and on the buffer size in the cryptography section. Note that the encryption and decryption functionality is provided by another group and is not a part of this assignment.
+
+\end{itemize}
+\section{Splitting into subbands: QMF}
+An input audio stream is split into subbands by using a Quadrature Mirror Filter bank.
+A QMF filter bank consists of a low-pass and high-pass filter $H_0(z)$ and $H_1(z)$. These split the audio file into a low-frequency and a high-frequency part. Such filter bank is used to efficiently create a two-way filter bank. A recursive implementation is used to split an audio file into four subbands as shown by figure \ref{fig:qmfrecursive}.\\
+\begin{figure}[hbt]
+\includegraphics[width = \textwidth]{qmfrecursive}
+\caption{four subbands QMF filter bank}
+\label{fig:qmfrecursive}
+\end{figure} \\
+QMF filters have some special properties:
+\begin{itemize}
+\item if $H_0(z)$ is a QMF filter, then $H_1(z) = H_0(-z)$ has the frequency response of $H_0$ mirrored around $\pi/2$.
+\item if $H_0(z)$ is a QMF filter, then analysis filters $H_0(z)$ and $H_1(z) = H_0(-z)$ and synthesis filters $F_0(z)=H_1(-z)=H_0(z)$ and $F_1(z)=-H_0(-z) = -H_1(z)$ form an alias-free filter bank.
+\end{itemize}
+
+The second property indicates that a complete alias-free QMF filter bank can be defined by $H_0(z)$ alone. For the filter to be linear phase, this $H_0$ should be chosen symmetrical. Also, the filter should have an even amount of taps to avoid distortion at half the Nyquist frequency. The first property indicates that if $H_0$ is a good low-pass filter, then $H_1$ is a good high-pass filter. \\
+
+Given these properties and constraints, a simple polyphase implementation for a QMF filter bank can be designed, and is shown in figure \ref{fig:qmf}. The polyphase decomposition of $H_0(z)$ is:\\
+\begin{center}
+$H_0(z)$ = $E_0(z^2) + z^{-1} E_1(z^2)$ \\
+\end{center}
+From the first property, it follows that: \\
+\begin{center}
+$H_1(z)$ = $E_0(z^2) - z^{-1} E_1(z^2)$ \\
+\end{center}
+This leads to the efficient implementation of the filter bank shown in figure \ref{fig:qmf}.
+
+\begin{figure}[hbt]
+\includegraphics[width = \textwidth]{qmf}
+\caption{Polyphase implementation of QMF filter bank}
+\label{fig:qmf}
+\end{figure}
+
+For this project, both symmetric and asymmetric, where only one of the output bands of a QMF block are split further, structures were considered. Although for example 5 subbands created by always splitting the lower frequency band, may possibly have lead to better results, further use and study of these asymmetric structures were canceled as the teacher assistant said these were never considered previously and would lead to more complex C implementation. Thus, the final structure consists of QMF filter bank symmetrically splitting the signal into four subbands, as in figure \ref{fig:qmfrecursive}. Experiments show that four subbands can give good results in PESQ scores (discussed later). Eight or more subbands are thus not necessary but unwanted due to higher delay and computation complexity.
+
+\section{Adaptive differential quantization}
+After filtering into subbands, the data is now encoded with an adaptive differential quantization scheme. The quantizer can be seen in figure \ref{fig:quantization} and the dequantizer in figure \ref{fig:dequantization}. They contain the following signals:
+
+\begin{itemize}
+\item s(n) is the (serial) input signal
+\item d(n) is the difference signal between the input signal and the prediction of the signal
+\item z(n) is the quantized difference signal. This is also the output signal of the quantizer, hence the 'differential' in the name
+\item d'(n) is the difference signal after quantization and dequantization. It thus resembles d(n) but is not exactly the same value
+\item s'(n) is the sum of d'(n) and the prediction. It thus resembles s(n) but is not exactly the same value
+\item s*(n) is the prediction of the next input signal 
+\end{itemize}
+
+The step size is adaptive and based on the last values of d'(n) and a parameter $\phi$. The amount of values that influence the step size, is determined by a parameter 'buffer\_length'. Step size is calculated as follows:
+\begin{equation*}
+stepsize = round\_to\_zero(\phi*mean(abs(D'(n))))
+\end{equation*}
+Herein D'(n) contains the last buffer\_length values of d'(n). The mean should be zero, thus this equals the first central moment. This is chosen instead of the variance for easy of calculation. \\
+The reason of the use of d'(n) instead of d(n) is because the dequantizer only knows d'(n) and not d(n). For the same reason, the prediction is based on s'(n) and not in s(n). The prediction is a simple first order prediction, defined by the previous approximation of the signal s'(n) and a parameter $\mu$:
+\begin{equation*}
+s^*(n) = \mu*s'(n-1)
+\end{equation*}
+The dequantizer can reconstruct s'(n) based on the z(n) it receives. The system is thus lossy, since it cannot reconstruct the exact signal s(n). The benefit of this system is that the only transmitted signal is z(n), whose range is normally smaller than the range of s(n). Thus less bits are needed for encoding and transmitting z(n) than for s(n) and lossy compression is realized.
+\begin{figure}[hbt]
+\includegraphics[width = \textwidth]{Quantization.png}
+\caption{The Adaptive Differential Quantization scheme}
+\label{fig:quantization}
+\end{figure}
+\begin{figure}[hbt]
+\includegraphics[width = \textwidth]{Dequantization.png}
+\caption{The Adaptive Differential Dequantization scheme}
+\label{fig:dequantization}
+\end{figure}
+
+Both the quantizer and dequantizer are initialized with the initial prediction $s^*(0) = 0$ and the initial $stepsize(0) = 1$.
+\section{MATLAB implementation}
+This section gives a brief explanation of the used MATLAB files and their functionality.
+
+\subsection{generate\_some\_params.m}
+This script can be run to generate parameters used to call run.m
+
+\subsection{run.m}
+This is the main function used to divide an audio file into subbands, encode and decode those subbands, and synthesize them again to create an audio signal that closely resembles the original signal. Accepted audio files are .wav-files that are stereo or pairwise mono. The input audio file that should be used, has to be named 'input.wav'.\\
+
+The input is scaled to a 16-bit signed integer. The input is then split into subbands by calling analysis.m. These subbands are first encoded by calling encode.m. The result that is now obtained, is the signal that would be saved or transmitted in real use. Next, the function decodes the result by calling decode.m. Finally, calling synthesis.m recombines the subbands and the PESQ score for the reconstructed audio file is calculated. For this calculation, only one channel is considered, because in most of the test files the two channels are the same (effectively mono). Even when this is not the case, a noticeable increase of score in one channel should lead to a similar increase in the other for real life signals.
+
+\subsection{analysis.m}
+This MATLAB function splits the stereo (or pairwise mono) channels into separate channels, and splits them into subbands by calling get\_subbands.m.
+
+\subsection{get\_subbands.m}
+This function recursively splits an audio signal into its subbands. It does this by applying polyphase QMF filters, as explained earlier in this paper. These filters are generated with a function that was given as part of the assignment and characterized defined by its parameters.\\
+
+Convolutions are used to apply the filters. Since this is a sum of products, the output values exceed the 16-bit range. The output must thus be downscaled again. This downscaling is done by division of a power of two, so it is easily implementable as a bit shift. The exponent of two can be chosen, as it is a parameter of this function. It should however be chosen with respect to the filter length: longer filters add more numbers, creating a larger result and thus the need for more downscaling. The choice of exponent gives rise to a trade-off between clipping and quantization noise. An exponent that is too small leads to the former, while a too large exponent leads to relatively larger quantization noise.
+
+\subsection{encode.m}
+This function uses the earlier mentioned adaptive differential quantization method to compress an input signal. A parameter determines the maximum output and thereby the amount of bits needed. Larger values are clipped. This should be avoided by changing the other parameters. For analysis purposes, the function keeps track of the number of times the clippings happened. Input parameters $\phi$ and $\mu$ must be scaled to signed 16-bit integers.
+
+\subsection{decode.m}
+This function is the inverse of encode.m: it takes the output of the adaptive differential quantisation function and constructs s'(n), which approximate the original input signal s(n). Parameters $\phi$ and $\mu$ and 'buffer\_length' should be the same as those used for encoding with encode.m.
+
+
+\subsection{synthesis.m}
+This function is the inverse of get\_subbands.m: its inputs are the separate subbands and it combines (synthesizes) them into one signal. The filters used for this are the same QMF filters used for analysis, as explained earlier in the text. As in analysis.m, scaling is done to refit the values into the 16-bit range.
+
+\section{Parameter values and their PESQ and SNR scores}
+\subsection{Proposed values of controllable parameters}
+\mytodo{update dees}
+This section handles all of the parameters that define the implementation of the speech codec. Please note that although these values are currently our optimal values, they may be subject to changes in the future. This can be because of changes in the code, or because better values are found by (brute force) searching.\\
+
+The QMF filters generated with the given function QMF\_design.m are characterized by the following parameters:
+
+\begin{itemize}
+\item The sampling frequency, which is mandatory 8 kHz
+\item The total transition width of the prototype filter. This is default at a tenth of the sampling rate, and thus we have left it at 800
+\item The minimum stopband attenuation of the prototype filter, which we have left at the default value of 60 dB for the first filter and changed to 50dB for the following filters
+\item The frequency step for finding the optimal cut-off frequency, which we have left at the default value of 10
+\item The maximum number of iterations, which we have at 600
+\item The filter lengths, which we have at 64 for the filter at the first depth and 32 for the filters at the second depth. We have chosen these lengths as a compromise between filter quality and implementation delay
+\
+\end{itemize}
+
+The encoding parameters $\mu$, $\phi$, buffer\_length and the number of bits per sample can be different for each subband. The values for all these parameters are listed in tables \ref{tab:parametervalues}. Table \ref{tab:scalingparameters} shows the amount of scaling used after the convolutions in each QMF filter.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{l|cccc} 
+band frequency & lowest & low & high & highest \\ 
+\hline 
+\#bits & 5 & 4 & 3 & 0 \\ 
+$\mu$ & 19660 & 1638 & 31129 & / \\  
+$\phi$ & 8192 & 16384 & 29490 & / \\  
+buffer\_length & 10 & 10 & 10 & / \\  
+\hline 
+\end{tabular}
+\caption{Current optimal values of encoding parameters}
+\label{tab:parametervalues}
+\end{table}
+\begin{table}[h]
+\centering
+\begin{tabular}{c|ccc}
+scalings & lower frequencies & • &  higher frequencies \\ 
+\hline 
+depth 1 &  • & 17 & •  \\ 
+depth 2 &  15 & • & 16  \\ 
+\hline 
+\end{tabular} 
+\caption{Current scaling parameters (\#bits to shift)}
+\label{tab:scalingparameters}
+\end{table}
+Lower subbands have more bits per sample, since they are more important to the human hearing. Notice that the highest frequencies are simply thrown away. Finding the other values started by chosing the values for the scaling, because these give very high differences in PESQ scores. One division by 2 (one bitshift) too many results in a lower amplitude of the signal, one too few leads to clipping and thus distortion. Next the buffer\_lengths were changed. The length for the lowest frequency made a large difference. The others did not have much influence and were thus set to the same value for easy implementation. From this point on $\mu$, $\phi$ and buffer\_length values were changed one by one, always selecting a value that increased the PESQ score on combined\_8000\_short.wav. This lead to mentioned values.
+
+\subsection{SNR \& PESQ score}
+\mytodo{update?}
+The perceptual metric PESQ is used to grade the quality of the codec. It was decided to use PESQ instead of SNR since it takes features of the human hearing into account (such as masking). This is why the optimal values are chosen on basis of PESQ scores, and SNR is mainly ignored.
+
+\begin{table}[bth]
+\begin{center}
+\begin{tabular}{ l|ll }
+  File name & PESQ score & Segmental SNR \\
+  \hline
+  belasting & 3.35 & 17.9\\
+  bir & 3.66 & 19.2\\
+  f116 & 3.04 & 14.3 \\
+  f216 & 2.97 & 17.8\\
+  m116 & 3.38 & 14.0\\
+  m216 & 3.43 & 14.0\\
+  words\_f & 3.46 & 19.1\\
+  words\_m & 3.28 & 18.2\\
+  combined\_8000\_short & 3.34 & 15.5 \\
+  combined\_8000 & 3.54 & 18.4\\
+  \hline
+\end{tabular}
+  \caption{PESQ and segmental SNR scores for different audio files}
+\label{tab:pesqscores}
+\end{center}
+\end{table}
+
+The parameters are optimized by maximizing the PESQ score for the audio file 'combined\_8000\_short.wav'. This is a combination of the audio files 'm116.wav', 'f116.wav' and 'f216.wav'. This is preferred to a single file, since it contains more variation as training data. All audio streams were delivered at 16kHz sampling rate, but the system is designed for 8kHz. Using Audacity, an anti-aliasing filter with 70dB attenuation for frequencies above 4kHz was applied to these audio files, before downsampling them to 8kHz. The values in table \ref{tab:pesqscores} are obtained using run.m with these downsampled versions.
+
+\subsection{Inherent delay of the implementation}
+The filters used in the QMF filter bank lead to a delay. For each depth in the filterbank, the delay is given by $delay_i = (n_i-1) / sample\_rate_i$ with $i$ the depth, $n_i$ the amount of filter taps at this depth and $sample\_rate_i$ the sample rate at this depth, which is equal to the original sample rate divided by $2^{i-1}$. With filters of 64 and 32 taps, the delay becomes:
+\begin{equation*}
+delay = \frac{(64-1)}{8000 Hz} + \frac{(32-1)}{4000 Hz} = 15.625 ms.
+\end{equation*}
+
+\section{C implementation on a PC}
+\subsection{Differences between the MATLAB and C implementation}\label{sec:differences}
+
+\subsubsection{Flexibility}
+The MATLAB code offers more flexibility than the C code. In MATLAB, even the structure of the analysis and synthesis filter banks (e.g. the amount of subbands) can be derived from given parameters. In C however, this structure is fixed in the code.\\
+
+The parameters are also more cumbersome to change in the C code. In MATLAB, they are nicely grouped in \texttt{generate\_some\_params.m} or \texttt{test\_some\_ params.m} and given as arguments to the main routine (\texttt{run.m}). In C however, most of them are hard coded. The parameters for \texttt{quantize} and \texttt{dequantize} can relatively easily be found and changed at the the beginning of \texttt{main.c}. The parameters for the highest frequency subband cannot be changed at all: it is hard coded that this band is completely removed. This subband is consequently not quantized nor dequantized. Changing this would require adjustments to \texttt{mainencode}, \texttt{maindecode}, \texttt{compress30samples} and \texttt{decompress30samples}. Any other change in the number of bits assigned to the subbands would require complex changes to only the latter two.\\
+
+All the parameters of the filterbanks are also difficult to change. In MATLAB, the filters are generated based on given parameters while in C, the filters themselves must be entered. This removes the flexibility of easily changing their length or stopband attenuation. Also the amount of scaling to be done after applying the filters, is hardcoded in the C functions \texttt{analysis} and \texttt{synthesis} and can therefore not be changed very quickly.
+
+\subsubsection{Rounding and scaling}\label{sec:rounding}
+Although the MATLAB implementation was designed to mimic C like integer operations, some false assumptions were made. Table \ref{tbl:roundingassumptions} lists these, as well as their correction and solution. The purpose of the solutions is always to make the C implementation consistent with the MATLAB implementation. The second solution might make the code a little slower, but because it is not in the critical inner loop of \texttt{convolve} (see \ref{sec:processing}), it does not make an important difference.\\
+
+Apart from the changes mentioned in table \ref{tbl:roundingassumptions}, another change was made in MATLAB: The values that are loaded from the .wav-file are multiplied by $2^{15}$ instead of scaled to use the full integer range. This is not the same when the values in the .wav-file do not occupy their full available range. This change is made because the maximum value must be known in order to scale the values to the full available range. This information is not known in a real-time application, and can thus not be used.
+\begin{table}[htb]
+\centering
+\makebox[\linewidth][c]{
+\tabulinesep=1.2mm
+\begin{tabu}{p{3.0cm}>{\centering\arraybackslash}p{1.7cm}p{3.5cm}>{\centering\arraybackslash}p{1.7cm}p{4cm}}
+False assumption & Examples & Correction & Examples & Solution \\
+\hline
+\hline
+MATLAB rounds integer divisions towards zero (like C) & 
+	10/6 = 1 \quad (-9)/2 = -4 &
+	 MATLAB rounds towards nearest integer (halves away from zero) &
+	  10/6 = 2 \quad(-9)/2 = -5 &
+	  MATLAB division \texttt{a/b} changed to \texttt{int16(fix( double(a)/double(b)))}.\\
+\hline
+C rounds the result of a division by shift towards zero &
+	-9\texttt{>>}1 = -4 \quad 9\texttt{>>}1 = 4 &
+	C does floor on the result&
+	-9\texttt{>>}1 = -5 \quad 9\texttt{>>}1 = 4 &
+	a\texttt{>>}b was replaced by \texttt{a/(1\texttt{<<}b)} in the C code.
+
+\end{tabu}
+}
+\caption{False assumptions about rounding mechanisms, with their corrections and solutions}
+\label{tbl:roundingassumptions}
+\end{table}
+
+\subsection{Execution order}
+The MATLAB implementation is just for quality testing, for which the complete input signal can be known at starting time. Therefore, a whole .wav-file can be and is loaded at the start. Each intermediate signal, e.g. the result of a convolution, is calculated over the full length of the signal at once. Only after the full signal is calculated, it is passed to further calculations. This simplifies the code. The C code however, targets a real time-application. The complete input signal is thus not known beforehand. Waiting until the complete signal is received is impossible, because the delay would be unacceptable and the length of the input is not bounded. Therefore, the C code works buffer per buffer. It reads a specified amount of values and saves them in a buffer. On this buffer, all calculations are performed and the final output is received immediately without waiting for the rest of the signal. When the final output for the current buffer is calculated, a new buffer is read. The delay is thus no more than the time it takes to fill the buffer added to the intrinsic delay of the filterbank. The time needed to calculate the output of an input buffer should be negligible. \\
+
+The analysis and synthesis functions do not only require the samples of the current buffer, but also older samples and older intermediate values to do the convolutions. The quantization and dequantization functions require previous samples to calculate the moving average. To do this, both functions use a structure containing previous samples.
+
+\subsection{Compression: preparation to communicate with crypto part}\label{sec:communication}
+The quantization function outputs shorts. However, these shorts contain only a small amount of effective bits, because the actual range of the values is limited. The samples of every subband will be quantized to 5, 4, 3 or 0 effective bits per sample, from lowest to highest frequency subband respectively. The function \texttt{compress30samples} takes 30 samples as shorts, 5 from each except the highest subband of both channels, and performs bitwise operations on them to take only their effective bits and to put them in 15 bytes. These 15 bytes then contain all the necessary information for dequantizing the samples and feeding them to the synthesis filter bank, without any unnecessary bits. These bytes can easily be passed to the encryption algorithm. Function \texttt{decompress30samples} implements the inverse of \texttt{compress30samples} and can be used on 15 decrypted bytes to 
+recalculate the original 30 samples.	
+
+
+\subsection{Performance enhancements made before porting}\label{sec:performance}
+\subsubsection{Memory}
+To avoid wasting memory, all these functions work in place, meaning they write their output on the same place as they read their input:
+\begin{itemize}[noitemsep]
+\item \texttt{compress30samples}
+\item \texttt{combineWithoutDelay}
+\item \texttt{convolve}
+\item \texttt{combine}
+\end{itemize}
+Writing the output in place removes the necessity of reserving memory for both the input and the output. With our implementation, this comes at a cost of more complex indexing, as reading or writing `after the end' of the array must equal reading or writing at the beginning of the array. This can easily but inefficiently be implemented by doing a modulo operation on the index. A more efficient implementation is used in the \texttt{convolve} function, as the following subsection clarifies.
+\subsubsection{Execution time}\label{sec:processing}
+After finishing a first complete and fully functioning version of the code, Visual Studio's\footnote{Microsoft Visual Studio Community 2015} CPU Sampling profiled the performance of the code. It pointed out that most time is spent in the \texttt{convolve} function. This is intuitive, since it is not only the function dealing with the largest values (before rescaling), but also, and more importantly, the only one with a nested loop. Table \ref{tbl:profilingresults} shows all the relevant profiling results. The numbers in these table indicate the amount of profiling samples the given function was running. These are roughly proportional to the time these functions execute. The details of \texttt{mainencode} are omitted because they are very similar to those of \texttt{maindecode}. Comparison of the unoptimized with the optimized version shows that the total amount of time is approximately halved, with only improvements to \texttt{convolve} function. The mentioned \texttt{\_alldiv} function is used by the compiler for dividing long long integers.\\
+
+\begin{table}[htpb]
+\centering
+\makebox[\linewidth][c]{
+\begin{subtable}{0.65\textwidth}
+\begin{tabular}{l|r}
+Function & \#samples\\
+\hline
+\texttt{main} & 58818\\
+\quad \quad \texttt{maindecode} & 30414\\
+\quad \quad \quad \quad \texttt{decode} & 25089\\
+\quad \quad \quad \quad \quad \quad \texttt{convolve} & 22835\\
+\quad \quad \quad \quad \quad \quad \texttt{\_alldiv} & 1189 \\
+\quad \quad \quad \quad \quad \quad others & 1062 \\
+\quad \quad \quad \quad \texttt{wavpcm\_output\_write} & 3825\\
+\quad \quad \quad \quad \texttt{dequantize} & 626\\
+\quad \quad \quad \quad others & 874\\
+\quad \quad \texttt{mainencode} & 28362\\
+\quad \quad others & 42
+\end{tabular}
+\caption{Unoptimized}
+\end{subtable}
+\begin{subtable}{0.65\textwidth}
+\begin{tabular}{l|r}
+Function & \#samples\\
+\hline
+\texttt{main} & 29310\\
+\quad \quad \texttt{maindecode} & 15805\\
+\quad \quad \quad \quad \texttt{decode} & 10833\\
+\quad \quad \quad \quad \quad \quad \texttt{convolve} & 8672\\
+\quad \quad \quad \quad \quad \quad \texttt{\_alldiv} & 1225 \\
+\quad \quad \quad \quad \quad \quad others & 936 \\
+\quad \quad \quad \quad \texttt{wavpcm\_output\_write} & 3616\\
+\quad \quad \quad \quad \texttt{dequantize} & 619\\
+\quad \quad \quad \quad others & 737\\
+\quad \quad \texttt{mainencode} & 13461\\
+\quad \quad others & 44
+\end{tabular}
+\caption{Optimized}
+\end{subtable}
+}
+\caption{Profiling results}
+\label{tbl:profilingresults}
+\end{table}
+Figure \ref{fig:convolvefunctions} shows the unoptimized and optimized version of the \texttt{convolve} function in detail. The numbers on the left of the lines indicate the amount of samples during which each line was running. The total amount of samples spent in the inner loop is $4890 + 37999+ 979 = 43868$ for the unoptimized version and $1104+1079+199+196+1806+1009+8548+969 = 14910$ for the optimized version. The results of the optimized version also show that $1806+1009+8548 = 11363$ of the $14910$ profiling samples are spent in the last three lines. These do only essential data fetching and calculations and can thus not likely be more optimized easily. This shows that due to the optimizations, less time is spent on control and more on actual data processing.\\
+\\
+\begin{figure}[htpb]
+\makebox[\textwidth][c]{
+\begin{subfigure}[c]{.7\textwidth}
+\includegraphics[width=\textwidth]{slow_convolve_cropped}
+\caption{Unoptimized}
+\end{subfigure}
+\begin{subfigure}[c]{.7\textwidth}
+\includegraphics[width=\textwidth]{optimized_convolve_cropped}
+\caption{Optimized}
+\end{subfigure}
+}
+\caption{Details of unoptimized and optimized \texttt{convolve} functions}
+\label{fig:convolvefunctions}
+\end{figure}
+\begin{minipage}{\textwidth}
+The optimized version is derived from the unoptimized by:
+\begin{itemize}
+\item expanding the line of the inner loop to more substatements
+\item using a pointer to the current filter element for the control of the inner \texttt{for}-loop instead of an additional counter. This saves variables and replaces additions by increments.
+\item keeping and incrementing a pointer to the current data sample. This saves the complex calculation of the pointer. The expensive modulo operation of that calculation is reimplemented by two simple \texttt{if}-statements.
+\end{itemize}
+\end{minipage}
+
+
+
+NIEUW DEEL
 \section{Pre-Optimization in C}
 Already sped up 100\% in C by improving the innermost loop.
 
@@ -79,3 +406,5 @@ coming years
 \section{Appendix}
 List of your functions and in which files (.c, .h) are they declared \& defined, such that it can help the assistants going through the code (if needed)
 \end{document}
+
+
