@@ -368,32 +368,83 @@ Having written the code in C, it was now ready to be optimized for porting onto 
 
 \section{Optimization for DSP}
 \mytodo{spreken over het feit dat we mono sample als 1 sample zien en andere groepen het als 2 dus eigenlijk zjin we 2x sneller}
-After already speeding up the code by a factor of about 2, running the application with an input file of 2986 samples resulted in 21.8M cycles: 7.300 cycles / sample. The bottleneck was, as we suspected by analytical approach, convolve. This is because convolve contained the only nested loop, and worked with the biggest data types. \\
+After already speeding up the code by a factor of about 2, running the application with an input file of 2986 samples resulted in 21.8M cycles: 7.300 cycles / sample. 
 We will now discuss some of the changes that had the most influence on the cycle count. \\
+The bottleneck was, as we suspected by analytical approach, convolve. This is because convolve contained the only nested loop, and worked with the biggest data types. \\
 We first started by writing a function that did the convolutions of the left and right channel together. This netted a gain of 8\%. We assume this is because this gives the compiler more freedom and reduces overhead. \\
 We then changed some long long variable types to ints: this netted a gain of 49\% (!). This is a very large gain for a very simple optimization. At this point, convolve was no longer the bottleneck. \\
-The new bottlenecks were quantize and dequantize. By also changing some variables to smaller types, we won 42%.
+The new bottlenecks were quantize and dequantize. By also changing some variables to smaller types, we won 42\%.
 \mytodo{Spreken over 
 Rewrote divisions:  38,5\% on (de)quantize
 Binary/linear
- eliminates function calls
+eliminates function calls
 Hypothesis: enables software pipelining of outer loop
 EN VOEG AFBEELDIGN TOE}\\
 After improving these functions, convolve was once again the bottleneck. \mytodo{
 Convolve:
 Division as shift:  46\% on convolve
-	 eliminates function call
+	 eliminates function call
 Original:
-Division for roundig to zero
+Division for roundig to zero
 New:
 Complex division as shift for rounding behaviour+speed
 EN VOEG AFBEELDING TOE}\\
 Finally, we changed the functions convolve and combine, which still worked with a modulo operation and were therefore inefficient. This gave a gain of 11\% on convolve and 68\% on combine. Together with rewriting the divisions, this gave a reduction of 39\% for the total application. \\
 As a last change, we changed the quantization and dequantization functions to work on the left and right channel together. This gave a reduction of 11\%.\\
-After these major optimizations, the program needed 3.2M cycles for 2986 samples: \mytodo{cycles/sample?}
-Some of the other adjustments, which did not net a large gain or were simply reveretd for clealiness, are: \mytodo{optimizations}
+These major optimizations can be found in table \ref{table:optimizations}. Please note that they are not the only optimizations we tried: in fact, we tried every optimization that was suggested in the powerpoint. This includes:
+\begin{itemize}
+\item Hardcoding filter coefficients, instead of fetching them from data. This did not gain us as much as we'd expect, so we reverted this to have more flexibility.
+\item Pragmas: MUST\_ITERATE, UNROLL. We used these wherever possible. In some cases, they did deliver a certain gain, in other cases they didn't.
+\item Pragma: DATA\_ALIGN. We tried this, but this didn't result in any improvement. We guess that this is because the compiler had already optimized this data.
+\item Intrinsics: We tried many intrinsics, but the only one that we found to be useful is '\_abs'.
+\item 'Near' and 'const' variable keywords: These keywords did not give us any or much gain, and we reverted this optimization for cleanliness.
+\item 'Restrict' variable keyword: This keyword was used wherever possible, and often gave improvements.
+\item Function inlining. This is done wherever it didn't produce too much code text and did produce a gain. We also tried inlining the whole analysis and synthesis files, but the gain was not big enough, and we reverted this for cleanliness.
+\end{itemize}
 
-Another optimization that we have implemented is what we call 'cheatMono': We noticed that a lot of the input signals were mono instead of stereo, and thus a lot of computational power was being wasted. As a proof of concept, we wrote new functions 'quantizeMono' and 'dequantizeMono' which operated on the left channel and copied the results to the right channel. In the case of stereo input, the only change is one extra if-statement. This optimization results in a reduction of 16\% of the cycles of the whole program. The downside is that 2\% more of the available space is used. 
+After all optimizations, the program used 3.2M cycles for 2986 samples: 1072 cycles per sample. This number has to be interpreted with some context:
+\begin{itemize}
+\item The cycle count includes reading the .wav-file, doing all the processing, and writing the .wav-file, whereas other groups may only count (a part of) the processing.
+\item The audio file that is used as input has 2986 samples, but is mono instead of stereo: it has only one channel. This means that every sample will be doubled, effectively resulting in 5972 samples.
+\end{itemize}
+Taking this into consideration, we come to 536 cycles per sample. \\
+
+A last optimization that we'd like to mention is what we call 'cheatMono': We noticed that a lot of the input signals were mono instead of stereo, and thus a lot of computational power was being wasted. As a proof of concept, we wrote new functions 'quantizeMono' and 'dequantizeMono' which operated on the left channel and copied the results to the right channel. In the case of stereo input, the only change is that one if-statement has to be evaluated for every buffer of 40 input samples. This optimization results in a reduction of 16\% of the cycles of the whole program in case of mono input. The downside is that 2\% more of the available space is used as code text. Since this is not a part of the original project description, we have not included this gain in our final cycle count, but we have included this functionality in our project. 
+
+\begin{table}
+\begin{tabular}{|p{2cm}|p{3cm}|p{3cm}|p{2cm}|p{2cm}|p{1cm}|}
+\hline 
+• & Major Optimization & Functions Effected & Cycles Before & Cycles After & Change (in \%) \\ 
+\hline 
+Base Code & • & • & 21.8M & • & • \\ 
+\hline 
+Session 1 & Hardcoded filter coefficients & Convolve (reverted) & 21.8M & 21.7M (reverted) & .05 (reverted)\\ 
+\hline 
+Session 2 & Combine convolve left and right & Convolve & 21.8M & 20.1M & 8 \\ 
+\hline 
+Session 3 & Long long to int & Convolve & 20.1M & 10.2M & 49 \\ 
+\hline 
+Session 4 & Restrict variables (global), change variable types & (de)quantize & 10.2M & 5.9M & 42 \\ 
+\hline 
+Session 5 & Merge with crypto, try to get DSP working & & 5.9M & 5.9M & \\
+\hline
+Session 6 & Wrote divisions as binary or linear search & (de)quantize & 5.9M & 3.6M & 39 \\
+\hline
+& Wrote divisions as shift (with rounding to zero) & Convolve & & & \\
+\hline
+& Remove modulo in output index & Convolve & & & \\
+\hline
+& Remove modulo in indices & Combine, combineWithoutDelay & & & \\
+\hline
+Extra session & Change some unrolls, must\_iterates & Global & 3.6M & 3.2M & 11 \\
+\hline
+& Combine left and right (de)quantize & (de)quantize & & & \\
+\hline
+\end{tabular} 
+\caption{Table with major optimizations}
+\label{table:optimizations}
+\end{table}
+
 \section{Application description (If it has been already described earlier in the report, then you may refer to it and need not repeat it again)}
 Detailed description of the application along with a figure/diagram \\
 Explain different functions in the application: Purpose, functionality, complexity, etc
@@ -406,34 +457,6 @@ About porting of project from linux to CCS simulator \\
 About porting of the project from CCS simulator to the board \\
 About integration with speech/crypto \\
 Issues faced and what was done to resolve it
-
-\section{Optimizations}
-Table (as in template) \\
-Explain all optimizations tried: example of the optimization, discuss the impact of the optimization and reasoning behind the impact you saw \\
-The table is only a concise overview. You must explain in details
-
-\begin{table}
-\begin{tabular}{|l|c|c|c|c|c|}
-\hline 
-• & Major Optimization & Functions Effected & Cycles Before & Cycles After & Change (in \%) \\ 
-\hline 
-Base Code & • & • & • & • & • \\ 
-\hline 
-Session 1 & • & • & • & • & • \\ 
-\hline 
-• & • & • & • & • & • \\ 
-\hline 
-Session 2 & • & • & • & • & • \\ 
-\hline 
-• & • & • & • & • & • \\ 
-\hline 
-• & • & • & • & • & • \\ 
-\hline 
-\end{tabular} 
-\end{table}
-
-
-
 
 \section{Lessons learnt}
 About your learning experience from the course.\\
@@ -451,6 +474,8 @@ Simply reducing variable types can result in a great optimization.
 This report is not a day-to-day overview of your activities; it is more an executive overview. It has to integrate the content of the intermediate reports and also has to elaborate on the topics listed in the DSP final report format document (under Projects/DSP optimization).
 
 The part about the course evaluation bundles the remarks and suggestions for improvement of the logistics as well as of the overall course planning.}
+
+\mytodo{if we had more time ... intrinsics etc.Why are we so slow?}
 \section{Appendix}
 List of your functions and in which files (.c, .h) are they declared \& defined, such that it can help the assistants going through the code (if needed)
 \end{document}
