@@ -22,7 +22,8 @@
 \begin{center}Andras Boho, Yanxiang Huang
 \end{center}
 \section{Introduction}
-\mytodo{include everything from ppt presentation}
+This is a final report for the P\&D assignment on creating a speech codec. The goal of this project is to run an algorithm on a Digital Signal Processor that encodes, encrypts, decrypts and decodes speech in real-time. The encryption and decryption code is provided by another group. The codec implements subband filtering and adaptive quantization, with the goal of efficiently compressing a stereo audio signal.\\
+First, a MATLAB implementation is written, followed by a C implementation that is eventually ported onto a DSP and optimized, and this paper is structured in that way.
 \section{Project description}
 \subsection{Project overview}
 uitleggen spraak encoder - crypto group - spraak decoder
@@ -229,7 +230,8 @@ delay = \frac{(64-1)}{8000 Hz} + \frac{(32-1)}{4000 Hz} = 15.625 ms.
 \end{equation*}
 
 \section{Evaluation of MATLAB code}
-All MATLAB functions work with fixed point values. This simulates the working on a DSP. All performance results should therefore not change when the system is run on a DSP. The achieved PESQ scores (3.00 to 3.54) were shown and indicate decent performance. The optimal values of the parameters were found by searching for the highest PESQ score by changing the parameters. Finally, the inherent delay of the implementation was briefly discussed and calculated to be less than $16ms$. This leaves $134ms$ for the encryption and decryption, processing and other kinds of buffering.\\
+The MATLAB code is designed to be very flexible, with easy to change, grouped parameters. All MATLAB functions work with fixed point values. This simulates the workings of a DSP. All performance results should therefore not change when the system is run on a DSP. The achieved PESQ scores (3.00 to 3.54) were shown and indicate decent performance. The optimal values of the parameters were found by searching for the highest PESQ score by changing the parameters one by one. Finally, the inherent delay of the implementation was briefly discussed and calculated to be less than $16ms$. This leaves $134ms$ for the encryption and decryption, processing and other kinds of buffering.\\
+
 
 While translating the MATLAB code to C (see below), it became clear that although the MATLAB code can use asymetric filter banks, it is not implemented properly: a path with less filters or filters of smaller order is not extra delayed to have the same delay as the longer path. This error is not fixed, since we decided not to use an asymmetric structure anyway.
 
@@ -408,9 +410,10 @@ These major optimizations can be found in table \ref{table:optimizations}. Pleas
 
 After all optimizations, the program used 3.2M cycles for 2986 samples, equalling 1072 cycles/sample. This number has to be interpreted with some context:
 \begin{itemize}
-\item The cycle count includes reading the .wav-file, doing all the processing, and writing the .wav-file, whereas other groups may only count (a part of) the processing.
+\item The cycle count includes reading the .wav-file, doing all the processing, and writing the .wav-file, whereas other groups may only count (a part of) the processing. Actually, the writing of the .wav-file, a function that has been provided with the assigment, is the new bottleneck.
 \item The audio file that is used as input has 2986 samples, but is mono instead of stereo: it has only one channel. This means that every sample will be doubled, effectively resulting in 5972 samples. We count one left/right combination as one sample, while we heard some other groups count is as two. In their way of thinking, we come to 536 cycles per sample.
 \end{itemize}
+All this results in a total speed-up of 85\% or a factor 6.8 for the DSP part, and times 13.6 in combination with the C part.\\
 
 A last optimization that we'd like to mention is what we call 'cheatMono': We noticed that a lot of the input signals were mono instead of stereo, and thus a lot of computational power was being wasted. As a proof of concept, we wrote new functions 'quantizeMono' and 'dequantizeMono' which operated on the left channel and copied the results to the right channel. In the case of stereo input, the only change is one if-statement that has to be evaluated for every buffer of 40 input samples. This optimization results in a reduction of 16\% of the cycles of the whole program in case of mono input. The downside is that 2\% more of the available space is used as code text. Since this is not a part of the original project description, we have not included this gain in our final cycle count, but we have included this functionality in our project. 
 
@@ -490,4 +493,4 @@ The part about the course evaluation bundles the remarks and suggestions for imp
 List of your functions and in which files (.c, .h) are they declared \& defined, such that it can help the assistants going through the code (if needed)
 \end{document}
 
-
+\end{document}
