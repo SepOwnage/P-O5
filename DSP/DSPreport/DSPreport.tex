@@ -454,11 +454,12 @@ Extra session & Change some unrolls, must\_iterates & Global & 3.6M & 3.2M & 11 
 \label{table:optimizations}
 \end{table}
 
-\section{Application description (If it has been already described earlier in the report, then you may refer to it and need not repeat it again)}
+\section{Application description}
 Detailed description of the application along with a figure/diagram \\
 Explain different functions in the application: Purpose, functionality, complexity, etc
 
-The functions of the DSP code are the same as the C code and will thus not be explained again. \mytodo{is dit al explained in het C gedeelte?}
+The functions of the DSP code are the same as the PC C-code. These largely correspond to the MATLAB functions. Some small extra functions were made to transfer data or sum arrays. All functions are well documented, so please refer to this documentation for further explanation of their function and use.\\
+
 The application is executed by running main.c. Enabling the cryptography part from another group and enabling cheating mono input signals is done by defining 'CRYPTO' and 'cheatMono' respectively, as can be seen in globals.h. The input and output .wav-file can also be specified in globals.h.
 
 \section{Porting and integration}
