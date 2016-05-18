@@ -368,7 +368,7 @@ The MATLAB code is successfully translated to a C implementation. Both implement
 \section{Digital Signal Processor}
 Next, the fully functional C implementation is ported to and optimized for a Digital Signal Processor. The DSP in question is the Texas Instruments TMS320C6748. 
 
-\section{Optimization for DSP}
+\subsection{Optimization for DSP}
 After already speeding up the code by a factor of about 2, running the application with an input file of 2986 samples resulted in 21.8M cycles: 7.300 cycles / sample. We will now discuss some of the changes that had the most influence on the cycle count. \\
 
 The bottleneck was, as we suspected by analytical approach, convolve. This is because convolve contained the only nested loop, and worked with the biggest data types. The original convolve function was changed so that it could do both left and right channels in one call. The hypothesis was that this would give the compiler more freedom to use parallelism and that the decrease in overhead would also result in a small gain. Simulations showed a net gain of 8\% on the whole program.\\
