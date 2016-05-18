@@ -460,21 +460,25 @@ The functions of the DSP code are the same as the C code and will thus not be ex
 The application is executed by running main.c. Enabling the cryptography part from another group and enabling cheating mono input signals is done by defining 'CRYPTO' and 'cheatMono' respectively, as can be seen in globals.h. The input and output .wav-file can also be specified in globals.h.
 
 \section{Porting and integration}
-About porting of project from linux to CCS simulator \\
-About porting of the project from CCS simulator to the board \\
-About integration with speech/crypto \\
-Issues faced and what was done to resolve it
+Porting the project from linux to the CCS simulator was well explained and we simply followed the powerpoint. \\
+The integration with the crypto group was smooth as well. We decided on a crypto buffer of 600 chars long. Every input buffer that we read consists of 40 samples (shorts). We discard the highest band, or 10 samples per input buffer. The remaining 30 shorts are compressed into 15 bytes after they have been quantized. This fits perfectly, and no bits are wasted. In total, 15 input buffers of 40 samples fit into one crypto buffer. This causes a total delay of: $15*40/2/8000 = 100ms$. The factor 2 comes from the fact that input is stereo and thus has two channels, each operating at 8kHz. \\
+The only issue that we faced when integrating with the crypto group, is that the DSP only has limited memory. This was never a real problem, but limited for example the inlining that could be done. \\
+Switching from the simulator to the real DSP did cause us some headaches. First, we had a problem where we apparently forgot to initialize a variable. This was resolved, obviously, by initializing it. Then the DSP still wouldn't produce the correct output, even though we didn't know why. We spent almost an entire session on this problem, only to find out that the DSP we were given, was malconfigured: some of the switches on top were not set properly. After correcting the switches, the DSP worked fine, proving our code was correct. \\
+We then tried using it real-time, but this didn't work. We spent most of our remaining time on this issue, but sadly could not get it to work.
 
 \section{Lessons learnt}
+These are three things that we will remember from this project:
+\begin{itemize}
+\item Initializing variables is important and can easily be forgotten for some variables.
+\item Simply reducing variable types can result in quick but impactful optimizations.
+\item Always check if the hardware (DSP) that you get is configured correctly.
+\end{itemize}
+
 About your learning experience from the course.\\
 How decisions taken earlier in the design flow impacted the performance of your code on DSP as
 well as the scope of optimizations\\
  Your suggestions for improving the content and/or teaching of the course (DSP part specifically) for
 coming years
-
-Making sure every variable is initialised is very important.
-Wrongly configured DSP's are annoying.
-Simply reducing variable types can result in a great optimization.
 
 \section{Conclusions}
 \mytodo{Each team submits a final report as a PDF file. It contains an overview of the work and an evaluation of the course.
