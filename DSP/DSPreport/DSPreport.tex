@@ -23,7 +23,8 @@
 \end{center}
 \section{Introduction}
 This is a final report for the P\&D assignment on creating a speech codec. The goal of this project is to run an algorithm on a Digital Signal Processor that encodes, encrypts, decrypts and decodes speech in real-time. The encryption and decryption code is provided by another group. The codec implements subband filtering and adaptive quantization, with the goal of efficiently compressing a stereo audio signal.\\
-First, a MATLAB implementation is written, followed by a C implementation that is eventually ported onto a DSP and optimized, and this paper is structured in that way.
+
+First, a MATLAB implementation is written. A C implementation followed, and this is eventually ported onto a DSP and optimized. This paper follows the same order.
 \section{Project description}
 \subsection{Project overview}
 uitleggen spraak encoder - crypto group - spraak decoder
@@ -230,9 +231,10 @@ delay = \frac{(64-1)}{8000 Hz} + \frac{(32-1)}{4000 Hz} = 15.625 ms.
 \end{equation*}
 
 \section{Evaluation of MATLAB code}
-The MATLAB code is designed to be very flexible, with easy to change, grouped parameters. All MATLAB functions work with fixed point values. This simulates the workings of a DSP. All performance results should therefore not change when the system is run on a DSP. The achieved PESQ scores (3.00 to 3.54) were shown and indicate good performance. The optimal values of the parameters were found by searching for the highest PESQ score by changing the parameters one by one. Finally, the inherent delay of the implementation was briefly discussed and calculated to be less than $16ms$. This leaves $134ms$ for the encryption and decryption, processing and other kinds of buffering.\\
+The MATLAB code is designed to be very flexible, with easy to change, grouped parameters. All MATLAB functions work with fixed point values. This simulates the workings of a DSP. All performance results should therefore not change when the system is run on a DSP. The achieved PESQ scores (3.00 to 3.54) were shown and indicate decent performance. The optimal values of the parameters were found by searching for the highest PESQ score by changing the parameters one by one. Finally, the inherent delay of the implementation was briefly discussed and calculated to be less than $16ms$. This leaves $134ms$ for the encryption and decryption, processing and other kinds of buffering.\\
 
-While translating the MATLAB code to C (see below), it became clear that although the MATLAB code can use asymmetric filter banks, it is not implemented properly: a path with less filters or filters of smaller order is not extra delayed to have the same delay as the longer path. This error is not fixed, since our implementation does not use an asymmetric structure anyway.
+
+While translating the MATLAB code to C (see below), it became clear that although the MATLAB code can use asymetric filter banks, it is not implemented properly: a path with less filters or filters of smaller order is not extra delayed to have the same delay as the longer path. This error is not fixed, since we decided not to use an asymmetric structure anyway.
 
 \section{C implementation on a PC}
 Given the MATLAB model for the codec, the next task is to translate this code into an efficient implementation in C. This can later on be ported onto a Digital Signal Processor.
@@ -371,7 +373,7 @@ The MATLAB code is successfully translated to a C implementation. Both implement
 Next, the fully functional C implementation is ported to and optimized for a Digital Signal Processor. The DSP in question is the Texas Instruments TMS320C6748. 
 
 \section{Optimization for DSP}
-After already speeding up the code by a factor of about 2, running the application with an input file of 2986 samples\footnote{The file is actually a mono audio file, but it is loaded and processed as a stereo file. If one counts one left/right combination as two seperate samples, all the cycles/sample results must be divided by 2.} resulted in 21.8M cycles: 7.300 cycles / sample. We will now discuss some of the changes that had the most influence on the cycle count. \\
+After already speeding up the code by a factor of about 2, running the application with an input file of 2986 samples resulted in 21.8M cycles: 7.300 cycles / sample. We will now discuss some of the changes that had the most influence on the cycle count. \\
 
 The bottleneck was, as we suspected by analytical approach, convolve. This is because convolve contained the only nested loop, and worked with the biggest data types. The original convolve function was changed so that it could do both left and right channels in one call. The hypothesis was that this would give the compiler more freedom to use parallelism and that the decrease in overhead would also result in a small gain. Simulations showed a net gain of 8\% on the whole program.\\
 
@@ -398,25 +400,26 @@ Finally, in convolve, combine and combineWithoutDelay the calls to a reminder fu
 As a last change, we changed the quantization and dequantization functions to work on the left and right channel together. This gave a reduction of 11\%.\\
 These major optimizations can be found in table \ref{table:optimizations}. Please note that they are not the only optimizations we tried: in fact, we tried every optimization that was suggested in the powerpoint. This includes:
 \begin{itemize}
-\item Hardcoding filter coefficients, instead of fetching them from data. This did not gain us as much as we'd expect, so we reverted this to have more flexibility.
+\item Hardcoding filter coefficients, instead of fetching them from data. Hoping this would lead to a speed up because less data accesses are necessary and because the basic block is larger, leading to more parallelism possibilities. However, this did not gain us as much as we'd expect, so we reverted this to have more flexibility.
 \item Pragmas: MUST\_ITERATE, UNROLL. We used these wherever possible. In some cases, they did deliver a certain gain, in other cases they didn't.
-\item Pragma: DATA\_ALIGN. We tried this, but this didn't result in any improvement. We guess that this is because the compiler had already optimized this data.
-\item Intrinsics: We tried many intrinsics, but the only one that we found to be useful is '\_abs'.
+\item Pragma: DATA\_ALIGN. We tried this, together with the intrinsic \_nassert, but this didn't result in any improvement. We guess that this is because the compiler had already optimized this data.
+\item Intrinsics: We tried many intrinsics, but the only one that we found to be useful is '\_abs'. Sometimes using SIMD instructions for parallelism did not help, because it replaced parallelism by using two cores created by the compiler.
 \item 'Near' and 'const' variable keywords: These keywords did not give us any or much gain, and we reverted this optimization for cleanliness.
 \item 'Restrict' variable keyword: This keyword was used wherever possible, and often gave improvements.
-\item Function inlining. This is done wherever it didn't produce too much code text and did produce a gain. We also tried inlining the whole analysis and synthesis files, but the gain was not big enough, and we reverted this for cleanliness.
+\item Function inlining: we tried inlining the whole analysis and synthesis files, but at that point the amount of cycles saved the gain was not big enough to make a noticeable difference. Thus we reverted this for cleanliness. After other speed-ups, it might now be non-negligible, but together with the code of the crypto group, there is not enough .text space available to do so.
 \end{itemize}
 
-After all optimizations, the program used 3.2M cycles for 2986 samples: 1072 cycles per sample. This number has to be interpreted with some context:
+After all optimizations, the program used 3.2M cycles for 2986 samples, equalling 1072 cycles/sample. This number has to be interpreted with some context:
 \begin{itemize}
 \item The cycle count includes reading the .wav-file, doing all the processing, and writing the .wav-file, whereas other groups may only count (a part of) the processing. Actually, the writing of the .wav-file, a function that has been provided with the assigment, is the new bottleneck.
-\item The audio file that is used as input has 2986 samples, but is mono instead of stereo: it has only one channel. This means that every sample will be doubled, effectively resulting in 5972 samples.
+\item The audio file that is used as input has 2986 samples, but is mono instead of stereo: it has only one channel. This means that every sample will be doubled, effectively resulting in 5972 samples. We count one left/right combination as one sample, while we heard some other groups count is as two. In their way of thinking, we come to 536 cycles per sample.
 \end{itemize}
-Taking this into consideration, we come to 536 cycles per sample. This results in a total speedup of 85\% or times 6.8 for the DSP part, and times 13.6 in combination with the C part.\\
+All this results in a total speed-up of 85\% or a factor 6.8 for the DSP part, and times 13.6 in combination with the C part.\\
 
-A last optimization that we'd like to mention is what we call 'cheatMono': We noticed that a lot of the input signals were mono instead of stereo, and thus a lot of computational power was being wasted. As a proof of concept, we wrote new functions 'quantizeMono' and 'dequantizeMono' which operated on the left channel and copied the results to the right channel. In the case of stereo input, the only change is that one if-statement has to be evaluated for every buffer of 40 input samples. This optimization results in a reduction of 16\% of the cycles of the whole program in case of mono input. The downside is that 2\% more of the available space is used as code text. Since this is not a part of the original project description, we have not included this gain in our final cycle count, but we have included this functionality in our project. 
+A last optimization that we'd like to mention is what we call 'cheatMono': We noticed that a lot of the input signals were mono instead of stereo, and thus a lot of computational power was being wasted. As a proof of concept, we wrote new functions 'quantizeMono' and 'dequantizeMono' which operated on the left channel and copied the results to the right channel. In the case of stereo input, the only change is one if-statement that has to be evaluated for every buffer of 40 input samples. This optimization results in a reduction of 16\% of the cycles of the whole program in case of mono input. The downside is that 2\% more of the available space is used as code text. Since this is not a part of the original project description, we have not included this gain in our final cycle count, but we have included this functionality in our project. 
 
 \begin{table}
+\makebox[\linewidth][c]{
 \begin{tabular}{|p{2cm}|p{3cm}|p{3cm}|p{2cm}|p{2cm}|p{1cm}|}
 \hline 
 • & Major Optimization & Functions Effected & Cycles Before & Cycles After & Change (in \%) \\ 
@@ -446,27 +449,22 @@ Extra session & Change some unrolls, must\_iterates & Global & 3.6M & 3.2M & 11 
 & Combine left and right (de)quantize & (de)quantize & & & \\
 \hline
 \end{tabular} 
+}
 \caption{Table with major optimizations}
 \label{table:optimizations}
 \end{table}
 
-\section{Application description}
-The structure of the DSP/C code is the same as the MATLAB code, which has been explained earlier. The .c-files are largely the same as their .m-file counterparts from MATLAB. A difference is that the DSP version uses the files 'quantizeTogether.c' and 'dequantizeTogether.c' instead of 'quantize' and 'dequantize' since it is more efficient to quantize them together.\\
-The application is executed by running main.c. Enabling the cryptography part from another group and enabling cheating mono input signals is done by defining 'CRYPTO' and 'cheatMono' respectively, as can be seen in globals.h. The input and output .wav-file can also be specified in globals.h.
-
-
-
-
-
-
+\section{Application description (If it has been already described earlier in the report, then you may refer to it and need not repeat it again)}
 Detailed description of the application along with a figure/diagram \\
 Explain different functions in the application: Purpose, functionality, complexity, etc
 
-
+The functions of the DSP code are the same as the C code and will thus not be explained again. \mytodo{is dit al explained in het C gedeelte?}
+The application is executed by running main.c. Enabling the cryptography part from another group and enabling cheating mono input signals is done by defining 'CRYPTO' and 'cheatMono' respectively, as can be seen in globals.h. The input and output .wav-file can also be specified in globals.h.
 
 \section{Porting and integration}
-Porting the project from linux to the CCS simulator was well explained and we simply followed the powerpoint. \\
-The integration with the crypto group was smooth as well. We decided on a crypto buffer of 600 chars long. Every input buffer that we read consists of 40 samples (shorts). We discard the highest band, or 10 samples per input buffer. The remaining 30 shorts are compressed into 15 bytes after they have been quantized. This fits perfectly, and no bits are wasted. In total, 15 input buffers of 40 samples fit into one crypto buffer. This causes a total delay of: $15*40/2/8000 = 100ms$. The factor 2 comes from the fact that input is stereo and thus has two channels, each operating at 8kHz. \\
+Porting the project from Linux/Windows to the CCS simulator was well explained and we simply followed the presentation. \\
+
+The integration with the crypto group was smooth as well. We decided on a crypto buffer of 600 chars long. Every input buffer that we read consists of 40 samples (shorts). We discard the highest band, or 10 samples per input buffer. The remaining 30 shorts are compressed into 15 bytes after they have been quantized. This fits perfectly, and no bits are wasted. In total, 40 input buffers of 40 samples fit into one crypto buffer after processing. This causes a total delay of: $40*40/2/8000 = 100ms$. The factor 2 comes from the fact that input is stereo and thus has two channels, each operating at 8kHz. \\
 The only issue that we faced when integrating with the crypto group, is that the DSP only has limited memory. This was never a real problem, but limited for example the inlining that could be done. \\
 Switching from the simulator to the real DSP did cause us some headaches. First, we had a problem where we apparently forgot to initialize a variable. This was resolved, obviously, by initializing it. Then the DSP still wouldn't produce the correct output, even though we didn't know why. We spent almost an entire session on this problem, only to find out that the DSP we were given, was malconfigured: some of the switches on top were not set properly. After correcting the switches, the DSP worked fine, proving our code was correct. \\
 We then tried using it real-time, but this didn't work. We spent most of our remaining time on this issue, but sadly could not get it to work.
@@ -492,9 +490,5 @@ Next, the transition to C code was covered: the differences between MATLAB and C
 Finally, there was a transition from C to the DSP simulator and eventually to the DSP itself. The paper discussed the optimizations that were made to make the code more efficient, the actual porting onto the simulator and the DSP and the integratino with the crypto group.
 Lastly, this paper ends with the lessons that we learned and a personal course evaluation.\\
 If one were to work further on this project, a good thing to do would be to implement more intrinsics. When used correctly, these specialised lowest-level instructions are capable or speeding up the system quite a bit.
-
-\section{Course evaluation}
-Overall, we enjoyed working on this project. The workload is okay and the topic is interesting. The supervision was good for the C and DSP part, but lacked for the MATLAB part.
-We think that the MATLAB code could be provided to the students, since we already know how to program in MATLAB and it's more of a time sink, whereas optimizing for a DSP is new and exciting work.
 
 \end{document}
