@@ -177,7 +177,7 @@ int main(int argc, char *argv[]){
 			}
 			bufPos += read/2;
 
-			analysis(wavbuffer, &historyChunkAnalysis);
+			analysis(wavbuffer, &historyChunkAnalysis); //Split bands into subbands
 #ifdef cheatMono
 			if(stillMono){ //Check if new buffer is still mono
 				for(i=0; i < BUFFERSIZE_DIV2; i++){
@@ -195,7 +195,7 @@ int main(int argc, char *argv[]){
 #ifdef cheatMono
 			}
 #endif
-			compress30Samples((short *) (largeCryptoBuffer + placeInLargeBuffer));
+			compress30Samples((short *) (largeCryptoBuffer + placeInLargeBuffer)); //Compress samples to fit into the bytes that we give to crypto
 
 			placeInLargeBuffer += 15;
 		}
@@ -207,7 +207,7 @@ int main(int argc, char *argv[]){
 		//decrypt
 		readData(&ENC_ctx_slave, &ciphermessage, largeCryptoBuffer, &decrypt_size);
 #endif
-		//undo speech part
+		//Now dequantize and merge bands back together
 		placeInLargeBuffer = 0;
 		while (placeInLargeBuffer < 15 * NB_OF_SMALL_BUFFERS_IN_LARGE) {
 
