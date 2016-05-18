@@ -379,14 +379,14 @@ The bottleneck was, as we suspected by analytical approach, convolve. This is be
 
 Next, changing the result variables from a long long types to type int caused a gain of 49\% (!) on the whole program. This is a very large gain for a very simple optimization. The correctness of this change was tested with MATLAB, which showed no difference in the output at all since the 32-bit range was never exceeded. This changed moved the bottleneck away from convolve.\\
 
-The new bottlenecks were quantize and dequantize. Again changing some variables to smaller types, combined with using restrict, lead to a gain of 42\% on the whole program. At this point, the assembly code showed a call to a divide function and this leading to a disqualification of the loop for software pipelining. Apart from this drawback, profiling also showed a large difference in inclusive and exclusive cycle counts for the quantize and dequantize functions. This indicates that most of the time was spent in the calls. Therefore, the code was rewritten to eliminate the calls. For divisions expected to result in a large quotient, a binary search now finds this quotient. For divisions expected to result in a small quotient, a simple linear search finds the quotient. Figure \ref{fig:new_divisions} shows these changes. This saved 38.5\% of the cycles spent in these functions.\\
+The new bottlenecks were quantize and dequantize. Again changing some variables to smaller types, combined with using restrict, lead to a gain of 42\% on the whole program. At this point, the assembly code showed a call to a divide function and this lead to a disqualification of the loop for software pipelining. Apart from this drawback, profiling also showed a large difference in inclusive and exclusive cycle counts for the quantize and dequantize functions. This indicates that most of the time was spent in the calls. Therefore, the code was rewritten to eliminate the calls. Division operations that expect a large quotient are now replaced by a binary search. Division operations that expect a small quotient are now replaced by a linear search. Both searches give the same output as the divisions. Figure \ref{fig:new_divisions} shows these changes. This saved 38.5\% of the cycles spent in these functions.\\
 
 \begin{figure}
 \includegraphics[width=\textwidth]{new_divisions}
 \caption{Rewritten divisions in quantize and dequantize}
 \label{fig:new_divisions}
 \end{figure}
-Improving these functions, made convolve the bottleneck once again. Here, a division was written as \texttt{/(1<<amountToShift}. This way was originally preferred over a simpler and faster \texttt{>>amountToShift} because it rounds towards zero instead of towards negative infinity, leading to a better PESQ score according to MATLAB simulations. Although at other points in the code the same type of division was optimized by the compiler, it was implemented as a call to a division function in convolve. Therefore another way to do this was necessary to eliminate the call. Exploiting the fact that it's a division by a power of two, the division is implemented as showed in figure \ref{fig:new_division_in_convolve}. The improvement sped up convolve by 46\%.\\
+Improving these functions made convolve the bottleneck once again. Here, a division was written as \texttt{/(1<<amountToShift)}. This way was originally preferred over a simpler and faster \texttt{>>amountToShift} because it rounds towards zero instead of towards negative infinity, leading to a better PESQ score according to MATLAB simulations. Although at other points in the code the same type of division was optimized by the compiler, it was implemented as a call to a division function in convolve. Therefore another way to do this was necessary to eliminate the call. Exploiting the fact that it's a division by a power of two, the division is implemented as showed in figure \ref{fig:new_division_in_convolve}. The improvement sped up convolve by 46\%.\\
 
 \begin{figure}
 \makebox[\textwidth][c]{
@@ -395,7 +395,7 @@ Improving these functions, made convolve the bottleneck once again. Here, a divi
 \caption{Rewritten division in convolve}
 \label{fig:new_division_in_convolve}
 \end{figure}
-Finally, in convolve, combine and combineWithoutDelay the calls to a reminder function were eliminated. This gave a gain of 11\% on convolve and 68\% on combine. Together with rewriting the divisions, this gave a reduction of 39\% for the total application.\\
+Finally, in convolve, combine and combineWithoutDelay the calls to a \texttt{reminder} function were eliminated. This gave a gain of 11\% on convolve and 68\% on combine. Together with rewriting the divisions, this gave a reduction of 39\% for the total application.\\
 
 As a last change, we changed the quantization and dequantization functions to work on the left and right channel together. This gave a reduction of 11\%.\\
 These major optimizations can be found in table \ref{table:optimizations}. Please note that they are not the only optimizations we tried: in fact, we tried every optimization that was suggested in the powerpoint. This includes:
@@ -406,13 +406,13 @@ These major optimizations can be found in table \ref{table:optimizations}. Pleas
 \item Intrinsics: We tried many intrinsics, but the only one that we found to be useful is '\_abs'. Sometimes using SIMD instructions for parallelism did not help, because it replaced parallelism by using two cores created by the compiler.
 \item 'Near' and 'const' variable keywords: These keywords did not give us any or much gain, and we reverted this optimization for cleanliness.
 \item 'Restrict' variable keyword: This keyword was used wherever possible, and often gave improvements.
-\item Function inlining: we tried inlining the whole analysis and synthesis files, but at that point the amount of cycles saved the gain was not big enough to make a noticeable difference. Thus we reverted this for cleanliness. After other speed-ups, it might now be non-negligible, but together with the code of the crypto group, there is not enough .text space available to do so.
+\item Function inlining: we tried inlining the whole analysis and synthesis files, but at that point the amount of cycles saved the gain was not big enough to make a noticeable difference. Thus we reverted this for cleanliness. After other speed-ups, it might now be non-negligible, but together with the code of the crypto group, there is not enough text space available to do so.
 \end{itemize}
 
 After all optimizations, the program used 3.2M cycles for 2986 samples, equalling 1072 cycles/sample. This number has to be interpreted with some context:
 \begin{itemize}
 \item The cycle count includes reading the .wav-file, doing all the processing, and writing the .wav-file, whereas other groups may only count (a part of) the processing. Actually, the writing of the .wav-file, a function that has been provided with the assigment, is the new bottleneck.
-\item The audio file that is used as input has 2986 samples, but is mono instead of stereo: it has only one channel. This means that every sample will be doubled, effectively resulting in 5972 samples. We count one left/right combination as one sample, while we heard some other groups count is as two. In their way of thinking, we come to 536 cycles per sample.
+\item The audio file that is used as input has 2986 samples, but is mono instead of stereo: it has only one channel. This means that every sample will be doubled, effectively resulting in 5972 samples. We count one left/right combination as one sample, while we heard some other groups count this as two. In their way of thinking, we come to 536 cycles per sample.
 \end{itemize}
 All this results in a total speed-up of 85\% or a factor 6.8 for the DSP part, and times 13.6 in combination with the C part.\\
 
@@ -454,18 +454,15 @@ Extra session & Change some unrolls, must\_iterates & Global & 3.6M & 3.2M & 11 
 \label{table:optimizations}
 \end{table}
 
-\section{Application description (If it has been already described earlier in the report, then you may refer to it and need not repeat it again)}
-Detailed description of the application along with a figure/diagram \\
-Explain different functions in the application: Purpose, functionality, complexity, etc
-
-The functions of the DSP code are the same as the C code and will thus not be explained again. \mytodo{is dit al explained in het C gedeelte?}
+\section{Application description}
+The structure of the C/DSP code is the same as the MATLAB structure. The .c-files are largely the same as the MATLAB files. A difference is that for the DSP version, we use \texttt{quantizeTogether} and \texttt{dequantizeTogether} instead of texttt{quantize} and texttt{dequantize}, because this is more efficient.
 The application is executed by running main.c. Enabling the cryptography part from another group and enabling cheating mono input signals is done by defining 'CRYPTO' and 'cheatMono' respectively, as can be seen in globals.h. The input and output .wav-file can also be specified in globals.h.
 
 \section{Porting and integration}
 Porting the project from Linux/Windows to the CCS simulator was well explained and we simply followed the presentation. \\
 
 The integration with the crypto group was smooth as well. We decided on a crypto buffer of 600 chars long. Every input buffer that we read consists of 40 samples (shorts). We discard the highest band, or 10 samples per input buffer. The remaining 30 shorts are compressed into 15 bytes after they have been quantized. This fits perfectly, and no bits are wasted. In total, 40 input buffers of 40 samples fit into one crypto buffer after processing. This causes a total delay of: $40*40/2/8000 = 100ms$. The factor 2 comes from the fact that input is stereo and thus has two channels, each operating at 8kHz. \\
-The only issue that we faced when integrating with the crypto group, is that the DSP only has limited memory. This was never a real problem, but limited for example the inlining that could be done. \\
+The only issue that we faced when integrating with the crypto group, is that the DSP has limited memory. This was never a real problem, but limited for example the inlining that could be done. \\
 Switching from the simulator to the real DSP did cause us some headaches. First, we had a problem where we apparently forgot to initialize a variable. This was resolved, obviously, by initializing it. Then the DSP still wouldn't produce the correct output, even though we didn't know why. We spent almost an entire session on this problem, only to find out that the DSP we were given, was malconfigured: some of the switches on top were not set properly. After correcting the switches, the DSP worked fine, proving our code was correct. \\
 We then tried using it real-time, but this didn't work. We spent most of our remaining time on this issue, but sadly could not get it to work.
 
@@ -476,12 +473,6 @@ These are three things that we will remember from this project:
 \item Simply reducing variable types can result in quick but impactful optimizations.
 \item Always check if the hardware (DSP) that you get is configured correctly.
 \end{itemize}
-
-About your learning experience from the course.\\
-How decisions taken earlier in the design flow impacted the performance of your code on DSP as
-well as the scope of optimizations\\
- Your suggestions for improving the content and/or teaching of the course (DSP part specifically) for
-coming years
 
 \section{Conclusions}
 This was the final report for the P\&D assignment on creating a speech codec. A speech codec has been succesfully created and works on the DSP simulator, but sadly not in real-time. \\
