@@ -364,16 +364,14 @@ The optimized version is derived from the unoptimized by:
 \end{itemize}
 \end{minipage}
 
-\subsection{Evaluation of the initial C implementation}
+\section{Evaluation of the initial C implementation}
 The MATLAB code is successfully translated to a C implementation. Both implementations produce the exact same output. Changes made to the MATLAB code to make its rounding mechanism the same as C's and vice versa are explained. Above text also illustrated why the C implementation is less flexible and works buffer per buffer. Next, it explained that bitwise operations were used in order to group useful bits. This is new in the C implementation: there is no equivalent in MATLAB. This is a preparation to communicate with an encryption algorithm, which will be provided by another group in the near future. The above text also handled about saving memory by using functions that work in-place, and about saving execution time. The latter was realized by profiling the code, and optimizing the critical inner loop of the \texttt{convolve} function. This enhanced execution time with approximately a factor 2. Previous text also explained how both the buffer per buffer execution order and the use of pointers made debugging harder, and the measure taken to facilitate this.
 
 \section{Digital Signal Processor}
-\mytodo{maybe include this in matlab conclusion}
-Having written the code in C, it was now ready to be optimized for porting onto a Digital Signal Processor.
+Next, the fully functional C implementation is ported to and optimized for a Digital Signal Processor. The DSP in question is the Texas Instruments TMS320C6748. 
 
 \section{Optimization for DSP}
-\mytodo{spreken over het feit dat we mono sample als 1 sample zien en andere groepen het als 2 dus eigenlijk zjin we 2x sneller}
-After already speeding up the code by a factor of about 2, running the application with an input file of 2986 samples resulted in 21.8M cycles: 7.300 cycles / sample. 
+After already speeding up the code by a factor of about 2, running the application with an input file of 2986 samples\footnote{The file is actually a mono audio file, but it is loaded and processed as a stereo file. If one counts one left/right combination as two seperate samples, all the cycles/sample results must be divided by 2.} resulted in 21.8M cycles: 7.300 cycles / sample. 
 We will now discuss some of the changes that had the most influence on the cycle count. \\
 The bottleneck was, as we suspected by analytical approach, convolve. This is because convolve contained the only nested loop, and worked with the biggest data types. \\
 We first started by writing a function that did the convolutions of the left and right channel together. This netted a gain of 8\%. We assume this is because this gives the compiler more freedom and reduces overhead. \\
