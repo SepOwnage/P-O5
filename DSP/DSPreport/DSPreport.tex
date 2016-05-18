@@ -229,9 +229,9 @@ delay = \frac{(64-1)}{8000 Hz} + \frac{(32-1)}{4000 Hz} = 15.625 ms.
 \end{equation*}
 
 \section{Evaluation of MATLAB code}
-All MATLAB functions work with fixed point values. This simulates the working on a DSP. All performance results should therefore not change when the system is run on a DSP. The achieved PESQ scores (3.00 to 3.54) were shown and indicate decent performance. The optimal values of the parameters were found by searching for the highest PESQ score by changing the parameters. Finally, the inherent delay of the implementation was briefly discussed and calculated to be less than $16ms$. This leaves $134ms$ for the encryption and decryption, processing and other kinds of buffering.\\
+All MATLAB functions work with fixed point values. This simulates the workings of a DSP. All performance results should therefore not change when the system is run on a DSP. The achieved PESQ scores (3.00 to 3.54) were shown and indicate good performance. The optimal values of the parameters were found by searching for the highest PESQ score by changing the parameters one by one. Finally, the inherent delay of the implementation was briefly discussed and calculated to be less than $16ms$. This leaves $134ms$ for the encryption and decryption, processing and other kinds of buffering.\\
 
-While translating the MATLAB code to C (see below), it became clear that although the MATLAB code can use asymetric filter banks, it is not implemented properly: a path with less filters or filters of smaller order is not extra delayed to have the same delay as the longer path. This error is not fixed, since we decided not to use an asymmetric structure anyway.
+While translating the MATLAB code to C (see below), it became clear that although the MATLAB code can use asymmetric filter banks, it is not implemented properly: a path with less filters or filters of smaller order is not extra delayed to have the same delay as the longer path. This error is not fixed, since our implementation does not use an asymmetric structure anyway.
 
 \section{C implementation on a PC}
 Given the MATLAB model for the codec, the next task is to translate this code into an efficient implementation in C. This can later on be ported onto a Digital Signal Processor.
@@ -449,12 +449,19 @@ Extra session & Change some unrolls, must\_iterates & Global & 3.6M & 3.2M & 11 
 \label{table:optimizations}
 \end{table}
 
-\section{Application description (If it has been already described earlier in the report, then you may refer to it and need not repeat it again)}
+\section{Application description}
+The structure of the DSP/C code is the same as the MATLAB code, which has been explained earlier. The .c-files are largely the same as their .m-file counterparts from MATLAB. A difference is that the DSP version uses the files 'quantizeTogether.c' and 'dequantizeTogether.c' instead of 'quantize' and 'dequantize' since it is more efficient to quantize them together.\\
+The application is executed by running main.c. Enabling the cryptography part from another group and enabling cheating mono input signals is done by defining 'CRYPTO' and 'cheatMono' respectively, as can be seen in globals.h. The input and output .wav-file can also be specified in globals.h.
+
+
+
+
+
+
 Detailed description of the application along with a figure/diagram \\
 Explain different functions in the application: Purpose, functionality, complexity, etc
 
-The functions of the DSP code are the same as the C code and will thus not be explained again. \mytodo{is dit al explained in het C gedeelte?}
-The application is executed by running main.c. Enabling the cryptography part from another group and enabling cheating mono input signals is done by defining 'CRYPTO' and 'cheatMono' respectively, as can be seen in globals.h. The input and output .wav-file can also be specified in globals.h.
+
 
 \section{Porting and integration}
 Porting the project from linux to the CCS simulator was well explained and we simply followed the powerpoint. \\
@@ -478,14 +485,10 @@ well as the scope of optimizations\\
 coming years
 
 \section{Conclusions}
-\mytodo{Each team submits a final report as a PDF file. It contains an overview of the work and an evaluation of the course.
-This report is not a day-to-day overview of your activities; it is more an executive overview. It has to integrate the content of the intermediate reports and also has to elaborate on the topics listed in the DSP final report format document (under Projects/DSP optimization).
+If one were to work further on this project, a good thing to do would be to implement more intrinsics. When used correctly, these specialised lowest-level instructions are capable or speeding up the system quite a bit.
 
-The part about the course evaluation bundles the remarks and suggestions for improvement of the logistics as well as of the overall course planning.}
-
-\mytodo{if we had more time ... intrinsics etc.Why are we so slow?}
-\section{Appendix}
-List of your functions and in which files (.c, .h) are they declared \& defined, such that it can help the assistants going through the code (if needed)
-\end{document}
+\section{Course evaluation}
+Overall, we enjoyed working on this project. The workload is okay and the topic is interesting. The supervision was good for the C and DSP part, but lacked for the MATLAB part.
+We think that the MATLAB code could be provided to the students, since we already know how to program in MATLAB and it's more of a time sink, whereas optimizing for a DSP is new and exciting work.
 
 
