@@ -21,7 +21,6 @@
 \maketitle
 \begin{center}Andras Boho, Yanxiang Huang
 \end{center}
-
 \section{Introduction}
 \mytodo{include everything from ppt presentation}
 \section{Project description}
@@ -371,28 +370,30 @@ The MATLAB code is successfully translated to a C implementation. Both implement
 Next, the fully functional C implementation is ported to and optimized for a Digital Signal Processor. The DSP in question is the Texas Instruments TMS320C6748. 
 
 \section{Optimization for DSP}
-After already speeding up the code by a factor of about 2, running the application with an input file of 2986 samples\footnote{The file is actually a mono audio file, but it is loaded and processed as a stereo file. If one counts one left/right combination as two seperate samples, all the cycles/sample results must be divided by 2.} resulted in 21.8M cycles: 7.300 cycles / sample. 
-We will now discuss some of the changes that had the most influence on the cycle count. \\
-The bottleneck was, as we suspected by analytical approach, convolve. This is because convolve contained the only nested loop, and worked with the biggest data types. \\
-We first started by writing a function that did the convolutions of the left and right channel together. This netted a gain of 8\%. We assume this is because this gives the compiler more freedom and reduces overhead. \\
-We then changed some long long variable types to ints: this netted a gain of 49\% (!). This is a very large gain for a very simple optimization. At this point, convolve was no longer the bottleneck. \\
-The new bottlenecks were quantize and dequantize. By also changing some variables to smaller types, we won 42\%.
-\mytodo{Spreken over 
-Rewrote divisions:  38,5\% on (de)quantize
-Binary/linear
-eliminates function calls
-Hypothesis: enables software pipelining of outer loop
-EN VOEG AFBEELDIGN TOE}\\
-After improving these functions, convolve was once again the bottleneck. \mytodo{
-Convolve:
-Division as shift:  46\% on convolve
-	 eliminates function call
-Original:
-Division for roundig to zero
-New:
-Complex division as shift for rounding behaviour+speed
-EN VOEG AFBEELDING TOE}\\
-Finally, we changed the functions convolve and combine, which still worked with a modulo operation and were therefore inefficient. This gave a gain of 11\% on convolve and 68\% on combine. Together with rewriting the divisions, this gave a reduction of 39\% for the total application. \\
+After already speeding up the code by a factor of about 2, running the application with an input file of 2986 samples\footnote{The file is actually a mono audio file, but it is loaded and processed as a stereo file. If one counts one left/right combination as two seperate samples, all the cycles/sample results must be divided by 2.} resulted in 21.8M cycles: 7.300 cycles / sample. We will now discuss some of the changes that had the most influence on the cycle count. \\
+
+The bottleneck was, as we suspected by analytical approach, convolve. This is because convolve contained the only nested loop, and worked with the biggest data types. The original convolve function was changed so that it could do both left and right channels in one call. The hypothesis was that this would give the compiler more freedom to use parallelism and that the decrease in overhead would also result in a small gain. Simulations showed a net gain of 8\% on the whole program.\\
+
+Next, changing the result variables from a long long types to type int caused a gain of 49\% (!) on the whole program. This is a very large gain for a very simple optimization. The correctness of this change was tested with MATLAB, which showed no difference in the output at all since the 32-bit range was never exceeded. This changed moved the bottleneck away from convolve.\\
+
+The new bottlenecks were quantize and dequantize. Again changing some variables to smaller types, combined with using restrict, lead to a gain of 42\% on the whole program. At this point, the assembly code showed a call to a divide function and this leading to a disqualification of the loop for software pipelining. Apart from this drawback, profiling also showed a large difference in inclusive and exclusive cycle counts for the quantize and dequantize functions. This indicates that most of the time was spent in the calls. Therefore, the code was rewritten to eliminate the calls. For divisions expected to result in a large quotient, a binary search now finds this quotient. For divisions expected to result in a small quotient, a simple linear search finds the quotient. Figure \ref{fig:new_divisions} shows these changes. This saved 38.5\% of the cycles spent in these functions.\\
+
+\begin{figure}
+\includegraphics[width=\textwidth]{new_divisions}
+\caption{Rewritten divisions in quantize and dequantize}
+\label{fig:new_divisions}
+\end{figure}
+Improving these functions, made convolve the bottleneck once again. Here, a division was written as \texttt{/(1<<amountToShift}. This way was originally preferred over a simpler and faster \texttt{>>amountToShift} because it rounds towards zero instead of towards negative infinity, leading to a better PESQ score according to MATLAB simulations. Although at other points in the code the same type of division was optimized by the compiler, it was implemented as a call to a division function in convolve. Therefore another way to do this was necessary to eliminate the call. Exploiting the fact that it's a division by a power of two, the division is implemented as showed in figure \ref{fig:new_division_in_convolve}. The improvement sped up convolve by 46\%.\\
+
+\begin{figure}
+\makebox[\textwidth][c]{
+\includegraphics[width=1.4\textwidth]{new_division_in_convolve}
+}
+\caption{Rewritten division in convolve}
+\label{fig:new_division_in_convolve}
+\end{figure}
+Finally, in convolve, combine and combineWithoutDelay the calls to a reminder function were eliminated. This gave a gain of 11\% on convolve and 68\% on combine. Together with rewriting the divisions, this gave a reduction of 39\% for the total application.\\
+
 As a last change, we changed the quantization and dequantization functions to work on the left and right channel together. This gave a reduction of 11\%.\\
 These major optimizations can be found in table \ref{table:optimizations}. Please note that they are not the only optimizations we tried: in fact, we tried every optimization that was suggested in the powerpoint. This includes:
 \begin{itemize}
