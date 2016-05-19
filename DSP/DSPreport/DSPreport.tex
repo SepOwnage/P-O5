@@ -27,10 +27,6 @@ This is a final report for the P\&D assignment on creating a speech codec. The g
 First, a MATLAB implementation is written. A C implementation followed, and this is eventually ported onto a DSP and optimized. This paper follows the same order.
 \section{Project description}
 \subsection{Project overview}
-uitleggen spraak encoder - crypto group - spraak decoder
-uitleggen doel = porting en real time running on dsp
-
-check overlapp met intro. Wat waar ?  combine?
 \subsection{Main design specifications}
 The following list contains the specifications that the design of the codec has to meet.
 
@@ -116,8 +112,8 @@ Both the quantizer and dequantizer are initialized with the initial prediction $
 \section{MATLAB implementation}
 This section gives a brief explanation of the used MATLAB files and their functionality.
 
-\subsection{generate\_some\_params.m}
-This script can be run to generate parameters used to call run.m
+\subsection{generate\_some\_params.m and test\_some\_params.m}
+These script can be run to generate parameters used to call run. After generating the parameters, test\_some\_params also calls run on 8 audio files and calculates the average PESQ and SNR scores.
 
 \subsection{run.m}
 This is the main function used to divide an audio file into subbands, quantize and dequantize those subbands, and synthesize them again to create an audio signal that closely resembles the original signal. Accepted audio files are .wav-files that are stereo or pairwise mono. The input audio file that should be used is passed as an argument.\\
@@ -144,7 +140,7 @@ This function is the inverse of get\_subbands.m: its inputs are the separate sub
 
 \section{Parameter values and their PESQ and SNR scores}
 \subsection{Proposed values of controllable parameters}
-This section handles all of the parameters that define the implementation of the speech codec. Please note that although these values are currently our optimal values, they may be subject to changes in the future. This can be because of changes in the code, or because better values are found by (brute force) searching.\\
+This section handles all of the parameters that define the implementation of the speech codec.\\
 
 The QMF filters generated with the given function QMF\_design.m are characterized by the following parameters:
 
@@ -249,7 +245,7 @@ All the parameters of the filterbanks are also difficult to change. In MATLAB, t
 \subsubsection{Rounding and scaling}\label{sec:rounding}
 Although the MATLAB implementation was designed to mimic C like integer operations, some false assumptions were made. Table \ref{tbl:roundingassumptions} lists these, as well as their correction and solution. The purpose of the solutions is always to make the C implementation consistent with the MATLAB implementation. The second solution might make the code a little slower, but because it is not in the critical inner loop of \texttt{convolve} (see \ref{sec:processing}), it does not make an important difference.\\
 
-Apart from the changes mentioned in table \ref{tbl:roundingassumptions}, another change was made in MATLAB: The values that are loaded from the .wav-file are multiplied by $2^{15}$ instead of scaled to use the full integer range. This is not the same when the values in the .wav-file do not occupy their full available range. This change is made because the maximum value must be known in order to scale the values to the full available range. This information is not known in a real-time application, and can thus not be used.
+Apart from the changes mentioned in table \ref{tbl:roundingassumptions}, another change was made in MATLAB: the values that are loaded from the .wav-file are multiplied by $2^{15}$ instead of scaled to use the full integer range. This is not the same when the values in the .wav-file do not occupy their full available range. This change is made because the maximum value must be known in order to scale the values to the full available range. This information is not known in a real-time application, and can thus not be used.
 \begin{table}[htb]
 \centering
 \makebox[\linewidth][c]{
@@ -372,7 +368,7 @@ The MATLAB code is successfully translated to a C implementation. Both implement
 \section{Digital Signal Processor}
 Next, the fully functional C implementation is ported to and optimized for a Digital Signal Processor. The DSP in question is the Texas Instruments TMS320C6748. 
 
-\section{Optimization for DSP}
+\subsection{Optimization for DSP}
 After already speeding up the code by a factor of about 2, running the application with an input file of 2986 samples resulted in 21.8M cycles: 7.300 cycles / sample. We will now discuss some of the changes that had the most influence on the cycle count. \\
 
 The bottleneck was, as we suspected by analytical approach, convolve. This is because convolve contained the only nested loop, and worked with the biggest data types. The original convolve function was changed so that it could do both left and right channels in one call. The hypothesis was that this would give the compiler more freedom to use parallelism and that the decrease in overhead would also result in a small gain. Simulations showed a net gain of 8\% on the whole program.\\
