@@ -64,7 +64,6 @@ void decompress30samples(unsigned char *compressedSamples, short *output) {
 		second = compressedSamples[3 * i + 1];
 		third = compressedSamples[3 * i + 2];
 
-		//TODO: better way to copy sign bit? + check because probably platform dependent!
 		lowest1 = ((short) ((first & 248)<<8))>>11;
 		lowest2 = ((short)((((second & 15) << 1) | ((third & 128) >> 7)) << 11)) >> 11;
 		low1 = ((short)((((first & 7) << 1) | ((second & 128) >> 7)) << 12)) >> 12;

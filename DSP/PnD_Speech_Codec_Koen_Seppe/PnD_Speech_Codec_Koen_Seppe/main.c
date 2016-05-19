@@ -24,23 +24,24 @@
 #endif
 #define NB_OF_SMALL_BUFFERS_IN_LARGE 40
 
+//Quantize parameters
 struct parameters LowLowParams = { 5144, 19660, 10, 15 };
+struct parameters LowHighParams = { 16384, 328, 10, 7 };
+struct parameters HighParams = { 29490, 31129, 10, 3 };
+
+//quantize passed data (holding history between calls)
 unsigned short LowLowValuesLeftQuantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 struct start_values LowLowStartValuesLeftQuantize = { 0, 1, 0, 0, 0, LowLowValuesLeftQuantize };
 unsigned short LowLowValuesLeftDequantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 struct start_values LowLowStartValuesLeftDequantize = { 0, 1, 0, 0, 0, LowLowValuesLeftDequantize };
-struct parameters LowHighParams = { 16384, 328, 10, 7 };
 unsigned short LowHighValuesLeftQuantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 unsigned short LowHighValuesLeftDequantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 struct start_values LowHighStartValuesLeftQuantize = { 0, 1, 0, 0, 0, LowHighValuesLeftQuantize };
 struct start_values LowHighStartValuesLeftDequantize = { 0, 1, 0, 0, 0, LowHighValuesLeftDequantize };
-
-struct parameters HighParams = { 29490, 31129, 10, 3 };
 unsigned short HighValuesLeftQuantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 unsigned short HighValuesLeftDequantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 struct start_values HighStartValuesLeftQuantize = { 0, 1, 0, 0, 0, HighValuesLeftQuantize };
 struct start_values HighStartValuesLeftDequantize = { 0, 1, 0, 0, 0, HighValuesLeftDequantize };
-
 unsigned short LowLowValuesRightQuantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 unsigned short LowLowValuesRightDequantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 struct start_values LowLowStartValuesRightQuantize = { 0, 1, 0, 0, 0, LowLowValuesRightQuantize };
@@ -54,9 +55,13 @@ unsigned short HighValuesRightDequantize[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 struct start_values HighStartValuesRightQuantize = { 0, 1, 0, 0, 0, HighValuesRightQuantize };
 struct start_values HighStartValuesRightDequantize = { 0, 1, 0, 0, 0, HighValuesRightDequantize };
 
+//chunks holding history for synthesis and analysis
 struct chunk historyChunkAnalysis, historyChunkSynthesis;
+
+//large buffer, passed to the crypto part
 unsigned char largeCryptoBuffer[15 * NB_OF_SMALL_BUFFERS_IN_LARGE + 45];  //TODO reken die 30 juist uit
 short placeInLargeBuffer=0;
+//short buffer in which the input file is read
 short wavbuffer[BUFFERSIZE];
 
 #ifdef cheatMono
@@ -92,9 +97,9 @@ inline void dequantizeBandsMono(short *buffer){
 }
 #endif
 
-
+//just a function to make the main function more compact. This calls quantize for the 3 used bands (one call is both left and right channel)
 inline void quantizeBands(short* start, struct chunk* theChunk){
-	  	quantizeTogether(start,
+	 quantizeTogether(start,
 			theChunk->leftLowEven, theChunk->position2,
 			BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF,
 			5, &LowLowParams, &LowLowStartValuesLeftQuantize,start + 5,
@@ -118,7 +123,7 @@ inline void quantizeBands(short* start, struct chunk* theChunk){
 
 }
 
-
+//just a function to make the main function more compact. This calls dequantize for the 3 used bands (one call is both left and right channel)
 inline void dequantizeBands(short *buffer){
 	dequantizeTogether(buffer, buffer, 5, &LowLowParams, &LowLowStartValuesLeftDequantize,buffer + 5 , buffer + 5, &LowLowStartValuesRightDequantize);
 	dequantizeTogether(buffer + 10, buffer + 10, 5, &LowHighParams, &LowHighStartValuesLeftDequantize,buffer + 15, buffer + 15, &LowHighStartValuesRightDequantize);
@@ -138,7 +143,7 @@ ENC_ctx ENC_ctx_master, ENC_ctx_slave;
 int main(int argc, char *argv[]){
 	int bufPos, read;
 
-
+	//initialization
 	memset(&input, 0, sizeof(struct wavpcm_input));
 	input.resource = INPUTWAVFILE;
 	wavpcm_input_open(&input);
@@ -175,6 +180,7 @@ int main(int argc, char *argv[]){
 						read, input.samplesAvailable, bufPos);
 				}
 			}
+			//process the buffer
 			bufPos += read/2;
 
 			analysis(wavbuffer, &historyChunkAnalysis); //Split bands into subbands
@@ -191,12 +197,15 @@ int main(int argc, char *argv[]){
 				quantizeBandsMono((short *) (largeCryptoBuffer + placeInLargeBuffer), &historyChunkAnalysis);
 			}else{
 #endif
+			//quantize the bands, use largeCryptoBuffer to write the output in
 			quantizeBands((short *) (largeCryptoBuffer + placeInLargeBuffer), &historyChunkAnalysis);
 #ifdef cheatMono
 			}
 #endif
+			//compress this new output (in place)
 			compress30Samples((short *) (largeCryptoBuffer + placeInLargeBuffer)); //Compress samples to fit into the bytes that we give to crypto
 
+			//increment position in largeCryptoBuffer
 			placeInLargeBuffer += 15;
 		}
 #ifdef CRYPTO
@@ -210,9 +219,10 @@ int main(int argc, char *argv[]){
 		//Now dequantize and merge bands back together
 		placeInLargeBuffer = 0;
 		while (placeInLargeBuffer < 15 * NB_OF_SMALL_BUFFERS_IN_LARGE) {
-
+			//decompress. This is not in place because the amount of data expands. However, wavbuffer can be used again
 			decompress30samples((largeCryptoBuffer + placeInLargeBuffer), wavbuffer);
 
+			//dequantize the bands, working in place in wavbuffer
 #ifdef cheatMono
 			if(stillMono){ //if still mono, use it to cheat (de)quantize
 				dequantizeBandsMono(wavbuffer);
@@ -222,10 +232,11 @@ int main(int argc, char *argv[]){
 #ifdef cheatMono
 			}
 #endif
+			//synthesis filter bank, again using wavbuffer for both input and output
 			synthesis(wavbuffer,
 				wavbuffer, wavbuffer + 10, wavbuffer + 20, wavbuffer + 5, wavbuffer + 15, wavbuffer + 25,
 				&historyChunkSynthesis);
-
+			//write the output to file
 			wavpcm_output_write(&output, wavbuffer, 40);
 			placeInLargeBuffer += 15;
 		}

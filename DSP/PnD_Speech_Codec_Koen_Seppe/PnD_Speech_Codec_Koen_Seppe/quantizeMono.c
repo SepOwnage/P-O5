@@ -7,14 +7,9 @@ void quantizeMono(short * restrict quantized_differences_left, short * restrict 
 	short * restrict quantized_differences_right, short * restrict start_of_samples_array_right,
 	unsigned char start_position_in_samples_array_right, unsigned char length_of_samples_array_right, struct start_values *values_right) {
 	/*
-	Quantizes the inputs with an adaptive, differential quantization scheme.
-	Quantized_difference: start location of output
-	start_of_samples_array: pointer to start of the array holding the samples
-	start_position_in_samples_array: where in the array holding the samples the current samples are
-	length_of_samples_array: the length of the array holding the samples (reading after this length=reading at the beginning)
-	nb_samples_to_do: the amount of samples to process
-	params: holding subband specific parameters
-	values: structure containing information from previous calls of this function
+	Arguments: see quantizeTogether.
+	This version only calculates the output for one channel and then copies it to the other.
+
 	*/
 
 	// Variable declaration & initialisation

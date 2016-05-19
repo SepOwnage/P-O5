@@ -9,13 +9,15 @@ void quantizeTogether(short * restrict quantized_differences_left, short * restr
 
 	/*
 	Quantizes the inputs with an adaptive, differential quantization scheme.
-	Quantized_difference: start location of output
-	start_of_samples_array: pointer to start of the array holding the samples
-	start_position_in_samples_array: where in the array holding the samples the current samples are
-	length_of_samples_array: the length of the array holding the samples (reading after this length=reading at the beginning)
+	Quantized_difference_left: start location of output of left channel
+	start_of_samples_array_left: pointer to start of the array holding the left channel samples
+	start_position_in_samples_array: where in the array holdings the samples the current samples are
+	length_of_samples_array: the length of the arrays holding the samples (reading after this length=reading at the beginning)
 	nb_samples_to_do: the amount of samples to process
 	params: holding subband specific parameters
-	values: structure containing information from previous calls of this function
+	values_left: structure containing information from previous calls of this function of the left channel
+
+	similar arguments for the right channel
 	*/
 
 	// Variable declaration & initialisation
