@@ -15,16 +15,15 @@
 \usepackage{tabu}
 \usepackage{array}
 
-\title{H09M0A P\&D Embedded Systems and Multimedia \\ DSP}
+\title{H09M0A P\&D Embedded Systems and Multimedia \\ Speech codec project}
 \author{Seppe Iven - r0370830 \\ Koen Goetschalckx - r0375967}
 \begin{document} 
 \maketitle
-\begin{center}Andras Boho, Yanxiang Huang
-\end{center}
 \section{Introduction}
-This is a final report for the P\&D assignment on creating a speech codec. The goal of this project is to run an algorithm on a Digital Signal Processor that encodes, encrypts, decrypts and decodes speech in real-time. The encryption and decryption code is provided by another group. The codec implements subband filtering and adaptive quantization, with the goal of efficiently compressing a stereo audio signal.\\
+This is a final report for the P\&D assignment on creating a speech codec. The goal of this project is to run an algorithm on a Digital Signal Processor that encodes, encrypts, decrypts and decodes speech in real-time. The encryption and decryption code is provided by another group. The codec implements subband filtering and adaptive differential quantization, with the goal of efficiently compressing a stereo audio signal.\\
 
-First, a MATLAB implementation is written. A C implementation followed, and this is eventually ported onto a DSP and optimized. This paper follows the same order.
+This paper follows a certain order. First, the principles that are used in the codec are explained: the subband filtering and the adaptive differential quantization. Then, an implementation in MATLAB is shown, which is optimized based on PESQ scores. The MATLAB code is then implemented in C, and the differences with the original MATLAB code will be discussed. The final part includes the porting onto and optimizing for a DSP, followed by the conclusions and a course evaluation.
+
 \section{Project description}
 \subsection{Project overview}
 \subsection{Main design specifications}
@@ -227,13 +226,13 @@ delay = \frac{(64-1)}{8000 Hz} + \frac{(32-1)}{4000 Hz} = 15.625 ms.
 \end{equation*}
 
 \section{Evaluation of MATLAB code}
-The MATLAB code is designed to be very flexible, with easy to change, grouped parameters. All MATLAB functions work with fixed point values. This simulates the workings of a DSP. All performance results should therefore not change when the system is run on a DSP. The achieved PESQ scores (3.00 to 3.54) were shown and indicate decent performance. The optimal values of the parameters were found by searching for the highest PESQ score by changing the parameters one by one. Finally, the inherent delay of the implementation was briefly discussed and calculated to be less than $16ms$. This leaves $134ms$ for the encryption and decryption, processing and other kinds of buffering.\\
+The MATLAB code is designed to be very flexible with easy to change, grouped parameters. All MATLAB functions work with fixed point values. This simulates the workings of a DSP. All performance results should therefore not change when the system is run on a DSP. The achieved PESQ scores (3.00 to 3.54) were shown and indicate decent performance. The optimal values of the parameters were found by searching for the highest PESQ score by changing the parameters one by one. Finally, the inherent delay of the implementation was briefly discussed and calculated to be less than $16ms$. This leaves $134ms$ for the encryption and decryption, processing and other kinds of buffering.\\
 
 
-While translating the MATLAB code to C (see below), it became clear that although the MATLAB code can use asymetric filter banks, it is not implemented properly: a path with less filters or filters of smaller order is not extra delayed to have the same delay as the longer path. This error is not fixed, since we decided not to use an asymmetric structure anyway.
+While translating the MATLAB code to C (see below), it became clear that although the MATLAB code can use asymmetric filter banks, it is not implemented properly: a path with less filters or filters of smaller order is not extra delayed, which is needed to have the same delay as the longer path. This error is not fixed, since this implementation does not use an asymmetric structure anyway.
 
 \section{C implementation on a PC}
-Given the MATLAB model for the codec, the next task is to translate this code into an efficient implementation in C. This can later on be ported onto a Digital Signal Processor.
+Given the MATLAB model for the codec, the next task is to translate this code into an efficient implementation in C. This can later on be ported onto a Digital Signal Processor. Some of the key differences between the C and MATLAB code will now be discussed, followed by preparations for communication with a crypto group, and the performance enhancements that were made in the C implementation.
 \subsection{Differences between the MATLAB and C implementation}\label{sec:differences}
 \subsubsection{Flexibility}
 The MATLAB code offers more flexibility than the C code. In MATLAB, even the structure of the analysis and synthesis filter banks (e.g. the amount of subbands) can be derived from given parameters. In C however, this structure is fixed in the code.\\
@@ -375,7 +374,7 @@ The bottleneck was, as we suspected by analytical approach, convolve. This is be
 
 Next, changing the result variables from a long long types to type int caused a gain of 49\% (!) on the whole program. This is a very large gain for a very simple optimization. The correctness of this change was tested with MATLAB, which showed no difference in the output at all since the 32-bit range was never exceeded. This changed moved the bottleneck away from convolve.\\
 
-The new bottlenecks were quantize and dequantize. Again changing some variables to smaller types, combined with using restrict, lead to a gain of 42\% on the whole program. At this point, the assembly code showed a call to a divide function and this lead to a disqualification of the loop for software pipelining. Apart from this drawback, profiling also showed a large difference in inclusive and exclusive cycle counts for the quantize and dequantize functions. This indicates that most of the time was spent in the calls. Therefore, the code was rewritten to eliminate the calls. Division operations that expect a large quotient are now replaced by a binary search. Division operations that expect a small quotient are now replaced by a linear search. Both searches give the same output as the divisions. Figure \ref{fig:new_divisions} shows these changes. This saved 38.5\% of the cycles spent in these functions.\\
+The new bottlenecks were quantize and dequantize. Again changing some variables to smaller types, combined with using restrict, lead to a gain of 42\% on the whole program. At this point, the assembly code showed a call to a divide function and this lead to a disqualification of the loop for software pipelining. Apart from this drawback, profiling also showed a large difference in inclusive and exclusive cycle counts for the quantize and dequantize functions. This indicates that most of the time was spent in the calls. Therefore, the code was rewritten to eliminate these calls. Division operations that expect a large quotient are now replaced by a binary search. Division operations that expect a small quotient are now replaced by a linear search. Both searches give the same output as the divisions. Figure \ref{fig:new_divisions} shows these changes. This saved 38.5\% of the cycles spent in these functions.\\
 
 \begin{figure}
 \includegraphics[width=\textwidth]{new_divisions}
@@ -391,7 +390,7 @@ Improving these functions made convolve the bottleneck once again. Here, a divis
 \caption{Rewritten division in convolve}
 \label{fig:new_division_in_convolve}
 \end{figure}
-Finally, in convolve, combine and combineWithoutDelay the calls to a \texttt{reminder} function were eliminated. This gave a gain of 11\% on convolve and 68\% on combine. Together with rewriting the divisions, this gave a reduction of 39\% for the total application.\\
+Finally, in convolve, combine and combineWithoutDelay, the calls to a \texttt{reminder} function were eliminated. This gave a gain of 11\% on convolve and 68\% on combine. Together with rewriting the divisions, this gave a reduction of 39\% for the total application.\\
 
 As a last change, we changed the quantization and dequantization functions to work on the left and right channel together. This gave a reduction of 11\%.\\
 These major optimizations can be found in table \ref{table:optimizations}. Please note that they are not the only optimizations we tried: in fact, we tried every optimization that was suggested in the powerpoint. This includes:
@@ -464,7 +463,7 @@ Switching from the simulator to the real DSP did cause us some headaches. First,
 We then tried using it real-time, but this didn't work. We spent most of our remaining time on this issue, but sadly could not get it to work.
 
 \section{Lessons learnt}
-These are three things that we will remember from this project:
+These are some things that specifically apply to us, and we will remember from this project:
 \begin{itemize}
 \item Initializing variables is important and can easily be forgotten for some variables.
 \item Simply reducing variable types can result in quick but impactful optimizations.
