@@ -485,8 +485,6 @@ Next, the transition to C code was covered. The execution order and loss of flex
 
 Finally, there was a transition from C to the DSP simulator and eventually to the DSP itself. The actual porting onto the simulator and the integration with the crypto group did not raise problems. Running it on the actual DSP did cause some headaches though, caused by not proper initializing all variables and a wrongly configured DSP. The paper discussed the optimizations that were made to make the code more efficient, leading to another speed-up factor of 6.8. The main optimizations leading to this factor are smaller variable types and elimination of calls to division and reminder functions. More classical 'tricks' to improve performance, like pragmas and intrinsics, did not seem to help as much on our code.\\
 
-Finally, this paper ends with the lessons that we learned and a personal course evaluation. \\
-
 If one were to work further on this project, a good thing to do would be to implement more intrinsics. When used correctly, these specialised lowest-level instructions are capable or speeding up the system quite a bit. However, for this to be possible, the high level structure of the code may have to be changed.
 
 \section{Course evaluation}
