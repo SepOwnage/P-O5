@@ -29,13 +29,15 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 		short *output_left, short *output_right, unsigned char outputOffset,
 		unsigned char outputLength, unsigned char amountToShift){
 	/*Convolves two signals:
-	input: start position of the array holding the input signal
+	input_left: start position of the array holding the left channel input signal
+	input_right: start position of the array holding the right channel input signal
 	reversedFilter: start position of the array holding the filter in reversed order!
 	inputOffset: where in the array holding the input signal, the input signal starts
 	inputL: the length of the array holding the input signal (reading after this length is
 			done by reading the start of the array, i.e. modulo on indeces; FIFO like structure)
 	filterL: the length of the filter;
-	output: start position of the array in which to write the output
+	output_left: start position of the array in which to write the left channel output
+	output_right: start position of the array in which to write the right channel output
 	outputOffset: similar to inputOffset
 	outputLength: similar to inputL
 	amountToShift: output is downscaled by 2^amountToShift
@@ -60,6 +62,7 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 	samplepointer_left = input_left + inputOffset;
 	samplepointer_right = input_right + inputOffset;
 
+	//just a copy loop. This gets rid of the index wrapping in the inner loop at the expense of a bit more memory use
 #pragma MUST_ITERATE(21,42,21)
 	for(i=0; i < inputL; i++){
 		*temp_left_pointer = *samplepointer_left;
@@ -114,7 +117,7 @@ void convolve(short *input_left, short *input_right, short *reversedFilter,
 		//write away output
 		*(samplepointer_left_output++) = (short)(result_left);
 		*(samplepointer_right_output++) = (short)(result_right);
-		if(samplepointer_left_output == endOfOutputArray){
+		if(samplepointer_left_output == endOfOutputArray){//check output index needs to wrap
 			samplepointer_left_output = output_left;
 			samplepointer_right_output = output_right;
 		}
@@ -209,7 +212,10 @@ void copyToLowerLayer(struct chunk *historyChunk){
 }
 
 void analysis(short buffer[BUFFERSIZE],struct chunk *historyChunk){
-	//encodes the new input samples, stored in buffer. Right now, only conversion to subbands is done.
+	//Encodes the new input samples, stored in buffer. Only conversion to subbands is done here. The output is written
+	//to arrays left_low_even, left_low_odd, left_high_even, left_high_odd, right_low_even, right_low_odd, right_high_even and right_high odd.
+	//chunk->position 2 indicates the position of the output in these arrays
+
 
 	//copy new buffer to chunk of history, overwriting oldest data that no longer matters
 	addBufferToHistory(buffer, historyChunk);
@@ -258,8 +264,8 @@ void analysis(short buffer[BUFFERSIZE],struct chunk *historyChunk){
 				historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
 				historyChunk->leftHighOdd,historyChunk->rightHighOdd, historyChunk->position2, BUFFERSIZE_DIV8+LENGTH_FILTER2_HALF, 15);
 	//4 times combine
-	//TODO: filter 3??
-	//TODO: skip fourth band? => faster but should be +- neglible compared to convolve
+
+
 	combine((historyChunk->leftLowEven),
 			(historyChunk->leftLowOdd),
 			(historyChunk->leftLowEven),

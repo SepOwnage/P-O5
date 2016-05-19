@@ -6,12 +6,8 @@ void dequantizeMono(short *dequantized_samples_left, short *samples_left,
                 unsigned char nb_samples_to_do, struct parameters *params, struct start_values *values_left,short *dequantized_samples_right, short *samples_right,
                 struct start_values *values_right){
     /*
-	Is the inverse of quantize. Dequantizes the inputs with an adaptive, differential dequantization scheme.
-	Dequantized_difference: start location of output
-	Samples: pointer to the array containing the samples to be dequantized
-	nb_samples_to_do: the amount of samples to process
-	params: holding subband specific parameters
-    values: structure containing information from previous calls of this function
+	arguments: see dequantizeTogether.
+	This version only dequantizes one channel and then copies the output to the other channel.
 	*/
 
 	// Variable declaration & initialisation

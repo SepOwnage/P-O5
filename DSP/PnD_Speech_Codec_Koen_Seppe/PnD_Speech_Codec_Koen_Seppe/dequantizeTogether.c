@@ -2,21 +2,23 @@
 #include "quantizeStructs.h"
 #include "dequantizeTogether.h"
 void dequantizeTogether(short *dequantized_samples_left, short *samples_left,
-        unsigned char nb_samples_to_do, struct parameters *params_left, struct start_values *values_left,short *dequantized_samples_right, short *samples_right,
+        unsigned char nb_samples_to_do, struct parameters *params, struct start_values *values_left,short *dequantized_samples_right, short *samples_right,
         struct start_values *values_right){
     /*
 	Is the inverse of quantize. Dequantizes the inputs with an adaptive, differential dequantization scheme.
-	Dequantized_difference: start location of output
-	Samples: pointer to the array containing the samples to be dequantized
+	Dequantized_difference_left: start location of output for the left channel
+	Samples_left: pointer to the array containing the samples of the left channel to be dequantized
 	nb_samples_to_do: the amount of samples to process
 	params: holding subband specific parameters
-    values: structure containing information from previous calls of this function
+    values_left: structure containing information from previous calls of this function for the left channel
+
+    Similar arguments for the right channel
 	*/
 
 	// Variable declaration & initialisation
-	short phi = params_left->phi;
-	short mu = params_left->mu;
-	unsigned char buffer_length = params_left->buffer_length;
+	short phi = params->phi;
+	short mu = params->mu;
+	unsigned char buffer_length = params->buffer_length;
 	short stepsize_left = values_left->stepsize;
 	short stepsize_right = values_right->stepsize;
 	short prediction_left = values_left->prediction;

@@ -4,6 +4,10 @@
 void copyToHistoryChunk(short *left_LL, short *left_LH, short *left_HL,
 	short *right_LL, short *right_LH, short *right_HL,
 	struct chunk *historyChunk) {
+	/*Copies the 6 input channels to their correct place in historyChunk
+	 * The highest frequency channels are not passed, since they are removed
+	 * by quantization. They're set to 0.
+	 */
 	int i;
 	unsigned short position = historyChunk->position2;
 	/*
@@ -64,6 +68,7 @@ void copyToUpperLayer(struct chunk *historyChunk) {
 }
 
 void writeHistoryInBuffer(struct chunk *historyChunk, short *output) {
+	//takes the calculated output, which is stored in historyChunk, and copies it to an output buffer output
 	int i;
 	unsigned short position = historyChunk->position1;
 
@@ -112,14 +117,16 @@ void synthesis(short output[BUFFERSIZE],
 		short *left_LL, short *left_LH, short *left_HL,
 		short *right_LL, short *right_LH, short *right_HL,
 		struct chunk *historyChunk) {
+	/*Implements the synthesis filter bank. Output will be written to output array, the inputs are 6 dequantized bands:
+	 * left lowest frequency channel, left low frequency channel, left high frequency channel
+	 * Same for right channel
+	 * There is no input for the highest frequency channel because it is removed by quantization.
+	 */
 
 	//FOLLOWS ENCODE IN REVERSE ORDER
-	
-	//TODO: move outside of synthesis?  cleaner on amount of args
+	//copies the seperate channels to their place in historyChunk
 	copyToHistoryChunk(left_LL, left_LH, left_HL, right_LL, right_LH, right_HL, historyChunk);
 
-	//TODO: filter 3??
-	//TODO: skip fourth band? => faster but should be +- neglible compared to convolve
 	combineWithoutDelay(historyChunk->leftLowEven,
 		historyChunk->leftLowOdd,
 		historyChunk->leftLowEven,
@@ -167,7 +174,7 @@ void synthesis(short output[BUFFERSIZE],
 	convolve(historyChunk->leftHighOdd,historyChunk->rightHighOdd, filter3Even,
 		historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, LENGTH_FILTER2_HALF,
 		historyChunk->leftHighOdd,historyChunk->rightHighOdd, historyChunk->position2, BUFFERSIZE_DIV8 + LENGTH_FILTER2_HALF, 15);
-	
+	//copy to lower depth
 	copyToUpperLayer(historyChunk);
 
 	combineWithoutDelay(historyChunk->leftEven,
@@ -193,6 +200,6 @@ void synthesis(short output[BUFFERSIZE],
 	convolve(historyChunk->leftOdd, historyChunk->rightOdd, filter1Even,
 		historyChunk->position1, BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, LENGTH_FILTER1_HALF,
 		(historyChunk->leftOdd),historyChunk->rightOdd,  (historyChunk->position1), BUFFERSIZE_DIV4 + LENGTH_FILTER1_HALF, 13);
-
+	//get the output in a normal format and put it in output
 	writeHistoryInBuffer(historyChunk, output);
 }
